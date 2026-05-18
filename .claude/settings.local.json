@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(npm install *)",
+      "Bash(Get-ChildItem -Path . -Recurse -Include \"*.jsx\",\"*.js\",\"*.json\")",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(ipconfig)",
+      "Bash(netstat -ano)",
+      "WebSearch",
+      "Bash(ls \"/c/Users/Emrah Atabek/Desktop/arabaprod-temp-asset-push/\" 2>&1 | head -20)",
+      "Bash(cp -r \"/c/Users/Emrah Atabek/Desktop/Araba yarışı/public/models/Kaykit-city\" \"/c/Users/Emrah Atabek/Desktop/arabaprod-temp-asset-push/public/models/\")",
+      "Bash(cp -r \"/c/Users/Emrah Atabek/Desktop/Araba yarışı/public/models/Nature-pack\" \"/c/Users/Emrah Atabek/Desktop/arabaprod-temp-asset-push/public/models/\")",
+      "Bash(cp -r \"/c/Users/Emrah Atabek/Desktop/Araba yarışı/public/models/Farm-buildings\" \"/c/Users/Emrah Atabek/Desktop/arabaprod-temp-asset-push/public/models/\")",
+      "Bash(cd \"/c/Users/Emrah Atabek/Desktop/arabaprod-temp-code-push\" && grep -n \"^// .*PAKET\\\\|^const ZONE\\\\|^function pick\\\\|^const SideObjects\\\\|^SideObjects.displayName\\\\|^// .*ENVIRONMENT\\\\|^const KK = \" src/App.jsx)",
+      "WebFetch(domain:poly.pizza)",
+      "Bash(cd \"/c/Users/Emrah Atabek/Desktop/arabaprod-temp-magnet\" && npm install --silent 2>&1 | tail -3 && echo \"---LINT---\" && npm run lint 2>&1 | tail -5 && echo \"---BUILD---\" && npm run build 2>&1 | tail -8)",
+      "Read(//c/Users/Emrah Atabek/Desktop/**)",
+      "Bash(rm -rf arabaprod-temp-magnet)",
+      "Bash(curl -sI \"http://localhost:5173/models/rocket.glb\")",
+      "Bash(curl -sI \"http://localhost:5173/models/magnet.glb\")",
+      "Bash(mv \"Rocket.glb\" \"rocket_tmp.glb\")",
+      "Bash(mv \"rocket_tmp.glb\" \"rocket.glb\")",
+      "Bash(node -e ' *)",
+      "Bash(git init *)",
+      "Bash(git branch *)",
+      "Bash(git remote *)",
+      "Bash(git add *)"
+    ]
+  }
+}
