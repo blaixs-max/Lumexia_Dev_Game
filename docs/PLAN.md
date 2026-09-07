@@ -2,6 +2,10 @@
 
 > Son güncelleme: 2026-09-07
 
+## Güncel mobil kontrol düzenlemesi — 2026-09-07
+
+Hız ve nitro göstergeleri karşı kenarlara taşındı. Direksiyon için görünmez sol/sağ ekran yarıları kullanılır; basılı tutma, orta çizgiyi geçme ve bağımsız ikinci parmak nitrosu desteklenir. HUD düğmeleri direksiyonu tetiklemeden çalışır. 844×390 ve 390×844 gerçek yarış görünümleri kontrol edildi; yerel lint/build ve 46 test başarılı, 17 mock-modu üretim testi atlandı. Fiziksel telefonlarda ekran kenarı hareketleri, ekran döndürme ve uzun süre iki parmak kullanımı sonraki kullanıcı kabulüdür. Önceki performans ölçümleri kendi sürümlerinin kaydı olarak korunur.
+
 ## Güncel kabul planı — 2026-09-07 performans ve cephe düzeltmeleri
 
 Çevrenin görünür örnekleri sıkıştırılarak GPU'ya gönderilir; bina/ağaç mesafesi ve sis kalite seçeneklerinde aynıdır. Auto yarış sırasında yalnız çözünürlüğü ayarlar. Kamera derinliği, pencere/perde yüzeyleri ve yaprak alfa kapsamı yaklaşırken oluşan görüntü değişimlerini azaltacak biçimde düzenlendi. Yarış modelleri sadeleştirildi, trafik dokusu/shader hazırlığı geri sayım öncesine alındı; duraklatma ve sekme görünürlüğü render döngüsünü durdurur.

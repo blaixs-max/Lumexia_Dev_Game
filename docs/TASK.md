@@ -2,6 +2,19 @@
 
 > Son güncelleme: 2026-09-07
 
+## 2026-09-07: Mobil göstergeler ve ekran üzerinden direksiyon
+
+- [x] Hız göstergesi sol kenara, nitro göstergesi sağ kenara taşındı; dikey ve yatay mobilde aracın orta görüş alanı açıldı.
+- [x] Küçük ok düğmeleri yerine ekranın sol/sağ yarısını kaplayan saydam dokunma alanları eklendi. Basılı tutma direksiyon verir; parmak orta çizgiyi geçince yön değişir, bırakılınca durur.
+- [x] Nitro ikinci parmakla bağımsız çalışır; ses/duraklatma düğmeleri dokunma alanlarının üstündedir. İptal, odak kaybı, duraklatma ve boyut değişiminde girişler bırakılır.
+- [x] Garaj ve geri sayım kontrol açıklamaları güncellendi. Altı sınır/ölçek regresyon testiyle toplam 46 test geçti; 17 üretim adaptörü testi mock modunda atlandı. Yerel lint ve üretim build başarılı.
+- [x] 844×390 yatay ve 390×844 dikey tarayıcı görünümünde gerçek yarış sahnesi kontrol edildi; hız/nitro aracın üzerine gelmiyor.
+- [x] Gerçek HUD/kontrol bileşenleri ve CSS ile tarayıcı kontrol ekranı: dikey ve yatay görünümde 42'şer kontrol başarılı; 1280×720 masaüstünde 26 başarılı, gizli dokunma alanlarına ait iki kontrol kapsam dışında. Native hit-test ve sentetik pointer/klavye olayları ayrı kaydedilir.
+
+Tarayıcı boyutu ve sentetik dokunma testleri, fiziksel telefondaki çoklu dokunma veya tarayıcı kenar hareketlerinin doğrulandığı anlamına gelmez.
+
+Tekrar kontrol: `npx vite build --config tools/mobile-controls-check.config.js --configLoader native`, ardından `npx vite preview --config tools/mobile-controls-check.config.js --configLoader native`. `http://127.0.0.1:5178/tools/mobile-controls-check.html` üzerindeki **Run checks** düğmesi gerçek CSS hit-test sonuçlarını ve durum günlüğünü gösterir. Bu ayrı tanılama giriş noktası normal oyun paketine dahil edilmez.
+
 ---
 
 ## 2026-09-07: Güncel ek çalışma — kare süreleri ve cephe kararlılığı

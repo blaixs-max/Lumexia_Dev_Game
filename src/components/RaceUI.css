@@ -310,22 +310,38 @@
   .lx-result-actions .lx-button { min-height: 50px; }
   .lx-result-note { font-size: 8px; }
 }
-@media (pointer: coarse), (max-width: 700px) {
-  .lx-telemetry .lx-speed { width: 152px; left: calc(50% - 76px); bottom: max(106px, calc(env(safe-area-inset-bottom) + 90px)); text-align: center; }
-  .lx-speed-heading, .lx-speed-track, .lx-speed p { display: none; }
-  .lx-speed-value { justify-content: center; }
-  .lx-speed-value strong { font-size: 36px; letter-spacing: -2px; }
+@media (pointer: coarse), (max-width: 700px), (max-width: 1000px) and (max-height: 550px) {
+  .lx-hud {
+    --lx-touch-panel-width: min(27vw, 156px);
+    --lx-touch-panel-bottom: calc(max(20px, env(safe-area-inset-bottom, 0px)) + 72px);
+  }
+  /* Keep the car and touch steering area clear in either orientation. The
+     bottom offset leaves 12px above the 60px nitro control. */
+  .lx-telemetry .lx-speed, .lx-telemetry .lx-boost {
+    width: var(--lx-touch-panel-width);
+    bottom: var(--lx-touch-panel-bottom);
+    padding: 7px;
+    border: 1px solid #bddfea2b;
+    border-radius: 5px;
+    background: #091722b8;
+  }
+  .lx-telemetry .lx-speed { left: max(16px, env(safe-area-inset-left, 0px)); right: auto; text-align: left; }
+  .lx-speed-heading { display: flex; }
+  .lx-speed .lx-gear, .lx-speed p { display: none; }
+  .lx-speed-value { justify-content: flex-start; gap: 5px; }
+  .lx-speed-value strong { font-size: clamp(28px, 4.3vw, 38px); letter-spacing: -1.5px; }
   .lx-speed-value > span { font-size: 9px; }
-  .lx-telemetry .lx-boost { width: 132px; left: calc(50% - 66px); right: auto; bottom: max(80px, calc(env(safe-area-inset-bottom) + 64px)); }
+  .lx-speed-track { display: block; height: 3px; margin-top: 5px; }
+  .lx-telemetry .lx-boost { left: auto; right: max(16px, env(safe-area-inset-right, 0px)); }
   .lx-boost > p { display: none; }
-  .lx-nitro-heading { justify-content: space-between; line-height: 1; }
-  .lx-nitro-heading strong { font-size: 12px; }
+  .lx-nitro-heading { justify-content: space-between; align-items: center; gap: 6px; line-height: 1.25; }
+  .lx-nitro-heading strong { flex-shrink: 0; font-size: 16px; }
   .lx-nitro-heading small { font-size: 9px; }
-  .lx-nitro-heading .lx-hud-label { font-size: 9px; letter-spacing: .5px; }
-  .lx-nitro-track { height: 4px; margin: 4px 0; }
-  .lx-powerups { position: fixed; right: 17px; top: max(108px, calc(env(safe-area-inset-top) + 90px)); bottom: auto; }
-  .lx-powerup { font-size: 9px; gap: 9px; padding: 5px 8px; }
-  .lx-powerup b { font-size: 12px; }
+  .lx-nitro-heading .lx-hud-label { min-width: 0; font-size: 9px; letter-spacing: .3px; }
+  .lx-nitro-track { height: 4px; margin: 6px 0 0; }
+  .lx-powerups { position: absolute; width: 100%; right: 0; top: auto; bottom: calc(100% + 8px); gap: 6px; }
+  .lx-powerup { width: 100%; justify-content: space-between; font-size: 9px; letter-spacing: .2px; gap: 5px; padding: 5px 7px; }
+  .lx-powerup b { font-size: 11px; }
   .lx-hud-label { font-size: 9px; }
   .lx-race-counters { font-size: 12px; }
   .lx-race-counters small { font-size: 9px; }

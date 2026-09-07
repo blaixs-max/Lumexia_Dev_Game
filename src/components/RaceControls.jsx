@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useGameStore } from '../store';
+import { getSteeringSide } from '../utils/touchSteering';
 
 const DRIVING_KEYS = new Set(['ArrowLeft', 'ArrowRight', 'KeyA', 'KeyD', 'Space']);
 const isEditing = target => target?.isContentEditable
@@ -27,6 +28,7 @@ export default function RaceControls({ touchVisible = false }) {
   const steeringInput = useGameStore(state => state.steeringInput);
   const boosting = useGameStore(state => state.isNitroActive);
   const inputRef = useRef({ keys: new Set(), pointers: new Map(), buttonKeys: new Map() });
+  const surfaceRef = useRef();
 
   useEffect(() => {
     const input = inputRef.current;
@@ -63,6 +65,7 @@ export default function RaceControls({ touchVisible = false }) {
       useGameStore.getState().pauseGame();
     };
     const onVisibilityChange = () => { if (document.hidden) onBlur(); };
+    const onResize = () => releaseInput(input);
     const unsubscribe = useGameStore.subscribe((state, previous) => {
       if (state.gameState !== previous.gameState) releaseInput(input);
     });
@@ -72,6 +75,7 @@ export default function RaceControls({ touchVisible = false }) {
     window.addEventListener('pointerup', onPointerRelease);
     window.addEventListener('pointercancel', onPointerRelease);
     window.addEventListener('blur', onBlur);
+    window.addEventListener('resize', onResize);
     document.addEventListener('visibilitychange', onVisibilityChange);
     return () => {
       unsubscribe();
@@ -80,6 +84,7 @@ export default function RaceControls({ touchVisible = false }) {
       window.removeEventListener('pointerup', onPointerRelease);
       window.removeEventListener('pointercancel', onPointerRelease);
       window.removeEventListener('blur', onBlur);
+      window.removeEventListener('resize', onResize);
       document.removeEventListener('visibilitychange', onVisibilityChange);
       releaseInput(input);
     };
@@ -93,10 +98,23 @@ export default function RaceControls({ touchVisible = false }) {
     onPointerDown: event => {
       if (event.button !== 0 || useGameStore.getState().gameState !== 'playing') return;
       event.preventDefault();
-      inputRef.current.pointers.set(event.pointerId, action);
+      const pointerAction = action === 'nitro' ? action : getSteeringSide(event.clientX, surfaceRef.current?.getBoundingClientRect());
+      if (!pointerAction) return;
+      inputRef.current.pointers.set(event.pointerId, pointerAction);
       try { event.currentTarget.setPointerCapture(event.pointerId); }
       catch { /* Window release listeners also cover interrupted capture. */ }
       syncInput(inputRef.current);
+    },
+    onPointerMove: event => {
+      const previous = inputRef.current.pointers.get(event.pointerId);
+      if (!previous || previous === 'nitro') return;
+      // Capture keeps a held finger active as it crosses the midpoint. A second
+      // finger can operate nitro independently without changing this pointer.
+      const side = getSteeringSide(event.clientX, surfaceRef.current?.getBoundingClientRect());
+      if (side && side !== previous) {
+        inputRef.current.pointers.set(event.pointerId, side);
+        syncInput(inputRef.current);
+      }
     },
     onPointerUp: releasePointer,
     onPointerCancel: releasePointer,
@@ -116,11 +134,9 @@ export default function RaceControls({ touchVisible = false }) {
 
   if (!touchVisible || gameState !== 'playing') return null;
   return (
-    <div className="lx-touch-controls lx-ui" role="group" aria-label="Driving controls">
-      <div className="lx-touch-steering">
-        <button type="button" aria-label="Steer left" aria-pressed={steeringInput < 0} {...handlers('left')}><span aria-hidden="true">←</span></button>
-        <button type="button" aria-label="Steer right" aria-pressed={steeringInput > 0} {...handlers('right')}><span aria-hidden="true">→</span></button>
-      </div>
+    <div ref={surfaceRef} className="lx-touch-controls lx-ui" role="group" aria-label="Driving controls">
+      <button type="button" className="lx-steer-zone lx-steer-left" aria-label="Steer left" aria-pressed={steeringInput < 0} {...handlers('left')} />
+      <button type="button" className="lx-steer-zone lx-steer-right" aria-label="Steer right" aria-pressed={steeringInput > 0} {...handlers('right')} />
       <button type="button" className="lx-touch-nitro" aria-label="Hold for nitro boost" aria-pressed={boosting} {...handlers('nitro')}><span aria-hidden="true">↯</span>NITRO</button>
     </div>
   );

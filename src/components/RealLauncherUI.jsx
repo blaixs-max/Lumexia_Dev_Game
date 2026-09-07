@@ -120,7 +120,7 @@ export default function RealLauncherUI({ onStartGame, quality = 'auto', onQualit
             <div className="lx-controls-row"><span><kbd className="lx-key-wide">SPACE</kbd></span><strong>HOLD FOR NITRO</strong></div>
             <div className="lx-controls-row"><span><kbd>ESC</kbd><small> / </small><kbd>P</kbd></span><strong>PAUSE YOUR RUN</strong></div>
             <p className="lx-driving-tip"><span aria-hidden="true">↗</span><span>Close passes earn bonus points. Collect coins, magnets and rockets. Keep an open lane ahead.</span></p>
-            <p className="lx-touch-hint">On a touch screen? Hold the steering arrows and boost button.</p>
+            <p className="lx-touch-hint">On a touch screen? Hold anywhere on the left or right side to steer. Use a second finger for nitro.</p>
           </section>
         </div>
         <footer className="lx-footer"><span>PRECISION BEATS PURE SPEED.</span>{onQualityChange ? <label className="lx-quality">GRAPHICS<select value={quality} onChange={event => onQualityChange(event.target.value)} aria-label="Graphics quality"><option value="auto">Auto</option><option value="performance">Performance</option><option value="high">High</option></select></label> : null}<span>LOCAL PRACTICE / NO ONLINE SCORE SUBMISSION</span></footer>
