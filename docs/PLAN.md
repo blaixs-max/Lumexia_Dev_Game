@@ -2,6 +2,18 @@
 
 > Son güncelleme: 2026-09-07
 
+## 2026-09-07 ek çalışma — özgün çevre koleksiyonu
+
+Beş bina, dört bitki türünün ikişer çeşidi, sokak lambası ve dört sokak detayıyla **18 prototip** hazırlandı. Yol kenarı artık `RoadsideWorld` üzerinden özgün procedural geometri ve iki yerel üretilmiş doku kullanır. Ayrı varlık stüdyosu tek tek model incelemesi sağlar. Tam envanter, kaynak sözleşmesi, doku istemleri ve yerel çalıştırma adımları [ROADSIDE_ASSETS.md](ROADSIDE_ASSETS.md) içindedir.
+
+**Bu ek çalışmanın kabul sırası:**
+
+1. Tamamlandı: bütünleşik yeni çevrenin 390 × 844 mobil tarayıcı görünümü ve stüdyoda 18 prototip/68.152 üçgen/sonlu koordinat kontrolü.
+2. Yerel lint/build tamamlandı; 33 test geçti, 17 mock-modu üretim testi atlandı. Kaynakların aynı PR #1 üzerinden yayımlanması ve PR kontrol sonuçlarının değerlendirilmesi sıradadır.
+3. Gerçek telefonlarda uzun sürüş, kare süresi, ısınma ve yaprak/çam geometri maliyetinin ölçümü; bark tekrar dikişinin görsel kabulü.
+
+Hedefli kaynak/geometri ve yukarıdaki yerel bütünleşik kontroller tamamlandı; bu bölüm yeni bir GitHub Actions/CI başarısı veya ölçülmüş telefon FPS sonucu ilan etmez. Oyuncu modelinin aşağıdaki önceki optimizasyon kapsamı değişmedi.
+
 ## Güncel durum — 2026-09-07
 
 `Lumexia_Dev_Game` şu anda **ücretsiz ve yerel antrenman sürümüdür**. `DEV_MODE=true`; cüzdan, fiyat ve backend adaptörleri mock durumundadır. Oyun kredi tüketmez, sunucu sıralamasına skor göndermez veya ödül ödemez. Yerel rekorlar tarayıcıda, oyun modu bazında tutulur. Yalnız bayrağı değiştirmek üretim entegrasyonlarını geri getirmez.

@@ -5,9 +5,9 @@ import * as THREE from 'three';
 import { useGameStore } from '../store';
 import { VEHICLE_DIMENSIONS, damp } from '../utils/gameplay';
 import { NitroBoostParticles, RocketTrailParticles } from './AdvancedParticles';
+import RoadsideWorld from './RoadsideWorld';
 
 useGLTF.setDecoderPath('/draco/');
-const CITY = '/models/Kaykit-city/KayKit_City_Builder_Bits_1.0_FREE/Assets/gltf/';
 const PLAYER_MODEL = '/models/sport_car_compact.glb';
 const TRAFFIC_MODELS = {
   sport: { path: '/models/ferrari.glb', rotation: 0 },
@@ -17,21 +17,30 @@ const TRAFFIC_MODELS = {
 };
 
 // One locally generated reflection environment; no runtime HDR/CDN dependency.
+function configureSkyExposure(sky) {
+  // Sky's atmospheric radiance needs its own exposure under the race's ACES
+  // renderer. Keep the sunlit materials at their normal scene exposure.
+  sky.material.onBeforeCompile = shader => {
+    shader.fragmentShader = shader.fragmentShader.replace('#include <tonemapping_fragment>', 'gl_FragColor.rgb *= 0.35;\n#include <tonemapping_fragment>');
+  };
+  sky.material.customProgramCacheKey = () => 'lumexia-atmosphere-035';
+}
+
 function RaceLighting({ low }) {
   return <>
-    <ambientLight intensity={0.6} color="#b4c6de" />
-    <hemisphereLight args={['#c1def1', '#30494a', 1.8]} />
-    <directionalLight position={[-35, 60, -100]} color="#ffdbab" intensity={3.2} castShadow={!low}
-      shadow-mapSize={[1024, 1024]} shadow-camera-left={-22} shadow-camera-right={22}
-      shadow-camera-top={34} shadow-camera-bottom={-25} shadow-camera-near={1} shadow-camera-far={190}
+    <ambientLight intensity={0.22} color="#bdcbd6" />
+    <hemisphereLight args={['#c2d8ec', '#60634c', 0.85]} />
+    <directionalLight position={[-45, 75, -75]} color="#fff0d6" intensity={2.65} castShadow={!low}
+      shadow-mapSize={[2048, 2048]} shadow-camera-left={-40} shadow-camera-right={40}
+      shadow-camera-top={52} shadow-camera-bottom={-40} shadow-camera-near={1} shadow-camera-far={210}
       shadow-bias={-0.0003} shadow-normalBias={0.04} />
     <Environment resolution={64} frames={1}>
       <Lightformer form="rect" intensity={3} position={[0, 12, 0]} rotation={[Math.PI / 2, 0, 0]} scale={[20, 30, 1]} color="#d6eaff" />
       <Lightformer form="rect" intensity={4} position={[-12, 5, -6]} rotation={[0, Math.PI / 2, 0]} scale={[30, 8, 1]} color="#ffd6a0" />
       <Lightformer form="rect" intensity={2} position={[12, 6, 3]} rotation={[0, -Math.PI / 2, 0]} scale={[20, 8, 1]} color="#a8d9e8" />
     </Environment>
-    <Sky distance={10000} sunPosition={[-180, 24, -500]} turbidity={7} rayleigh={1.4} mieCoefficient={0.007} mieDirectionalG={0.85} />
-    <fog attach="fog" args={['#81969e', 110, low ? 300 : 470]} />
+    <Sky distance={10000} sunPosition={[-300, 185, -500]} turbidity={2.8} rayleigh={2.2} mieCoefficient={0.003} mieDirectionalG={0.78} onUpdate={configureSkyExposure} />
+    <fog attach="fog" args={['#a6b8bb', 170, low ? 365 : 520]} />
   </>;
 }
 
@@ -204,98 +213,12 @@ function Road() {
   return <>
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.03, -180]} receiveShadow><planeGeometry args={[17, 600]} /><meshStandardMaterial color="#69737b" map={asphalt} roughness={0.85} /></mesh>
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.055, -180]} receiveShadow><planeGeometry args={[21, 600]} /><meshStandardMaterial color="#334148" roughness={0.96} /></mesh>
-    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.12, -200]} receiveShadow><planeGeometry args={[1800, 1600]} /><meshStandardMaterial color="#617b65" roughness={1} /></mesh>
     <instancedMesh ref={stripes} args={[undefined, undefined, 60]} frustumCulled={false}><planeGeometry args={[0.16, 5]} /><meshBasicMaterial color="#d5dad3" /></instancedMesh>
     <instancedMesh ref={markers} args={[undefined, undefined, 60]} frustumCulled={false}><boxGeometry args={[0.1, 0.4, 0.17]} /><meshStandardMaterial color="#ffe0aa" emissive="#ffb55a" emissiveIntensity={0.7} /></instancedMesh>
     {[-1, 1].map(side => <group key={side}>
       <mesh position={[side * 7.4, 0.035, -180]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[0.14, 600]} /><meshBasicMaterial color="#f0dfa9" /></mesh>
-      <mesh position={[side * 8.9, 0.6, -180]}><boxGeometry args={[0.14, 0.23, 600]} /><meshStandardMaterial color="#a0afb3" metalness={0.55} roughness={0.48} /></mesh>
-      <mesh position={[side * 9.2, 0.24, -180]}><boxGeometry args={[0.32, 0.5, 600]} /><meshStandardMaterial color="#65767a" roughness={0.9} /></mesh>
     </group>)}
   </>;
-}
-
-function SceneryAsset({ path, height }) {
-  const { scene } = useGLTF(path);
-  const { model, scale, offset } = useMemo(() => {
-    const model = scene.clone(true);
-    const box = new THREE.Box3().setFromObject(model);
-    const center = box.getCenter(new THREE.Vector3());
-    const scale = height / Math.max(box.max.y - box.min.y, 0.1);
-    return { model, scale, offset: [-center.x * scale, -box.min.y * scale, -center.z * scale] };
-  }, [scene, height]);
-  return <primitive object={model} scale={scale} position={offset} dispose={null} />;
-}
-
-function Roadside({ low }) {
-  const group = useRef();
-  const buildings = useMemo(() => Array.from({ length: low ? 20 : 32 }, (_, index) => {
-    const side = index % 2 ? 1 : -1;
-    const row = Math.floor(index / 2);
-    const city = row % 8 < 4;
-    return { side, z: -row * 40, x: side * (25 + row % 3 * 8), height: city ? 10 + row % 4 * 4 : 8 + row % 3 * 2,
-      path: city ? `${CITY}building_${['A', 'C', 'F', 'G'][row % 4]}.gltf` : row % 3 === 0 ? '/models/Farm-buildings/Barn.glb' : '/models/Nature-pack/Pine_Trees.glb' };
-  }), [low]);
-  useFrame(() => {
-    if (!group.current) return;
-    const distance = useGameStore.getState().totalDistance * 5;
-    const span = buildings.length / 2 * 40;
-    group.current.children.forEach((object, index) => { object.position.z = 45 - ((45 - buildings[index].z + span - distance % span) % span); });
-  });
-  return <group ref={group}>{buildings.map((item, index) => <group key={index} position={[item.x, 0, item.z]} rotation={[0, item.side > 0 ? Math.PI : 0, 0]}>
-    <Suspense fallback={null}><SceneryAsset path={item.path} height={item.height} /></Suspense>
-  </group>)}</group>;
-}
-
-function Horizon() {
-  return <group>{Array.from({ length: 14 }, (_, index) => <mesh key={index} position={[(index - 7) * 68, -13, -440 - index % 3 * 25]} rotation={[0, index * 0.7, 0]}>
-    <coneGeometry args={[70 + index % 3 * 18, 70 + index % 4 * 22, 5]} /><meshStandardMaterial color={index % 2 ? '#6e8790' : '#82969b'} roughness={1} />
-  </mesh>)}</group>;
-}
-
-function VergeTrees({ low }) {
-  const crowns = useRef();
-  const trunks = useRef();
-  const dummy = useMemo(() => new THREE.Object3D(), []);
-  const count = low ? 48 : 88;
-  useFrame(() => {
-    if (!crowns.current || !trunks.current) return;
-    const distance = useGameStore.getState().totalDistance * 5;
-    for (let i = 0; i < count; i++) {
-      const side = i % 2 ? 1 : -1;
-      const row = Math.floor(i / 2);
-      const height = 3.5 + (row * 7 % 5) * 0.6;
-      const x = side * (13.5 + row % 3 * 2.6);
-      const z = 30 - ((row * 17 + count / 2 * 17 - distance % (count / 2 * 17)) % (count / 2 * 17));
-      dummy.position.set(x, height * 0.7, z); dummy.scale.set(height * 0.28, height * 0.55, height * 0.28);
-      dummy.rotation.set(0, row * 1.7, 0); dummy.updateMatrix(); crowns.current.setMatrixAt(i, dummy.matrix);
-      dummy.position.set(x, height * 0.24, z); dummy.scale.set(0.13, height * 0.5, 0.13);
-      dummy.updateMatrix(); trunks.current.setMatrixAt(i, dummy.matrix);
-    }
-    crowns.current.instanceMatrix.needsUpdate = true;
-    trunks.current.instanceMatrix.needsUpdate = true;
-  });
-  return <>
-    <instancedMesh ref={crowns} args={[undefined, undefined, count]} frustumCulled={false}><coneGeometry args={[1, 2, 7]} /><meshStandardMaterial color="#35645b" roughness={1} /></instancedMesh>
-    <instancedMesh ref={trunks} args={[undefined, undefined, count]} frustumCulled={false}><cylinderGeometry args={[1, 1.3, 1, 5]} /><meshStandardMaterial color="#665f4e" roughness={1} /></instancedMesh>
-  </>;
-}
-
-function StreetLamps() {
-  const group = useRef();
-  useFrame(() => {
-    if (!group.current) return;
-    const distance = useGameStore.getState().totalDistance * 5;
-    group.current.children.forEach((lamp, i) => { lamp.position.z = 30 - ((Math.floor(i / 2) * 65 + 520 - distance % 520) % 520); });
-  });
-  return <group ref={group}>{Array.from({ length: 16 }, (_, i) => {
-    const side = i % 2 ? 1 : -1;
-    return <group key={i} position={[side * 10.1, 0, -Math.floor(i / 2) * 65]}>
-      <mesh position={[0, 4, 0]}><cylinderGeometry args={[0.075, 0.11, 8, 6]} /><meshStandardMaterial color="#36464f" metalness={0.5} roughness={0.5} /></mesh>
-      <mesh position={[-side * 0.8, 7.95, 0]}><boxGeometry args={[1.75, 0.11, 0.13]} /><meshStandardMaterial color="#36464f" /></mesh>
-      <mesh position={[-side * 1.5, 7.84, 0]}><boxGeometry args={[0.8, 0.08, 0.36]} /><meshBasicMaterial color="#ffdea0" toneMapped={false} /></mesh>
-    </group>;
-  })}</group>;
 }
 
 function FeedbackParticles() {
@@ -339,7 +262,7 @@ export default function RaceScene({ low, adaptive, onReady, onReduceQuality }) {
     }
   }, -1);
   return <>
-    <RaceLighting low={low} /><ChaseCamera /><Road /><Horizon /><StreetLamps /><Roadside low={low} /><VergeTrees low={low} />
+    <RaceLighting low={low} /><ChaseCamera /><Road /><RoadsideWorld low={low} />
     <PlayerCar /><Traffic /><Pickups /><FeedbackParticles />
   </>;
 }

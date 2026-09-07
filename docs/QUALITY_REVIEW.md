@@ -34,6 +34,12 @@ Hız göstergesi mevcut arcade hız ölçeğini `PACE` olarak adlandırır; fizi
 | `src/store.js` | Oyun oturumu, eylemler ve ses tercihleri |
 | `src/utils/gameplay.js` | Saf simülasyon, trafik, çarpışma ve puan kuralları |
 
+## Ek çevre çalışması — 7 Eylül 2026
+
+Yol kenarı, `RoadsideWorld` ile **18 özgün 3D prototipe** geçti: beş bina; meşe, kavak, çam ve çalı için ikişer çeşit; sokak lambası; çit, bank, elektrik dolabı ve ot kümesi. Statik parçalar malzemeye göre birleştirilir, yerleşimde instancing kullanılır. Bina/zemin yüzeyleri koddan üretilir; iki fotoğraf gerçekçiliğindeki yerel PNG doku toplam **5.683.600 bayttır**. Yaprak dokusunda gerçek alfa bulunur. Eski yol kenarı GLTF dosyaları bu çevre bileşeninde kullanılmaz.
+
+Güncel yerel lint/build geçti; 33 test geçti, 17 mock-modu üretim testi atlandı. Stüdyoda 18 model/68.152 prototip üçgeni ve sonlu koordinatlar doğrulandı; 390 × 844 mobil tarayıcı görünümünde yeni çevre kontrol edildi. Bunlar yeni bir GitHub Actions/CI sonucu değildir. Envanter ve sınırlar [ROADSIDE_ASSETS.md](ROADSIDE_ASSETS.md), tam doku istemleri ve dosya özetleri [üretim kaydında](../public/textures/roadside/README.md) bulunur. Aşağıdaki önceki doğrulama ve oyuncu modeli ölçümleri değiştirilmedi. Gerçek telefon FPS, uzun sürüş/ısınma ve bark tekrar dikişi kabulü tamamlanmış sayılmaz.
+
 ## Oyuncu modelinin maliyeti
 
 Kaynak `public/models/sport_car.glb` korundu. Garaj ve yarış `public/models/sport_car_compact.glb` kullanır; decoder dosyaları `public/draco/` içinden sunulur. Ara optimize dosya araç çalışma klasöründe tutulur ve `public/` içinde dağıtılmaz.

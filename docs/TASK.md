@@ -4,6 +4,24 @@
 
 ---
 
+## 2026-09-07: Özgün yol kenarı varlıkları ve inceleme stüdyosu
+
+**Tamamlanan kaynak çalışması:**
+
+- [x] Beş özgün bina; metre ölçeği, pencere/çatı/balkon ayrıntıları ve koddan üretilen yüzey dokuları.
+- [x] Meşe, kavak, çam ve çalı için ikişer çeşit; bir sokak lambası.
+- [x] Çit, bank, elektrik dolabı ve 30 yapraklı ot kümesiyle toplam 18 prototip.
+- [x] Yerleşik görsel üretim aracıyla iki yerel PNG; toplam 5.683.600 bayt, 1.254² gerçek çıktı, yaprakta alfa.
+- [x] `RoadsideWorld` içinde ortak geometri, instancing, çevre yerleşimi, kaldırım ve zemin bağlantıları; eski yol kenarı GLTF yüklemelerinin yerine yeni çevre.
+- [x] Ayrı 3D varlık stüdyosu ve özel makine yolları çıkarılmış tam doku istemleri.
+- [x] [Varlık envanteri ve kabul sınırları](ROADSIDE_ASSETS.md).
+
+**Yerel doğrulama:** Güncel lint ve build geçti; 33 test geçti, mock modundaki 17 üretim testi atlandı. Stüdyo DOM kaydında 18 model, sonlu koordinatlar ve toplam 68.152 prototip üçgeni doğrulandı; 390 × 844 mobil tarayıcı görünümünde yeni çevre kontrol edildi. Stüdyo ana/varlık yolları 200, bilinmeyen yol 404, yol aşımı 403 döndürdü. Bu yerel kayıt yeni bir GitHub Actions/CI başarısı değildir. Aşağıdaki önceki oyuncu modeli ölçümleri kendi kapsamlarıyla korunur.
+
+**Kalan kabul:** PR kontrolleri; gerçek Android/iPhone FPS, ısınma ve uzun sürüş ölçümleri. Kaynak değişiklikleri aynı PR #1 içinde yayımlanmak üzere hazırlanmıştır; bu kayıt canlıya dağıtım onayı değildir.
+
+---
+
 ## 2026-09-07: Geliştirme sürümünde oynanış ve görsel yenileme
 
 **Güncel kapsam:** Bu depo `DEV_MODE=true` ile ücretsiz, yerel antrenman oyunudur. Cüzdan, fiyat ve backend adaptörleri mock durumundadır. Yarış kredi tüketmez, sunucu skoru göndermez ve ödül ödemez. Önceki kayıtlardaki üretim ve dağıtım iddiaları ait oldukları tarihin geçmiş kaydıdır; mevcut geliştirme sürümünün doğrulanmış özelliği değildir.
