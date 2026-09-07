@@ -2,6 +2,18 @@
 
 > Son güncelleme: 2026-09-07
 
+## 2026-09-07: Gece otoyolu
+
+- [x] Gece yarışı varsayılan oldu: lacivert gökyüzü, sabit yıldızlar ve krater detaylı ay; sis ve çevre ışığı aynı gece paletini kullanır.
+- [x] 36 sokak lambasının lensleri yanar; yol/kaldırım üzerinde yumuşak sıcak ışık alanları ve küçük lens haleleri iki instanced çizimde işlenir. Direk başına gerçek ışık veya gölge haritası eklenmedi.
+- [x] Oyuncunun araç dönüşüne bağlı iki gerçek farı öndeki asfaltı ve trafiği aydınlatır. Trafik araçları ışıklı far yüzeyleri, yumuşak yol izleri ve mevcut kırmızı stopları kullanır; seçili bina pencereleri sıcak ışık verir.
+- [x] Far ışık sayısı sabittir. Yeni trafik farı shader'ı geri sayımdan önce hazırlanır; uzak ışık izleri sis içinde alfa ile kaybolur. Performance gölgesizdir, High tek 1024 px ay gölge haritası kullanır.
+- [x] Yerel üretim build, ESLint ve 46 test başarılı; mock modundaki 17 üretim adaptörü testi atlandı.
+- [x] 1280×720 masaüstü, 844×390 yatay ve 390×844 dikey mobil görünüm kontrol edildi: ay/yıldızlar, lamba alanları ve farlar görünür; hız/nitro aracı kapatmıyor. Hazırlık, geri sayım, yarış, duraklatma ve tekrar açıldı; tarayıcı hata kaydı temiz.
+- [x] Performance/High render tekrarlarında gerçek ışık sayısı değişmedi; shader programı artışı 0 (29/30 program). High son tanılamada bağlam kaybı veya shader hatası yok; iki far ve tek ay gölgesi korunur. GPU ortalama 33,10 ms, p95 50,47 ms; teslim edilen kareler ortalama 168,33 ms, p95 525,30 ms olduğundan akıcı FPS kabulü yapılmadı. Ayrıntılar [night-validation.json](night-validation.json).
+
+Gece değişikliği, önceki mobil PR'ın merge edildiği `890ee579` üzerine ayrı `codex/night-highway` dalında hazırlanır. Aynı oturumdaki eski gündüz referansında da 1008 ms kare aralıkları görüldü; bu koşullar karşılaştırmalı FPS iddiası için yeterli değildir. Fiziksel telefon uzun sürüş/ısınma testi bu bilgisayardaki tarayıcı ölçümünden ayrıdır.
+
 ## 2026-09-07: Mobil göstergeler ve ekran üzerinden direksiyon
 
 - [x] Hız göstergesi sol kenara, nitro göstergesi sağ kenara taşındı; dikey ve yatay mobilde aracın orta görüş alanı açıldı.

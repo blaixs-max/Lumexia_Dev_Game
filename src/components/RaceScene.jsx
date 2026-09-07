@@ -1,11 +1,14 @@
 import { memo, Suspense, useEffect, useMemo, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { Environment, Lightformer, Sky, useGLTF } from '@react-three/drei';
+import { Environment, Lightformer, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import { useGameStore } from '../store';
 import { VEHICLE_DIMENSIONS, damp } from '../utils/gameplay';
 import { NitroBoostParticles, RocketTrailParticles } from './AdvancedParticles';
 import RoadsideWorld from './RoadsideWorld';
+import NightSky from './NightSky';
+import { PlayerHeadlights, TrafficHeadlights } from './VehicleLighting';
+import { createTrafficBeamMaterial } from '../environment/vehicle-lighting';
 
 useGLTF.setDecoderPath('/draco/');
 const PLAYER_MODEL = '/models/sport_car_runtime.glb';
@@ -16,31 +19,21 @@ const TRAFFIC_MODELS = {
   truck: { path: '/models/truck.glb', rotation: Math.PI },
 };
 
-// One locally generated reflection environment; no runtime HDR/CDN dependency.
-function configureSkyExposure(sky) {
-  // Sky's atmospheric radiance needs its own exposure under the race's ACES
-  // renderer. Keep the sunlit materials at their normal scene exposure.
-  sky.material.onBeforeCompile = shader => {
-    shader.fragmentShader = shader.fragmentShader.replace('#include <tonemapping_fragment>', 'gl_FragColor.rgb *= 0.35;\n#include <tonemapping_fragment>');
-  };
-  sky.material.customProgramCacheKey = () => 'lumexia-atmosphere-035';
-}
-
 function RaceLighting({ low }) {
   return <>
-    <ambientLight intensity={0.22} color="#bdcbd6" />
-    <hemisphereLight args={['#c2d8ec', '#60634c', 0.85]} />
-    <directionalLight position={[-45, 75, -75]} color="#fff0d6" intensity={2.65} castShadow={!low}
-      shadow-mapSize={[2048, 2048]} shadow-camera-left={-40} shadow-camera-right={40}
-      shadow-camera-top={52} shadow-camera-bottom={-40} shadow-camera-near={1} shadow-camera-far={210}
+    <ambientLight intensity={0.09} color="#a4b9dc" />
+    <hemisphereLight args={['#8faadc', '#182235', 0.42]} />
+    <directionalLight position={[82, 85, -460]} color="#a5bfee" intensity={0.72} castShadow={!low}
+      shadow-mapSize={[1024, 1024]} shadow-camera-left={-40} shadow-camera-right={40}
+      shadow-camera-top={52} shadow-camera-bottom={-40} shadow-camera-near={1} shadow-camera-far={600}
       shadow-bias={-0.0003} shadow-normalBias={0.04} />
     <Environment resolution={64} frames={1}>
-      <Lightformer form="rect" intensity={3} position={[0, 12, 0]} rotation={[Math.PI / 2, 0, 0]} scale={[20, 30, 1]} color="#d6eaff" />
-      <Lightformer form="rect" intensity={4} position={[-12, 5, -6]} rotation={[0, Math.PI / 2, 0]} scale={[30, 8, 1]} color="#ffd6a0" />
-      <Lightformer form="rect" intensity={2} position={[12, 6, 3]} rotation={[0, -Math.PI / 2, 0]} scale={[20, 8, 1]} color="#a8d9e8" />
+      <Lightformer form="rect" intensity={0.45} position={[0, 12, 0]} rotation={[Math.PI / 2, 0, 0]} scale={[20, 30, 1]} color="#91b5ec" />
+      <Lightformer form="rect" intensity={0.7} position={[-12, 5, -6]} rotation={[0, Math.PI / 2, 0]} scale={[30, 8, 1]} color="#ffd39b" />
+      <Lightformer form="rect" intensity={0.35} position={[12, 6, 3]} rotation={[0, -Math.PI / 2, 0]} scale={[20, 8, 1]} color="#90b9ec" />
     </Environment>
-    <Sky distance={10000} sunPosition={[-300, 185, -500]} turbidity={2.8} rayleigh={2.2} mieCoefficient={0.003} mieDirectionalG={0.78} onUpdate={configureSkyExposure} />
-    <fog attach="fog" args={['#a6b8bb', 260, 600]} />
+    <NightSky />
+    <fog attach="fog" args={['#101b32', 160, 590]} />
   </>;
 }
 
@@ -88,6 +81,7 @@ function PlayerCar() {
     <group ref={group} position={[0, 0.09, -2]}>
       <ContactPatch width={1.8} length={5.5} />
       <VehicleModel path={PLAYER_MODEL} />
+      <PlayerHeadlights />
       <mesh position={[0, 0.12, 0]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[1.6, 4]} /><meshBasicMaterial color={rocket ? '#ff894c' : '#9eeff2'} transparent opacity={boosting || rocket ? 0.32 : 0.1} depthWrite={false} /></mesh>
     </group>
     <NitroBoostParticles position={playerPosition} isActive={boosting && !reducedMotion} />
@@ -140,6 +134,7 @@ const TrafficCar = memo(function TrafficCar({ id, type }) {
     <Suspense fallback={<mesh position={[0, 0.8, 0]}><boxGeometry args={[dimensions.width, 1.6, dimensions.length]} /><meshStandardMaterial color="#acbac5" /></mesh>}>
       <VehicleModel path={model.path} type={type} rotation={model.rotation} />
     </Suspense>
+    <TrafficHeadlights width={dimensions.width} length={dimensions.length} />
     <group position={[0, 0.72, dimensions.length * 0.48]}>
       {[-1, 1].map(side => <mesh key={side} position={[side * dimensions.width * 0.32, 0, 0]}><boxGeometry args={[0.28, 0.12, 0.06]} /><meshBasicMaterial color="#fd544f" toneMapped={false} /></mesh>)}
       <mesh ref={signals}><boxGeometry args={[0.25, 0.17, 0.1]} /><meshBasicMaterial color="#ffd15b" toneMapped={false} /></mesh>
@@ -211,12 +206,12 @@ function Road() {
     asphalt.offset.set(0, -(distance % 200) / 200);
   });
   return <>
-    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.03, -295]} receiveShadow><planeGeometry args={[17, 720]} /><meshStandardMaterial color="#69737b" map={asphalt} roughness={0.85} /></mesh>
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.03, -295]} receiveShadow><planeGeometry args={[17, 720]} /><meshStandardMaterial color="#555f70" map={asphalt} roughness={0.72} /></mesh>
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.055, -295]} receiveShadow><planeGeometry args={[21, 720]} /><meshStandardMaterial color="#334148" roughness={0.96} /></mesh>
-    <instancedMesh ref={stripes} args={[undefined, undefined, 60]} frustumCulled={false}><planeGeometry args={[0.16, 5]} /><meshBasicMaterial color="#d5dad3" /></instancedMesh>
+    <instancedMesh ref={stripes} args={[undefined, undefined, 60]} frustumCulled={false}><planeGeometry args={[0.16, 5]} /><meshStandardMaterial color="#c5cede" roughness={0.8} emissive="#607799" emissiveIntensity={0.14} /></instancedMesh>
     <instancedMesh ref={markers} args={[undefined, undefined, 60]} frustumCulled={false}><boxGeometry args={[0.1, 0.4, 0.17]} /><meshStandardMaterial color="#ffe0aa" emissive="#ffb55a" emissiveIntensity={0.7} /></instancedMesh>
     {[-1, 1].map(side => <group key={side}>
-      <mesh position={[side * 7.4, 0.035, -295]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[0.14, 720]} /><meshBasicMaterial color="#f0dfa9" /></mesh>
+      <mesh position={[side * 7.4, 0.035, -295]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[0.14, 720]} /><meshStandardMaterial color="#e3d3a9" roughness={0.8} emissive="#9b8147" emissiveIntensity={0.12} /></mesh>
     </group>)}
   </>;
 }
@@ -246,6 +241,8 @@ export default function RaceScene({ low, adaptive, onReady, onReduceQuality }) {
   // Load every traffic type before the countdown; prepare its material with the
   // actual race lighting so its first appearance doesn't compile new shaders.
   const loaded = useGLTF([PLAYER_MODEL, ...Object.values(TRAFFIC_MODELS).map(model => model.path)]);
+  const beamWarmup = useMemo(() => new THREE.Mesh(new THREE.PlaneGeometry(1, 1), createTrafficBeamMaterial()), []);
+  useEffect(() => () => { beamWarmup.geometry.dispose(); beamWarmup.material.dispose(); }, [beamWarmup]);
   const warmupScene = useMemo(() => {
     const group = new THREE.Group();
     for (const asset of loaded) {
@@ -253,8 +250,9 @@ export default function RaceScene({ low, adaptive, onReady, onReduceQuality }) {
       clone.traverse(node => { if (node.isMesh) { node.castShadow = true; node.receiveShadow = true; } });
       group.add(clone);
     }
+    group.add(beamWarmup);
     return group;
-  }, [loaded]);
+  }, [loaded, beamWarmup]);
   const ready = useRef(false);
   const warmup = useRef({ frames: 0, started: false, complete: false });
   const samples = useRef({ time: 0, frames: 0, warmup: 3 });

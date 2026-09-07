@@ -384,7 +384,7 @@ export function buildNatureAssets({ leafTexture, barkTexture } = {}) {
     needles: new THREE.MeshStandardMaterial({ color: '#a3ac83', roughness: 0.96, side: THREE.DoubleSide, vertexColors: true }),
     metal: new THREE.MeshStandardMaterial({ color: '#e0e5e5', metalness: 0.74, roughness: 0.49, vertexColors: true }),
     darkMetal: new THREE.MeshStandardMaterial({ metalness: 0.58, roughness: 0.6, vertexColors: true }),
-    lens: new THREE.MeshStandardMaterial({ metalness: 0.05, roughness: 0.31, emissive: '#ffe5b0', emissiveIntensity: 0.7, vertexColors: true }),
+    lens: new THREE.MeshStandardMaterial({ color: '#fff2d7', metalness: 0.05, roughness: 0.31, emissive: '#ffe6ba', emissiveIntensity: 4.5, vertexColors: true }),
   };
   const assets = {
     oak: oak(328, materials), oak2: oak(973, materials),

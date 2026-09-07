@@ -8,6 +8,7 @@ import { buildNatureAssets } from '../environment/nature';
 import { buildStreetDetailsAssets } from '../environment/street-details';
 import { createLandscape, createPlacements, WORLD_SPAN } from '../environment/landscape';
 import { placementMatrix, placedBounds, RoadVisibility, wrapWorldZ } from '../environment/visibility';
+import StreetLighting from './StreetLighting';
 
 function disposeAssets(assets) {
   const geometries = new Set(), materials = new Set(), textures = new Set();
@@ -212,6 +213,7 @@ export default function RoadsideWorld({ low }) {
   return <>
     <StreetGround landscape={landscape} visibility={visibility} />
     <PlotGround assets={assets} placements={placements} landscape={landscape} visibility={visibility} />
+    <StreetLighting model={assets.streetlamp} placements={placements.streetlamp} visibility={visibility} />
     {Object.entries(placements).map(([type, instances]) => instances.length && assets[type] ? <AssetInstances key={type} model={assets[type]} placements={instances} visibility={visibility} /> : null)}
   </>;
 }

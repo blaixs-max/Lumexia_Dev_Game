@@ -2,6 +2,14 @@
 
 > Son güncelleme: 2026-09-07
 
+## Gece yarışı — 2026-09-07
+
+Varsayılan sürüş geceye taşındı. Üç çizimlik procedural gökyüzü ay ve yıldızları içerir; sokak lambalarının tamamı iki instanced ışık alanı/halo çizimiyle desteklenir. Oyuncunun iki shadowless SpotLight'ı araçla birlikte dönen açık hedeflere bağlıdır. NPC farları gerçek ışık sayısını artırmaz. Sis, camlar, asfalt, şeritler ve yansıtma ortamı gece için birlikte ayarlanmıştır; Performance/High aynı gece dünyasını korur.
+
+Kabul: yerel build/lint ve 46 test geçti (17 mock-modu üretim testi atlandı). 1280×720, 844×390 ve 390×844 görünümleri kontrol edildi. Performance/High gerçek ışık sayısı sabit ve shader artışı 0; son High koşusunda shader/bağlam hatası yok. GPU ortalaması 33,10 ms olmasına karşın teslim edilen kare aralıkları ortalama 168,33 ms ve p95 525,30 ms: bu oturum akıcı FPS kabulü veya fiziksel cihaz garantisi sağlamaz. Aynı oturumdaki eski gündüz referansı da uzun kare aralıkları gösterir; neden tek başına geceye bağlanamaz. Sonuçlar [night-validation.json](night-validation.json) içinde.
+
+Render aracı artık yarışın shader hazırlığını bekler; ışık/program sayısı, görünürlük/odak, WebGL hataları ve mevcutsa asenkron GPU sürelerini kaydeder. Yayın ayrı `codex/night-highway` dalı ve yeni inceleme isteği üzerinden ilerler; önceki mobil PR merge edilmiştir.
+
 ## Güncel mobil kontrol düzenlemesi — 2026-09-07
 
 Hız ve nitro göstergeleri karşı kenarlara taşındı. Direksiyon için görünmez sol/sağ ekran yarıları kullanılır; basılı tutma, orta çizgiyi geçme ve bağımsız ikinci parmak nitrosu desteklenir. HUD düğmeleri direksiyonu tetiklemeden çalışır. 844×390 ve 390×844 gerçek yarış görünümleri kontrol edildi; yerel lint/build ve 46 test başarılı, 17 mock-modu üretim testi atlandı. Fiziksel telefonlarda ekran kenarı hareketleri, ekran döndürme ve uzun süre iki parmak kullanımı sonraki kullanıcı kabulüdür. Önceki performans ölçümleri kendi sürümlerinin kaydı olarak korunur.
