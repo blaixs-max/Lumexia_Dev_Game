@@ -27,18 +27,6 @@ export default defineConfig({
             '@react-three/fiber',
             '@react-three/drei'
           ],
-          // Solana wallet libraries in separate chunk
-          'solana-vendor': [
-            '@solana/web3.js',
-            '@solana/wallet-adapter-react',
-            '@solana/wallet-adapter-react-ui',
-            '@solana/wallet-adapter-wallets',
-            '@solana/spl-token'
-          ],
-          // Supabase in separate chunk
-          'supabase-vendor': [
-            '@supabase/supabase-js'
-          ],
           // React and core libraries
           'react-vendor': [
             'react',

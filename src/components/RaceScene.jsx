@@ -1,0 +1,292 @@
+import { memo, Suspense, useEffect, useMemo, useRef } from 'react';
+import { useFrame, useThree } from '@react-three/fiber';
+import { Environment, Lightformer, Sky, useGLTF } from '@react-three/drei';
+import * as THREE from 'three';
+import { useGameStore } from '../store';
+import { VEHICLE_DIMENSIONS, damp } from '../utils/gameplay';
+import { NitroBoostParticles, RocketTrailParticles } from './AdvancedParticles';
+import RoadsideWorld from './RoadsideWorld';
+
+useGLTF.setDecoderPath('/draco/');
+const PLAYER_MODEL = '/models/sport_car_runtime.glb';
+const TRAFFIC_MODELS = {
+  sport: { path: '/models/ferrari_runtime.glb', rotation: 0 },
+  sedan: { path: '/models/Car 3/scene.gltf', rotation: Math.PI },
+  suv: { path: '/models/Car 2/scene.gltf', rotation: Math.PI },
+  truck: { path: '/models/truck.glb', rotation: Math.PI },
+};
+
+// One locally generated reflection environment; no runtime HDR/CDN dependency.
+function configureSkyExposure(sky) {
+  // Sky's atmospheric radiance needs its own exposure under the race's ACES
+  // renderer. Keep the sunlit materials at their normal scene exposure.
+  sky.material.onBeforeCompile = shader => {
+    shader.fragmentShader = shader.fragmentShader.replace('#include <tonemapping_fragment>', 'gl_FragColor.rgb *= 0.35;\n#include <tonemapping_fragment>');
+  };
+  sky.material.customProgramCacheKey = () => 'lumexia-atmosphere-035';
+}
+
+function RaceLighting({ low }) {
+  return <>
+    <ambientLight intensity={0.22} color="#bdcbd6" />
+    <hemisphereLight args={['#c2d8ec', '#60634c', 0.85]} />
+    <directionalLight position={[-45, 75, -75]} color="#fff0d6" intensity={2.65} castShadow={!low}
+      shadow-mapSize={[2048, 2048]} shadow-camera-left={-40} shadow-camera-right={40}
+      shadow-camera-top={52} shadow-camera-bottom={-40} shadow-camera-near={1} shadow-camera-far={210}
+      shadow-bias={-0.0003} shadow-normalBias={0.04} />
+    <Environment resolution={64} frames={1}>
+      <Lightformer form="rect" intensity={3} position={[0, 12, 0]} rotation={[Math.PI / 2, 0, 0]} scale={[20, 30, 1]} color="#d6eaff" />
+      <Lightformer form="rect" intensity={4} position={[-12, 5, -6]} rotation={[0, Math.PI / 2, 0]} scale={[30, 8, 1]} color="#ffd6a0" />
+      <Lightformer form="rect" intensity={2} position={[12, 6, 3]} rotation={[0, -Math.PI / 2, 0]} scale={[20, 8, 1]} color="#a8d9e8" />
+    </Environment>
+    <Sky distance={10000} sunPosition={[-300, 185, -500]} turbidity={2.8} rayleigh={2.2} mieCoefficient={0.003} mieDirectionalG={0.78} onUpdate={configureSkyExposure} />
+    <fog attach="fog" args={['#a6b8bb', 260, 600]} />
+  </>;
+}
+
+function VehicleModel({ path, type = 'player', rotation = 0 }) {
+  const { scene } = useGLTF(path);
+  const { model, scale, offset } = useMemo(() => {
+    const model = scene.clone(true);
+    model.traverse(child => { if (child.isMesh) { child.castShadow = true; child.receiveShadow = true; } });
+    const box = new THREE.Box3().setFromObject(model);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    const dimensions = VEHICLE_DIMENSIONS[type];
+    // Rendered vehicles fit their collision bounds, including their origin.
+    const scale = Math.min(dimensions.width / size.x, dimensions.length / size.z);
+    return { model, scale, offset: [-center.x * scale, -box.min.y * scale, -center.z * scale] };
+  }, [scene, type]);
+  return <group rotation={[0, rotation, 0]}><primitive object={model} scale={scale} position={offset} dispose={null} /></group>;
+}
+
+function ContactPatch({ width, length }) {
+  return <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.035, 0]} scale={[width * 0.62, length * 0.48, 1]}>
+    <circleGeometry args={[1, 24]} /><meshBasicMaterial color="#06101b" transparent opacity={0.38} depthWrite={false} />
+  </mesh>;
+}
+
+function PlayerCar() {
+  const group = useRef();
+  const playerPosition = useMemo(() => [0, 0.1, -2], []);
+  const boosting = useGameStore(s => s.isNitroActive && s.gameState === 'playing');
+  const rocket = useGameStore(s => s.rocketActive && s.gameState === 'playing');
+  const reducedMotion = useMemo(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches, []);
+  useFrame((_, delta) => {
+    const state = useGameStore.getState();
+    if (!group.current || state.gameState === 'paused') return;
+    group.current.position.x = state.currentX;
+    const tilt = reducedMotion ? 0 : -state.steeringVelocity * 0.008;
+    group.current.rotation.z = damp(group.current.rotation.z, tilt, 8, Math.min(delta, 0.1));
+    group.current.rotation.y = damp(group.current.rotation.y, -state.steeringVelocity * 0.012, 8, Math.min(delta, 0.1));
+    // Stable transient array shared with instanced particles, not React state.
+    /* eslint-disable react-hooks/immutability */
+    playerPosition[0] = state.currentX;
+    /* eslint-enable react-hooks/immutability */
+  });
+  return <>
+    <group ref={group} position={[0, 0.09, -2]}>
+      <ContactPatch width={1.8} length={5.5} />
+      <VehicleModel path={PLAYER_MODEL} />
+      <mesh position={[0, 0.12, 0]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[1.6, 4]} /><meshBasicMaterial color={rocket ? '#ff894c' : '#9eeff2'} transparent opacity={boosting || rocket ? 0.32 : 0.1} depthWrite={false} /></mesh>
+    </group>
+    <NitroBoostParticles position={playerPosition} isActive={boosting && !reducedMotion} />
+    <RocketTrailParticles position={playerPosition} isActive={rocket && !reducedMotion} />
+  </>;
+}
+
+function ChaseCamera() {
+  const { camera, size } = useThree();
+  const focus = useMemo(() => new THREE.Vector3(), []);
+  const reducedMotion = useMemo(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches, []);
+  useFrame((_, delta) => {
+    const state = useGameStore.getState();
+    if (state.gameState === 'paused') return;
+    const dt = Math.min(delta, 0.1);
+    const portrait = size.height > size.width;
+    const targetFov = (portrait ? 66 : 54) + (reducedMotion ? 0 : Math.min(state.speed / 28, 7) + (state.isNitroActive || state.rocketActive ? 4 : 0));
+    camera.position.set(damp(camera.position.x, state.currentX * 0.38, 3, dt),
+      damp(camera.position.y, portrait ? 6.4 : 5.2, 3, dt), damp(camera.position.z, portrait ? 13 : 11.5, 3, dt));
+    focus.set(state.currentX * 0.15, 0.7, -36);
+    camera.lookAt(focus);
+    if (Math.abs(camera.fov - targetFov) > 0.01) {
+      /* eslint-disable react-hooks/immutability */
+      camera.fov = damp(camera.fov, targetFov, 3, dt);
+      camera.updateProjectionMatrix();
+      /* eslint-enable react-hooks/immutability */
+    }
+  }, -0.75);
+  return null;
+}
+
+const TrafficCar = memo(function TrafficCar({ id, type }) {
+  const group = useRef();
+  const signals = useRef();
+  const model = TRAFFIC_MODELS[type] || TRAFFIC_MODELS.sedan;
+  const dimensions = VEHICLE_DIMENSIONS[type] || VEHICLE_DIMENSIONS.sedan;
+  useFrame(() => {
+    const state = useGameStore.getState();
+    const enemy = state.enemies.find(item => item.id === id);
+    if (!group.current || !enemy) return;
+    group.current.position.set(enemy.x, 0, enemy.z);
+    group.current.rotation.y = enemy.isChanging ? enemy.indicator * -0.09 : 0;
+    if (signals.current) {
+      signals.current.visible = Boolean(enemy.indicator) && Math.sin(state.elapsedTime * 14) > 0;
+      signals.current.position.x = enemy.indicator * dimensions.width * 0.4;
+    }
+  });
+  return <group ref={group} position={[0, 0, -350]}>
+    <ContactPatch width={dimensions.width} length={dimensions.length} />
+    <Suspense fallback={<mesh position={[0, 0.8, 0]}><boxGeometry args={[dimensions.width, 1.6, dimensions.length]} /><meshStandardMaterial color="#acbac5" /></mesh>}>
+      <VehicleModel path={model.path} type={type} rotation={model.rotation} />
+    </Suspense>
+    <group position={[0, 0.72, dimensions.length * 0.48]}>
+      {[-1, 1].map(side => <mesh key={side} position={[side * dimensions.width * 0.32, 0, 0]}><boxGeometry args={[0.28, 0.12, 0.06]} /><meshBasicMaterial color="#fd544f" toneMapped={false} /></mesh>)}
+      <mesh ref={signals}><boxGeometry args={[0.25, 0.17, 0.1]} /><meshBasicMaterial color="#ffd15b" toneMapped={false} /></mesh>
+    </group>
+  </group>;
+});
+
+function Traffic() {
+  const signature = useGameStore(s => s.enemies.map(e => `${e.id}:${e.type}`).join('|'));
+  const entities = useMemo(() => signature ? signature.split('|').map(item => { const [id, type] = item.split(':'); return { id, type }; }) : [], [signature]);
+  return <>{entities.map(enemy => <TrafficCar key={enemy.id} {...enemy} />)}</>;
+}
+
+const Pickup = memo(function Pickup({ id, kind }) {
+  const group = useRef();
+  const token = useRef();
+  const color = kind === 'rocket' ? '#ff9065' : kind === 'magnet' ? '#90e4f2' : '#fbd775';
+  useFrame(() => {
+    const state = useGameStore.getState();
+    const pickup = state.coins.find(coin => coin.id === id);
+    if (!group.current || !pickup) return;
+    group.current.position.set(pickup.x, 1.2 + Math.sin(state.elapsedTime * 3 + pickup.z * 0.1) * 0.12, pickup.z);
+    token.current.rotation.y = state.elapsedTime * 2.5;
+  });
+  return <group ref={group} position={[0, 1.2, -300]}>
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.05, 0]}><ringGeometry args={[0.4, 0.7, 24]} /><meshBasicMaterial color={color} transparent opacity={0.55} depthWrite={false} /></mesh>
+    <group ref={token}>
+      <mesh rotation={[Math.PI / 2, 0, 0]}><cylinderGeometry args={[0.5, 0.5, 0.14, 24]} /><meshStandardMaterial color={color} metalness={0.65} roughness={0.23} emissive={color} emissiveIntensity={0.25} /></mesh>
+      {kind === 'coin' ? <mesh position={[0, 0, 0.082]}><torusGeometry args={[0.35, 0.024, 6, 20]} /><meshStandardMaterial color="#fff0b8" metalness={0.8} roughness={0.2} /></mesh> : <mesh position={[0, 0.05, 0.13]} rotation={[0, 0, kind === 'rocket' ? 0 : Math.PI]}><coneGeometry args={[0.2, 0.62, 3]} /><meshBasicMaterial color="#0b2535" /></mesh>}
+    </group>
+  </group>;
+});
+
+function Pickups() {
+  const signature = useGameStore(s => s.coins.map(c => `${c.id}:${c.kind || 'coin'}`).join('|'));
+  const entities = useMemo(() => signature ? signature.split('|').map(item => { const [id, kind] = item.split(':'); return { id, kind }; }) : [], [signature]);
+  return <>{entities.map(coin => <Pickup key={coin.id} {...coin} />)}</>;
+}
+
+function Road() {
+  const stripes = useRef();
+  const markers = useRef();
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+  const asphalt = useMemo(() => {
+    const data = new Uint8Array(64 * 64 * 4);
+    for (let i = 0; i < 64 * 64; i++) {
+      const value = 105 + ((i * 73 + Math.floor(i / 64) * 17) % 31);
+      data.set([value, value, value, 255], i * 4);
+    }
+    const texture = new THREE.DataTexture(data, 64, 64);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(8, 170);
+    texture.needsUpdate = true;
+    return texture;
+  }, []);
+  useEffect(() => () => asphalt.dispose(), [asphalt]);
+  useFrame(() => {
+    const distance = useGameStore.getState().totalDistance * 5;
+    if (!stripes.current || !markers.current) return;
+    for (let i = 0; i < 60; i++) {
+      dummy.position.set(i % 2 ? 2.25 : -2.25, 0.025, 25 - ((Math.floor(i / 2) * 16 + 480 - distance % 480) % 480));
+      dummy.rotation.set(-Math.PI / 2, 0, 0); dummy.scale.set(1, 1, 1); dummy.updateMatrix();
+      stripes.current.setMatrixAt(i, dummy.matrix);
+      dummy.position.set(i % 2 ? 8.8 : -8.8, 0.3, 25 - ((Math.floor(i / 2) * 16 + 480 - distance % 480) % 480));
+      dummy.rotation.set(0, 0, 0); dummy.updateMatrix(); markers.current.setMatrixAt(i, dummy.matrix);
+    }
+    stripes.current.instanceMatrix.needsUpdate = true;
+    markers.current.instanceMatrix.needsUpdate = true;
+    asphalt.offset.set(0, -(distance % 200) / 200);
+  });
+  return <>
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.03, -295]} receiveShadow><planeGeometry args={[17, 720]} /><meshStandardMaterial color="#69737b" map={asphalt} roughness={0.85} /></mesh>
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.055, -295]} receiveShadow><planeGeometry args={[21, 720]} /><meshStandardMaterial color="#334148" roughness={0.96} /></mesh>
+    <instancedMesh ref={stripes} args={[undefined, undefined, 60]} frustumCulled={false}><planeGeometry args={[0.16, 5]} /><meshBasicMaterial color="#d5dad3" /></instancedMesh>
+    <instancedMesh ref={markers} args={[undefined, undefined, 60]} frustumCulled={false}><boxGeometry args={[0.1, 0.4, 0.17]} /><meshStandardMaterial color="#ffe0aa" emissive="#ffb55a" emissiveIntensity={0.7} /></instancedMesh>
+    {[-1, 1].map(side => <group key={side}>
+      <mesh position={[side * 7.4, 0.035, -295]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[0.14, 720]} /><meshBasicMaterial color="#f0dfa9" /></mesh>
+    </group>)}
+  </>;
+}
+
+function FeedbackParticles() {
+  const mesh = useRef();
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+  const color = useMemo(() => new THREE.Color(), []);
+  useFrame(() => {
+    if (!mesh.current) return;
+    const particles = useGameStore.getState().particles;
+    for (let i = 0; i < 70; i++) {
+      const p = particles[i];
+      if (p) {
+        dummy.position.set(p.x, p.y, p.z); dummy.scale.setScalar(Math.max(0, p.life) * (p.size || 0.15));
+        color.set(p.color || '#ffe5a0'); mesh.current.setColorAt(i, color);
+      } else { dummy.scale.setScalar(0); }
+      dummy.updateMatrix(); mesh.current.setMatrixAt(i, dummy.matrix);
+    }
+    mesh.current.instanceMatrix.needsUpdate = true;
+    if (mesh.current.instanceColor) mesh.current.instanceColor.needsUpdate = true;
+  });
+  return <instancedMesh ref={mesh} args={[undefined, undefined, 70]} frustumCulled={false}><boxGeometry args={[0.15, 0.15, 0.4]} /><meshBasicMaterial toneMapped={false} /></instancedMesh>;
+}
+
+export default function RaceScene({ low, adaptive, onReady, onReduceQuality }) {
+  // Load every traffic type before the countdown; prepare its material with the
+  // actual race lighting so its first appearance doesn't compile new shaders.
+  const loaded = useGLTF([PLAYER_MODEL, ...Object.values(TRAFFIC_MODELS).map(model => model.path)]);
+  const warmupScene = useMemo(() => {
+    const group = new THREE.Group();
+    for (const asset of loaded) {
+      const clone = asset.scene.clone(true);
+      clone.traverse(node => { if (node.isMesh) { node.castShadow = true; node.receiveShadow = true; } });
+      group.add(clone);
+    }
+    return group;
+  }, [loaded]);
+  const ready = useRef(false);
+  const warmup = useRef({ frames: 0, started: false, complete: false });
+  const samples = useRef({ time: 0, frames: 0, warmup: 3 });
+  useFrame(({ gl, scene, camera }, delta) => {
+    if (!warmup.current.complete) {
+      // Let the one-frame reflection environment finish before compiling.
+      if (++warmup.current.frames >= 2 && !warmup.current.started) {
+        warmup.current.started = true;
+        const textures = new Set();
+        warmupScene.traverse(node => {
+          if (!node.isMesh) return;
+          for (const material of [node.material].flat()) for (const value of Object.values(material)) if (value?.isTexture) textures.add(value);
+        });
+        for (const texture of textures) gl.initTexture(texture);
+        gl.compileAsync(warmupScene, camera, scene).then(() => { warmup.current.complete = true; })
+          .catch(error => { console.warn('Race shader warmup:', error); warmup.current.complete = true; });
+      }
+      return;
+    }
+    if (!ready.current) { ready.current = true; onReady(); }
+    useGameStore.getState().updateGame(delta);
+    if (adaptive && useGameStore.getState().gameState === 'playing') {
+      if (samples.current.warmup > 0) { samples.current.warmup -= delta; return; }
+      samples.current.time += delta; samples.current.frames++;
+      if (samples.current.time >= 5) {
+        if (samples.current.frames / samples.current.time < 52) onReduceQuality();
+        samples.current.time = 0; samples.current.frames = 0;
+      }
+    }
+  }, -1);
+  return <>
+    <RaceLighting low={low} /><ChaseCamera /><Road /><RoadsideWorld low={low} />
+    <PlayerCar /><Traffic /><Pickups /><FeedbackParticles />
+  </>;
+}

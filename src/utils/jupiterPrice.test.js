@@ -8,6 +8,12 @@
  * silently.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { DEV_MODE } from '../devMode';
+
+// This repository deliberately ships offline adapters. Keep the production
+// contract intact for restoring those adapters; devIntegrations.test.js checks
+// that the active offline adapters cannot contact or transact with services.
+const describeProduction = (name, suite) => describe.skipIf(DEV_MODE)(`[production adapter] ${name}`, suite);
 
 import {
   getTokenPrice,
@@ -21,7 +27,7 @@ import { TOKEN_CONFIG } from '../solana.config.js';
 // ---------------------------------------------------------------------------
 // formatPrice — pure function, four numeric ranges
 // ---------------------------------------------------------------------------
-describe('formatPrice', () => {
+describeProduction('formatPrice', () => {
   it('formats prices >= 1 with 2 decimals', () => {
     expect(formatPrice(123.456)).toBe('$123.46');
     expect(formatPrice(1)).toBe('$1.00');
@@ -46,7 +52,7 @@ describe('formatPrice', () => {
 // ---------------------------------------------------------------------------
 // getTokenPrice — DexScreener first, Jupiter fallback, stale cache last
 // ---------------------------------------------------------------------------
-describe('getTokenPrice', () => {
+describeProduction('getTokenPrice', () => {
   beforeEach(() => {
     clearPriceCache();
   });
@@ -132,7 +138,7 @@ describe('getTokenPrice', () => {
 // ---------------------------------------------------------------------------
 // calculateTokenAmount — usdAmount / price, throws on invalid price
 // ---------------------------------------------------------------------------
-describe('calculateTokenAmount', () => {
+describeProduction('calculateTokenAmount', () => {
   beforeEach(() => {
     clearPriceCache();
   });
@@ -178,7 +184,7 @@ describe('calculateTokenAmount', () => {
 // ---------------------------------------------------------------------------
 // getTokenPriceWithRetry — first-attempt success path
 // ---------------------------------------------------------------------------
-describe('getTokenPriceWithRetry', () => {
+describeProduction('getTokenPriceWithRetry', () => {
   beforeEach(() => {
     clearPriceCache();
   });

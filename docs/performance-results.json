@@ -1,0 +1,50 @@
+{
+  "date": "2026-09-07",
+  "scope": "One matched visible-browser High-quality render-only pair; recorded result fields, not a full browser trace",
+  "baselineCommit": "ce213ddb74c93f07fd6a5270e39cc26681e4fa4f",
+  "environment": {
+    "platform": "Windows",
+    "browserSurface": "Codex in-app browser, same visible tab",
+    "rendererSummary": "ANGLE Intel UHD Graphics (0xA78B) D3D11",
+    "viewport": [1280, 720],
+    "dpr": 1,
+    "quality": "high",
+    "warmupSeconds": 8,
+    "sampleSeconds": 24,
+    "trafficCount": 8,
+    "coinCount": 8,
+    "physicsBypassed": true,
+    "adaptiveResolution": false
+  },
+  "before": {
+    "frames": 572,
+    "meanMs": 41.9484265734,
+    "medianMs": 41.3,
+    "p95Ms": 51.9,
+    "p99Ms": 66,
+    "over50ms": 35,
+    "averageTriangles": 1878484,
+    "averageDrawCalls": 280
+  },
+  "after": {
+    "frames": 875,
+    "meanMs": 27.4314285714,
+    "medianMs": 27.3,
+    "p95Ms": 30.9,
+    "p99Ms": 36.1,
+    "over25ms": 774,
+    "over50ms": 0,
+    "longTasks": 0,
+    "averageTriangles": 1204266,
+    "averageDrawCalls": 213,
+    "geometryCount": 196,
+    "textureCount": 53
+  },
+  "limitations": [
+    "Render counters may exclude shadow and other passes.",
+    "One final matched pair; no confidence interval or real-phone thermal session.",
+    "Normal gameplay physics and loading flow are not measured.",
+    "Unrecorded before fields are omitted, not zero.",
+    "Earlier samples with unmatched tab visibility are excluded."
+  ]
+}

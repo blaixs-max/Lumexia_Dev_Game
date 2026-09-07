@@ -1,8 +1,54 @@
 # Lumexia Racing Game - Gelistirme Plani
 
-> Son guncelleme: 2026-05-03 (v12)
+> Son güncelleme: 2026-09-07
 
-## Mevcut Durum Ozeti
+## Güncel mobil kontrol düzenlemesi — 2026-09-07
+
+Hız ve nitro göstergeleri karşı kenarlara taşındı. Direksiyon için görünmez sol/sağ ekran yarıları kullanılır; basılı tutma, orta çizgiyi geçme ve bağımsız ikinci parmak nitrosu desteklenir. HUD düğmeleri direksiyonu tetiklemeden çalışır. 844×390 ve 390×844 gerçek yarış görünümleri kontrol edildi; yerel lint/build ve 46 test başarılı, 17 mock-modu üretim testi atlandı. Fiziksel telefonlarda ekran kenarı hareketleri, ekran döndürme ve uzun süre iki parmak kullanımı sonraki kullanıcı kabulüdür. Önceki performans ölçümleri kendi sürümlerinin kaydı olarak korunur.
+
+## Güncel kabul planı — 2026-09-07 performans ve cephe düzeltmeleri
+
+Çevrenin görünür örnekleri sıkıştırılarak GPU'ya gönderilir; bina/ağaç mesafesi ve sis kalite seçeneklerinde aynıdır. Auto yarış sırasında yalnız çözünürlüğü ayarlar. Kamera derinliği, pencere/perde yüzeyleri ve yaprak alfa kapsamı yaklaşırken oluşan görüntü değişimlerini azaltacak biçimde düzenlendi. Yarış modelleri sadeleştirildi, trafik dokusu/shader hazırlığı geri sayım öncesine alındı; duraklatma ve sekme görünürlüğü render döngüsünü durdurur.
+
+1. Tamamlandı: yerel lint/build; 40 başarılı test ve mock modunda atlanan 17 üretim entegrasyon testi. Çevre envanteri 18 prototip/58.540 üçgendir; gerçek sahne yükü görünür örneklerle değişir.
+2. Tamamlandı: dondurulmuş `ce213ddb74c93f07fd6a5270e39cc26681e4fa4f` kaynaklarıyla aynı görünür sekmede 1280 × 720/High/DPR 1 karşılaştırması. Ortalama kare süresi 41,95 → 27,43 ms; p95 51,9 → 30,9 ms. Yöntem ve sınırlar [PERFORMANCE_REVIEW.md](PERFORMANCE_REVIEW.md) içindedir; bu koşu 60 FPS'e ulaşmadı.
+3. Tamamlandı: normal tarayıcıda yükleme/geri sayım/yarış/çarpışma/sonuç/tekrar akışı; ilk hazırlıkta duraklatma ve geri sayımla devam. Sayfa JavaScript hatası görülmedi; yakın bina ve meşe görüntüsü kontrol edildi.
+4. Kalan: gerçek Android/iPhone üzerinde 15 dakikalık sürüş, ısınma, sekme dönüşü ve çoklu dokunma ölçümü; farklı çözünürlüklerde yakın/uzak cephe kabulü.
+5. PR kontrolleri ve varsa canlı dağıtım durumu ayrıca doğrulanmalı. Yerel başarılar CI veya cihazda 60 FPS garantisi olarak sunulmaz.
+
+Önceki optimizasyon ve sprint ölçümleri aşağıda tarihsel kapsamlarıyla korunur. Yarış artık `*_runtime.glb`, garaj `sport_car_compact.glb` kullanır; güncel model ölçümleri [model kaydındadır](../public/models/RUNTIME_MODELS.md).
+
+## Önceki çalışma — 2026-09-07 özgün çevre koleksiyonu
+
+Beş bina, dört bitki türünün ikişer çeşidi, sokak lambası ve dört sokak detayıyla **18 prototip** hazırlandı. Yol kenarı artık `RoadsideWorld` üzerinden özgün procedural geometri ve iki yerel üretilmiş doku kullanır. Ayrı varlık stüdyosu tek tek model incelemesi sağlar. Tam envanter, kaynak sözleşmesi, doku istemleri ve yerel çalıştırma adımları [ROADSIDE_ASSETS.md](ROADSIDE_ASSETS.md) içindedir.
+
+**Bu ek çalışmanın kabul sırası:**
+
+1. Tamamlandı: bütünleşik yeni çevrenin 390 × 844 mobil tarayıcı görünümü ve stüdyoda 18 prototip/68.152 üçgen/sonlu koordinat kontrolü.
+2. Yerel lint/build tamamlandı; 33 test geçti, 17 mock-modu üretim testi atlandı. Kaynakların aynı PR #1 üzerinden yayımlanması ve PR kontrol sonuçlarının değerlendirilmesi sıradadır.
+3. Gerçek telefonlarda uzun sürüş, kare süresi, ısınma ve yaprak/çam geometri maliyetinin ölçümü; bark tekrar dikişinin görsel kabulü.
+
+Hedefli kaynak/geometri ve yukarıdaki yerel bütünleşik kontroller tamamlandı; bu bölüm yeni bir GitHub Actions/CI başarısı veya ölçülmüş telefon FPS sonucu ilan etmez. Oyuncu modelinin aşağıdaki önceki optimizasyon kapsamı değişmedi.
+
+## Önceki çalışma — 2026-09-07 oynanış ve ilk görsel yenileme
+
+`Lumexia_Dev_Game` şu anda **ücretsiz ve yerel antrenman sürümüdür**. `DEV_MODE=true`; cüzdan, fiyat ve backend adaptörleri mock durumundadır. Oyun kredi tüketmez, sunucu sıralamasına skor göndermez veya ödül ödemez. Yerel rekorlar tarayıcıda, oyun modu bazında tutulur. Yalnız bayrağı değiştirmek üretim entegrasyonlarını geri getirmez.
+
+Oynanış, sabit 120 Hz simülasyon, yumuşak direksiyon, hareket boyunca çarpışma kontrolü, trafik aralıkları, nitro ve duraklatmayla yenilendi. Garaj, yarış HUD'si, sonuç ekranı, çevre, kamera, ses ve grafik seçenekleri ayrı bileşenlere taşındı. Oyuncu modelinde üçgenler korunarak indirme boyutu %30,39 azaltıldı; yerel Draco decoder eklendi. Ayrıntılar [kalite raporunda](QUALITY_REVIEW.md).
+
+**Yerel doğrulama:** 33 test geçti, mock modundaki üretim davranışlarına ait 17 test atlandı. Kısıtlı Windows ortamında testler `--configLoader runner`, build `--configLoader native` ile başarıyla çalıştı. Normal ve kısıtlı ortam komutları README'dedir. Test sayısı üretim hizmetleri için başarı iddiası değildir.
+
+### Sonraki kabul çalışmaları
+
+1. Windows entegre GPU, orta sınıf Android ve iPhone Safari'de en az 15 dakika sürüş ve kare süresi ölçümü.
+2. Klavye ve çoklu dokunma, yön + nitro, duraklatma, odak kaybı, ekran döndürme ve 30/60/120 Hz karşılaştırması.
+3. Boş önbellek/yavaş bağlantı, varlık yükleme hatası ve art arda 20 yeniden başlatmada kaynak kullanımı.
+4. Compact oyuncu modelinin yakın kamera ve mobil çözünürlükte görsel kabulü.
+5. Üretim cüzdan, ödeme, sıralama ve ödül servisleri için ayrı test ortamında entegrasyon ve kabul planı. Bu çalışma tamamlanana kadar mevcut antrenman kapsamı korunur.
+
+## Tarihsel durum özeti — 2026-05-03
+
+**Arşiv notu:** Aşağıdaki plan ve sprint kayıtları tarihsel bağlamı korumak için bırakılmıştır. “Çalışıyor”, “prod” ve “operasyonel” ifadeleri 3 Mayıs 2026'daki üretim anlatımına aittir; mevcut geliştirme deposunun doğrulanmış durumu değildir. Güncel kapsam ve kalan kabul işleri yukarıdadır.
 
 Proje, **calisir ve oyunabilir** durumda bir 3D yaris oyunu. TOKABU token ile odeme akisi end-to-end calisiyor. Sprint 0-4 + Sprint 4.5 + Sprint 6 + Sprint 7-mini tamamlandi. **Cycle reward payout pipeline operasyonel:** her cycle sonu Edge Function USD + SOL + TOKABU yazar, ekip manuel runbook ile ödeme yapar ve `paid_at` ile işaretler.
 

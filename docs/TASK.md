@@ -1,8 +1,82 @@
 # Lumexia Racing Game - Gorev Takip
 
-> Son guncelleme: 2026-05-03 (v24)
+> Son güncelleme: 2026-09-07
+
+## 2026-09-07: Mobil göstergeler ve ekran üzerinden direksiyon
+
+- [x] Hız göstergesi sol kenara, nitro göstergesi sağ kenara taşındı; dikey ve yatay mobilde aracın orta görüş alanı açıldı.
+- [x] Küçük ok düğmeleri yerine ekranın sol/sağ yarısını kaplayan saydam dokunma alanları eklendi. Basılı tutma direksiyon verir; parmak orta çizgiyi geçince yön değişir, bırakılınca durur.
+- [x] Nitro ikinci parmakla bağımsız çalışır; ses/duraklatma düğmeleri dokunma alanlarının üstündedir. İptal, odak kaybı, duraklatma ve boyut değişiminde girişler bırakılır.
+- [x] Garaj ve geri sayım kontrol açıklamaları güncellendi. Altı sınır/ölçek regresyon testiyle toplam 46 test geçti; 17 üretim adaptörü testi mock modunda atlandı. Yerel lint ve üretim build başarılı.
+- [x] 844×390 yatay ve 390×844 dikey tarayıcı görünümünde gerçek yarış sahnesi kontrol edildi; hız/nitro aracın üzerine gelmiyor.
+- [x] Gerçek HUD/kontrol bileşenleri ve CSS ile tarayıcı kontrol ekranı: dikey ve yatay görünümde 42'şer kontrol başarılı; 1280×720 masaüstünde 26 başarılı, gizli dokunma alanlarına ait iki kontrol kapsam dışında. Native hit-test ve sentetik pointer/klavye olayları ayrı kaydedilir.
+
+Tarayıcı boyutu ve sentetik dokunma testleri, fiziksel telefondaki çoklu dokunma veya tarayıcı kenar hareketlerinin doğrulandığı anlamına gelmez.
+
+Tekrar kontrol: `npx vite build --config tools/mobile-controls-check.config.js --configLoader native`, ardından `npx vite preview --config tools/mobile-controls-check.config.js --configLoader native`. `http://127.0.0.1:5178/tools/mobile-controls-check.html` üzerindeki **Run checks** düğmesi gerçek CSS hit-test sonuçlarını ve durum günlüğünü gösterir. Bu ayrı tanılama giriş noktası normal oyun paketine dahil edilmez.
 
 ---
+
+## 2026-09-07: Güncel ek çalışma — kare süreleri ve cephe kararlılığı
+
+- [x] Yol kenarında yalnız görünür örnekleri `mesh.count` ile gönderme; tüm modelin sınır küresiyle görünürlük denetimi, tekrar kullanılan matrisler ve dinamik GPU tamponları.
+- [x] Bina/ağaç görünürlüğünü bütün kalite seçeneklerinde ortak tutma: sis 260–600 m, çevre elemesi 620 m. Auto yalnız render çözünürlüğünü düşürür; yarış sırasında dünya yerleşimi değişmez.
+- [x] Kamera derinlik aralığı 0,5–750 m; pencere, perde ve kapılarda üst üste binen yüzeyleri ayıran geometri; yaprak alfa eşiği ve MSAA kapsamı.
+- [x] Yarış için daha düşük maliyetli oyuncu/Ferrari modelleri; bütün trafik modellerinin dokularını ve shader programlarını geri sayımdan önce hazırlama.
+- [x] Duraklatılan yarışta sürekli çizimi, arka plandaki yarış ve garajda render döngüsünü durdurma.
+- [x] Çam başına 17.584 → 12.184 üçgen; güncel 18 çevre prototipinde toplam 58.540 üçgen. Bunlar model ölçümleridir, FPS sonucu değildir.
+- [x] Görünürlük sınırı ve dünya sarımı için yedi ek test. Yerel lint/build geçti; **40 test geçti, 17 üretim entegrasyon testi mock modunda atlandı**.
+- [x] Tekrarlanabilir önce/sonra render ölçüm aracı ve [performans inceleme kaydı](PERFORMANCE_REVIEW.md).
+- [x] Eşleşmiş High/DPR 1 render ölçümü: ortalama kare süresi 41,95 → 27,43 ms; p95 51,9 → 30,9 ms. Bu koşu 60 FPS'e ulaşmadı.
+- [x] Normal tarayıcı akışı: yükleme → geri sayım → yarış → çarpışma/sonuç → tekrar; hazırlıkta duraklatma/geri sayımla devam. Sayfa JavaScript hatası görülmedi; yakın bina ve meşe görüntüsü kontrol edildi.
+- [ ] Gerçek Android/iPhone üzerinde uzun sürüş ve ısınma kabulü.
+
+Kaynak değişiklikleri yerel olarak doğrulandı. Bu kayıt yeni bir CI başarısı, canlı dağıtım veya 60 FPS garantisi değildir. Güncel ayrıntılar [kalite raporunda](QUALITY_REVIEW.md); aşağıdaki aynı tarihli bölümler önceki çalışmaların ölçümlerini korur.
+
+---
+
+## Önceki çalışma — 2026-09-07: Özgün yol kenarı varlıkları ve inceleme stüdyosu
+
+**Tamamlanan kaynak çalışması:**
+
+- [x] Beş özgün bina; metre ölçeği, pencere/çatı/balkon ayrıntıları ve koddan üretilen yüzey dokuları.
+- [x] Meşe, kavak, çam ve çalı için ikişer çeşit; bir sokak lambası.
+- [x] Çit, bank, elektrik dolabı ve 30 yapraklı ot kümesiyle toplam 18 prototip.
+- [x] Yerleşik görsel üretim aracıyla iki yerel PNG; toplam 5.683.600 bayt, 1.254² gerçek çıktı, yaprakta alfa.
+- [x] `RoadsideWorld` içinde ortak geometri, instancing, çevre yerleşimi, kaldırım ve zemin bağlantıları; eski yol kenarı GLTF yüklemelerinin yerine yeni çevre.
+- [x] Ayrı 3D varlık stüdyosu ve özel makine yolları çıkarılmış tam doku istemleri.
+- [x] [Varlık envanteri ve kabul sınırları](ROADSIDE_ASSETS.md).
+
+**Yerel doğrulama:** Güncel lint ve build geçti; 33 test geçti, mock modundaki 17 üretim testi atlandı. Stüdyo DOM kaydında 18 model, sonlu koordinatlar ve toplam 68.152 prototip üçgeni doğrulandı; 390 × 844 mobil tarayıcı görünümünde yeni çevre kontrol edildi. Stüdyo ana/varlık yolları 200, bilinmeyen yol 404, yol aşımı 403 döndürdü. Bu yerel kayıt yeni bir GitHub Actions/CI başarısı değildir. Aşağıdaki önceki oyuncu modeli ölçümleri kendi kapsamlarıyla korunur.
+
+**Kalan kabul:** PR kontrolleri; gerçek Android/iPhone FPS, ısınma ve uzun sürüş ölçümleri. Kaynak değişiklikleri aynı PR #1 içinde yayımlanmak üzere hazırlanmıştır; bu kayıt canlıya dağıtım onayı değildir.
+
+---
+
+## Önceki çalışma — 2026-09-07: Geliştirme sürümünde oynanış ve görsel yenileme
+
+**Güncel kapsam:** Bu depo `DEV_MODE=true` ile ücretsiz, yerel antrenman oyunudur. Cüzdan, fiyat ve backend adaptörleri mock durumundadır. Yarış kredi tüketmez, sunucu skoru göndermez ve ödül ödemez. Önceki kayıtlardaki üretim ve dağıtım iddiaları ait oldukları tarihin geçmiş kaydıdır; mevcut geliştirme sürümünün doğrulanmış özelliği değildir.
+
+**Tamamlanan çalışma:**
+
+- [x] Sabit 120 Hz simülasyon; yumuşak direksiyon, nitro ve hareket boyunca çarpışma kontrolü.
+- [x] Kaçış boşluğunu değerlendiren trafik, sinyalli şerit değişimi ve araç başına tek yakın-geçiş ödülü.
+- [x] Duraklatma, sekme/odak kaybında giriş bırakma ve çoklu dokunma kontrolü.
+- [x] Yeni 3D garaj, yarış HUD'si, duraklatma ve sonuç ekranı; mod başına yerel rekorlar.
+- [x] Kamera, ışık, çevre, ses ve grafik seçenekleri; yükleme ve sahne hatası geri dönüşleri.
+- [x] `sport_car_compact.glb`: 237.482 üçgen korunarak model dosyasında %30,39 azalma; yerel Draco decoder ve lisansı.
+- [x] Ayrı oyun, sahne, HUD ve kontrol bileşenleri; saf oynanış kuralları ve geliştirme adaptörü testleri.
+- [x] README, kalite raporu ve güncel çalışma modu belgelerinin eşitlenmesi.
+
+**Doğrulama:** 33 test geçti, 17 üretim cüzdan/fiyat testi mock geliştirme modunda atlandı. Kısıtlı Windows ortamında testler `npm test -- --configLoader runner`, üretim paketi `npm run build -- --configLoader native` ile doğrulandı. Normal ortam komutları ve isteğe bağlı `npm ci --ignore-scripts` kurulumu [kalite raporunda](QUALITY_REVIEW.md) açıklanır. Bu sonuç canlı servis, cihaz FPS veya üretim dağıtım doğrulaması değildir.
+
+**Kalan kabul:** Windows, Android ve iPhone üzerinde uzun sürüş; yavaş bağlantı ve tekrar başlatma ölçümleri; optimize modelin cihazlarda görsel kabulü. Üretim servisleri ancak ayrı entegrasyon doğrulamasından sonra ele alınmalı. Mevcut ayrıntılar: [QUALITY_REVIEW.md](QUALITY_REVIEW.md).
+
+---
+
+## Tarihsel kayıtlar
+
+Aşağıdaki kayıtlar korunmuştur. Özellikle “prod”, “operasyonel” ve “canlı” ifadeleri o tarihlerdeki çalışmaları anlatır; bugünkü `Lumexia_Dev_Game` antrenman sürümünün durum bildirimi değildir.
 
 ## 2026-05-03: Sprint 7-mini KAPALI — manual-payout pipeline operational (3 PR)
 
