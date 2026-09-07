@@ -6,6 +6,7 @@ import GameOverUI from './components/GameOverUI';
 import RaceHUD from './components/RaceHUD';
 import RaceControls from './components/RaceControls';
 import { audioSystem, useGameStore } from './store';
+import { usePageVisible } from './hooks/usePageVisible';
 import './App.css';
 
 const RaceScene = lazy(() => import('./components/RaceScene'));
@@ -25,7 +26,7 @@ class GameBoundary extends Component {
   }
 }
 
-function RaceAudio() {
+function RaceAudio({ ready }) {
   const gameState = useGameStore(s => s.gameState);
   const soundEnabled = useGameStore(s => s.soundEnabled);
   const countdown = useGameStore(s => s.countdown);
@@ -40,8 +41,8 @@ function RaceAudio() {
     else music.current?.pause();
   }, [gameState, soundEnabled]);
   useEffect(() => {
-    if (gameState === 'countdown' && soundEnabled) audioSystem.tone(countdown === 'GO!' ? 880 : 440, countdown === 'GO!' ? 1320 : 440, 0.09, 'sine', 0.06);
-  }, [countdown, gameState, soundEnabled]);
+    if (ready && gameState === 'countdown' && soundEnabled) audioSystem.tone(countdown === 'GO!' ? 880 : 440, countdown === 'GO!' ? 1320 : 440, 0.09, 'sine', 0.06);
+  }, [countdown, gameState, ready, soundEnabled]);
   useEffect(() => {
     if (gameState !== 'playing' || !soundEnabled) return;
     const context = audioSystem.context;
@@ -71,23 +72,25 @@ function RaceAudio() {
 function Race({ quality }) {
   const gameState = useGameStore(s => s.gameState);
   const [ready, setReady] = useState(false);
-  const [reducedQuality, setReducedQuality] = useState(false);
-  const compact = Math.min(window.innerWidth, window.innerHeight) < 768;
-  const low = quality === 'performance' || (quality === 'auto' && (compact || reducedQuality));
-  const [renderDpr, setRenderDpr] = useState(() => low ? 1 : Math.min(window.devicePixelRatio, 1.5));
+  // Auto changes only resolution: keep the world and lighting stable at speed.
+  const [low] = useState(() => quality === 'performance' || (quality === 'auto' && Math.min(window.innerWidth, window.innerHeight) < 768));
+  const [renderDpr, setRenderDpr] = useState(() => quality === 'high'
+    ? Math.min(window.devicePixelRatio, 1.5)
+    : Math.min(window.devicePixelRatio, 1, Math.sqrt(2304000 / (window.innerWidth * window.innerHeight))));
+  const pageVisible = usePageVisible();
   const quitGame = useGameStore(s => s.quitGame);
   return <main className="lx-race" aria-label="Lumexia highway race">
     <GameBoundary onBack={quitGame}>
-      <Canvas dpr={renderDpr} shadows={!low} camera={{ position: [0, 5.2, 11.5], fov: 54, near: 0.1, far: 700 }}
-        gl={{ antialias: !low, alpha: false, powerPreference: 'high-performance', toneMapping: ACESFilmicToneMapping }}>
+      <Canvas dpr={renderDpr} shadows={!low} frameloop={!pageVisible ? 'never' : ready && gameState === 'paused' ? 'demand' : 'always'} camera={{ position: [0, 5.2, 11.5], fov: 54, near: 0.5, far: 750 }}
+        gl={{ antialias: true, alpha: false, powerPreference: 'high-performance', toneMapping: ACESFilmicToneMapping }}>
         <color attach="background" args={['#647e91']} />
         <Suspense fallback={null}>
-          <RaceScene low={low} adaptive={quality === 'auto'} onReady={() => setReady(true)} onReduceQuality={() => { setRenderDpr(1); setReducedQuality(true); }} />
+          <RaceScene low={low} adaptive={quality === 'auto'} onReady={() => setReady(true)} onReduceQuality={() => setRenderDpr(value => Math.max(Math.min(value, 0.65), value * 0.85))} />
         </Suspense>
       </Canvas>
       {ready ? <RaceHUD onMainMenu={quitGame} /> : <div className="lx-ui lx-track-loading" role="status"><span className="lx-loading-spinner" /><p>PREPARING YOUR RUN</p><small>Loading the highway and your car…</small><button className="lx-button lx-button-secondary" onClick={quitGame}>BACK TO GARAGE</button></div>}
       <RaceControls touchVisible={ready && gameState === 'playing'} />
-      <RaceAudio />
+      <RaceAudio ready={ready} />
     </GameBoundary>
     <div className="lx-track-vignette" aria-hidden="true" />
   </main>;

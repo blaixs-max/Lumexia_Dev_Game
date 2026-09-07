@@ -8,9 +8,9 @@ import { NitroBoostParticles, RocketTrailParticles } from './AdvancedParticles';
 import RoadsideWorld from './RoadsideWorld';
 
 useGLTF.setDecoderPath('/draco/');
-const PLAYER_MODEL = '/models/sport_car_compact.glb';
+const PLAYER_MODEL = '/models/sport_car_runtime.glb';
 const TRAFFIC_MODELS = {
-  sport: { path: '/models/ferrari.glb', rotation: 0 },
+  sport: { path: '/models/ferrari_runtime.glb', rotation: 0 },
   sedan: { path: '/models/Car 3/scene.gltf', rotation: Math.PI },
   suv: { path: '/models/Car 2/scene.gltf', rotation: Math.PI },
   truck: { path: '/models/truck.glb', rotation: Math.PI },
@@ -40,7 +40,7 @@ function RaceLighting({ low }) {
       <Lightformer form="rect" intensity={2} position={[12, 6, 3]} rotation={[0, -Math.PI / 2, 0]} scale={[20, 8, 1]} color="#a8d9e8" />
     </Environment>
     <Sky distance={10000} sunPosition={[-300, 185, -500]} turbidity={2.8} rayleigh={2.2} mieCoefficient={0.003} mieDirectionalG={0.78} onUpdate={configureSkyExposure} />
-    <fog attach="fog" args={['#a6b8bb', 170, low ? 365 : 520]} />
+    <fog attach="fog" args={['#a6b8bb', 260, 600]} />
   </>;
 }
 
@@ -115,7 +115,7 @@ function ChaseCamera() {
       camera.updateProjectionMatrix();
       /* eslint-enable react-hooks/immutability */
     }
-  });
+  }, -0.75);
   return null;
 }
 
@@ -211,12 +211,12 @@ function Road() {
     asphalt.offset.set(0, -(distance % 200) / 200);
   });
   return <>
-    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.03, -180]} receiveShadow><planeGeometry args={[17, 600]} /><meshStandardMaterial color="#69737b" map={asphalt} roughness={0.85} /></mesh>
-    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.055, -180]} receiveShadow><planeGeometry args={[21, 600]} /><meshStandardMaterial color="#334148" roughness={0.96} /></mesh>
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.03, -295]} receiveShadow><planeGeometry args={[17, 720]} /><meshStandardMaterial color="#69737b" map={asphalt} roughness={0.85} /></mesh>
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.055, -295]} receiveShadow><planeGeometry args={[21, 720]} /><meshStandardMaterial color="#334148" roughness={0.96} /></mesh>
     <instancedMesh ref={stripes} args={[undefined, undefined, 60]} frustumCulled={false}><planeGeometry args={[0.16, 5]} /><meshBasicMaterial color="#d5dad3" /></instancedMesh>
     <instancedMesh ref={markers} args={[undefined, undefined, 60]} frustumCulled={false}><boxGeometry args={[0.1, 0.4, 0.17]} /><meshStandardMaterial color="#ffe0aa" emissive="#ffb55a" emissiveIntensity={0.7} /></instancedMesh>
     {[-1, 1].map(side => <group key={side}>
-      <mesh position={[side * 7.4, 0.035, -180]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[0.14, 600]} /><meshBasicMaterial color="#f0dfa9" /></mesh>
+      <mesh position={[side * 7.4, 0.035, -295]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[0.14, 720]} /><meshBasicMaterial color="#f0dfa9" /></mesh>
     </group>)}
   </>;
 }
@@ -243,20 +243,44 @@ function FeedbackParticles() {
 }
 
 export default function RaceScene({ low, adaptive, onReady, onReduceQuality }) {
-  // Essential model readiness gates simulation; scenery/traffic load independently.
-  useGLTF(PLAYER_MODEL);
+  // Load every traffic type before the countdown; prepare its material with the
+  // actual race lighting so its first appearance doesn't compile new shaders.
+  const loaded = useGLTF([PLAYER_MODEL, ...Object.values(TRAFFIC_MODELS).map(model => model.path)]);
+  const warmupScene = useMemo(() => {
+    const group = new THREE.Group();
+    for (const asset of loaded) {
+      const clone = asset.scene.clone(true);
+      clone.traverse(node => { if (node.isMesh) { node.castShadow = true; node.receiveShadow = true; } });
+      group.add(clone);
+    }
+    return group;
+  }, [loaded]);
   const ready = useRef(false);
-  const samples = useRef({ time: 0, frames: 0, reduced: false });
-  useEffect(() => {
-    for (const model of Object.values(TRAFFIC_MODELS)) useGLTF.preload(model.path);
-  }, []);
-  useFrame((_, delta) => {
+  const warmup = useRef({ frames: 0, started: false, complete: false });
+  const samples = useRef({ time: 0, frames: 0, warmup: 3 });
+  useFrame(({ gl, scene, camera }, delta) => {
+    if (!warmup.current.complete) {
+      // Let the one-frame reflection environment finish before compiling.
+      if (++warmup.current.frames >= 2 && !warmup.current.started) {
+        warmup.current.started = true;
+        const textures = new Set();
+        warmupScene.traverse(node => {
+          if (!node.isMesh) return;
+          for (const material of [node.material].flat()) for (const value of Object.values(material)) if (value?.isTexture) textures.add(value);
+        });
+        for (const texture of textures) gl.initTexture(texture);
+        gl.compileAsync(warmupScene, camera, scene).then(() => { warmup.current.complete = true; })
+          .catch(error => { console.warn('Race shader warmup:', error); warmup.current.complete = true; });
+      }
+      return;
+    }
     if (!ready.current) { ready.current = true; onReady(); }
     useGameStore.getState().updateGame(delta);
-    if (adaptive && !samples.current.reduced && useGameStore.getState().gameState === 'playing') {
+    if (adaptive && useGameStore.getState().gameState === 'playing') {
+      if (samples.current.warmup > 0) { samples.current.warmup -= delta; return; }
       samples.current.time += delta; samples.current.frames++;
       if (samples.current.time >= 5) {
-        if (samples.current.frames / samples.current.time < 42) { samples.current.reduced = true; onReduceQuality(); }
+        if (samples.current.frames / samples.current.time < 52) onReduceQuality();
         samples.current.time = 0; samples.current.frames = 0;
       }
     }

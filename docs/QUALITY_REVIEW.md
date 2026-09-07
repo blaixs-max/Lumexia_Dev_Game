@@ -9,6 +9,16 @@ Bu depo `DEV_MODE=true` ile çalışır. Cüzdan, kredi satın alma, sunucu sır
 
 Eski entegrasyon ve sprint belgelerindeki üretim açıklamaları tarihsel kayıtlardır. Bu değişiklik canlı hizmetleri doğrulamaz veya etkinleştirmez. Üretim hizmetlerinin açılması ayrı bir entegrasyon ve kabul çalışması gerektirir; yalnız `DEV_MODE` değerini değiştirmek yeterli değildir.
 
+## Güncel ek çalışma — 7 Eylül 2026: performans ve cepheler
+
+Görünmez çevre örnekleri sıfır ölçekle çizime gönderilmek yerine `mesh.count` dışında bırakılır. Görünürlük, bütün modelin dönüştürülmüş sınır küresiyle hesaplanır; bina parçaları ve ağaç tacı aynı kararı kullanır. Tekrar kullanılan matrisler, değişen önekin GPU'ya aktarılması ve sabit sahnede güncellemenin atlanması CPU/GPU işini azaltır. Bina/ağaç yerleşimi ile sis bütün kalite seçeneklerinde korunur: sis 260–600 m, çevre elemesi 620 m. Çevrenin dinamik gölge çizimi kapatıldı; yumuşak temas izleri korunur.
+
+Kamera aralığı 0,5–750 m olarak daraltıldı. Pencere, perde ve kapı parçalarının birbiriyle yarışan yakın yüzeyleri ayrıldı; apartman kaplama kalınlıkları cephe yerleştirmesine dahil edildi. Yaprak alfa eşiği 0,30 ve `alphaToCoverage`, MSAA ile birlikte kullanılır. Bunlar uzakta kaybolan yapraklar ve yaklaşırken değişen cepheler için yapılan kaynak düzeltmeleridir; her cihazdaki görsel kabulün tamamlandığı anlamına gelmez.
+
+Yarıştaki oyuncu modeli **120.057**, Ferrari **188.982** üçgendir; kaynaklarına göre sırasıyla %49,45 ve %47,33 daha azdır. Garaj önceki compact modeli kullanır. Kayıplı sadeleştirmenin sınırları ve yeniden üretim adımları [RUNTIME_MODELS.md](../public/models/RUNTIME_MODELS.md) içindedir. Çam başına üçgen sayısı %30,71 azalarak **12.184**, 18 çevre prototipinin toplamı **58.540** oldu. Bu sayılar dosya/geometri ölçümleridir; sahnenin FPS değeri değildir.
+
+Yerel lint ve build geçti; **40 test geçti, 17 üretim entegrasyon testi mock modunda atlandı**. Son yedi test görünürlük sınırlarını ve dünya sarımını kapsar. Aynı görünür sekmede High/DPR 1 karşılaştırmasında ortalama kare süresi 41,95 → 27,43 ms (%34,61 azalma), p95 51,9 → 30,9 ms oldu. Bu koşu 60 FPS'e ulaşmadı. Kontrollü yöntemin ve nihai ölçümlerin kaydı [PERFORMANCE_REVIEW.md](PERFORMANCE_REVIEW.md) içindedir. Yeni bir CI sonucu veya gerçek telefon performansı bu kayda dahil değildir.
+
 ## Oynanış ve sunum değişiklikleri
 
 - Sürüş, 120 Hz sabit adımlı simülasyonla ilerler. Yumuşak direksiyon, hız geçişleri, nitro, çarpışma ve güçlendirme süreleri aynı oyun saatini kullanır.
@@ -16,8 +26,8 @@ Eski entegrasyon ve sprint belgelerindeki üretim açıklamaları tarihsel kayı
 - Duraklatma ve sekmenin arka plana alınması simülasyonu dondurur. Klavye ve çoklu dokunma girişleri odak kaybında bırakılır.
 - Garaj, yarış göstergeleri, duraklatma penceresi ve sonuç ekranı yenilendi. Classic Run ve Double or Nothing, mod başına yerel rekor tutar; ikinci mod seviye 5'e ulaşınca son skoru ikiye katlar, aksi halde sonuç sıfırdır.
 - Yol, sis, gökyüzü, bitki örtüsü, araç ışıkları, hız hissine tepki veren kamera ve sesler birlikte düzenlendi. Sık tekrarlanan çevre nesnelerinde ortak geometri ve instancing kullanılır.
-- Oyuncu modeli hazır olmadan yarış zamanı başlamaz. Trafik modelleri yüklenirken görünür yedek araçlar vardır. Garaj ve yarış yükleme hatalarında geri dönüş sunar.
-- Otomatik, Performance ve High grafik seçenekleri bulunur. Otomatik mod gerektiğinde çözünürlük ve sahne maliyetini düşürür. Yansımalar yerel ışıklarla üretilir; HDR veya Draco decoder için üçüncü taraf CDN gerekmez.
+- Oyuncu ve bütün trafik modelleri yüklendikten sonra dokuları GPU'ya aktarılır ve `compileAsync` ile shader hazırlığı beklenir; geri sayım bunun ardından başlar. Garaj ve yarış yükleme hatalarında geri dönüş sunar. Hazırlık, her sürücüde takılmasız ilk kare garantisi değildir.
+- Otomatik, Performance ve High grafik seçenekleri bulunur. Auto gerektiğinde yalnız render çözünürlüğünü düşürür; yarış başladıktan sonra çevre yerleşimi veya görüş mesafesi değişmez. Performance başlangıçta bazı küçük çevre detaylarını azaltır. Duraklatılan yarış talep üzerine çizilir; arka plandaki yarış ve garaj sürekli render yapmaz. Yansımalar yerel ışıklarla üretilir; HDR veya Draco decoder için üçüncü taraf CDN gerekmez.
 
 Hız göstergesi mevcut arcade hız ölçeğini `PACE` olarak adlandırır; fiziksel km/sa ölçümü olarak sunulmaz.
 
@@ -29,22 +39,25 @@ Hız göstergesi mevcut arcade hız ölçeğini `PACE` olarak adlandırır; fizi
 | `src/components/RaceScene.jsx` | 3D sahne, araçlar, kamera, ışık ve çevre |
 | `src/components/RaceHUD.jsx` | Ayrı durum seçicileriyle yarış göstergeleri ve duraklatma |
 | `src/components/RaceControls.jsx` | Klavye, pointer ve çoklu dokunma girişi |
+| `src/components/RoadsideWorld.jsx` | Ortak çevre örnekleri, görünür GPU öneki ve kaynak temizliği |
+| `src/environment/visibility.js` | Tam model sınırları, kamera hacmi ve dünya sarımı |
+| `src/hooks/usePageVisible.js` | Yarış ve garaj için sekme görünürlük aboneliği |
 | `src/components/RealLauncherUI.jsx` | Garaj, mod ve grafik seçimi |
 | `src/components/GameOverUI.jsx` | Sonuç, tekrar oynama ve yerel rekor |
 | `src/store.js` | Oyun oturumu, eylemler ve ses tercihleri |
 | `src/utils/gameplay.js` | Saf simülasyon, trafik, çarpışma ve puan kuralları |
 
-## Ek çevre çalışması — 7 Eylül 2026
+## Önceki çalışma — 7 Eylül 2026: ilk çevre koleksiyonu
 
 Yol kenarı, `RoadsideWorld` ile **18 özgün 3D prototipe** geçti: beş bina; meşe, kavak, çam ve çalı için ikişer çeşit; sokak lambası; çit, bank, elektrik dolabı ve ot kümesi. Statik parçalar malzemeye göre birleştirilir, yerleşimde instancing kullanılır. Bina/zemin yüzeyleri koddan üretilir; iki fotoğraf gerçekçiliğindeki yerel PNG doku toplam **5.683.600 bayttır**. Yaprak dokusunda gerçek alfa bulunur. Eski yol kenarı GLTF dosyaları bu çevre bileşeninde kullanılmaz.
 
-Güncel yerel lint/build geçti; 33 test geçti, 17 mock-modu üretim testi atlandı. Stüdyoda 18 model/68.152 prototip üçgeni ve sonlu koordinatlar doğrulandı; 390 × 844 mobil tarayıcı görünümünde yeni çevre kontrol edildi. Bunlar yeni bir GitHub Actions/CI sonucu değildir. Envanter ve sınırlar [ROADSIDE_ASSETS.md](ROADSIDE_ASSETS.md), tam doku istemleri ve dosya özetleri [üretim kaydında](../public/textures/roadside/README.md) bulunur. Aşağıdaki önceki doğrulama ve oyuncu modeli ölçümleri değiştirilmedi. Gerçek telefon FPS, uzun sürüş/ısınma ve bark tekrar dikişi kabulü tamamlanmış sayılmaz.
+Bu önceki aşamada yerel lint/build geçti; 33 test geçti, 17 mock-modu üretim testi atlandı. Stüdyoda 18 model/68.152 prototip üçgeni ve sonlu koordinatlar doğrulandı; 390 × 844 mobil tarayıcı görünümünde yeni çevre kontrol edildi. Bunlar tarihsel yerel ölçümlerdir. Güncel envanter ve sınırlar [ROADSIDE_ASSETS.md](ROADSIDE_ASSETS.md), tam doku istemleri ve dosya özetleri [üretim kaydında](../public/textures/roadside/README.md) bulunur. Gerçek telefon FPS, uzun sürüş/ısınma ve bark tekrar dikişi kabulü tamamlanmış sayılmaz.
 
-## Oyuncu modelinin maliyeti
+## Önceki çalışma — compact oyuncu modelinin maliyeti
 
-Kaynak `public/models/sport_car.glb` korundu. Garaj ve yarış `public/models/sport_car_compact.glb` kullanır; decoder dosyaları `public/draco/` içinden sunulur. Ara optimize dosya araç çalışma klasöründe tutulur ve `public/` içinde dağıtılmaz.
+Kaynak `public/models/sport_car.glb` korundu. Bu aşamada garaj ve yarış için hazırlanan `public/models/sport_car_compact.glb` halen garajda kullanılır; güncel yarış `sport_car_runtime.glb` kullanır. Aşağıdaki ölçümler compact aşamasına aittir. Decoder dosyaları `public/draco/` içinden sunulur. Ara optimize dosya araç çalışma klasöründe tutulur ve `public/` içinde dağıtılmaz.
 
-| Ölçüm | Kaynak | Oyunda kullanılan compact |
+| Ölçüm | Kaynak | Önceki yarış / güncel garaj compact |
 |---|---:|---:|
 | Dosya boyutu | 18.320.948 bayt | 12.753.108 bayt |
 | Üçgen / primitive | 237.482 / 11 | 237.482 / 11 |
@@ -78,7 +91,9 @@ Mevcut varlık atıfları README içinde korundu. Optimizasyon modelin lisansın
 
 ## Doğrulama kaydı
 
-7 Eylül 2026 yerel geliştirme doğrulamasında **33 test geçti, 17 test atlandı**. Atlanan testler, mevcut mock adaptörlerle uyumlu olmayan üretim cüzdan/fiyat davranışlarını sınar; üretim entegrasyonlarının geçtiği anlamına gelmez. Yeni testler sabit adım, duraklatma, çarpışma, trafik yerleşimi, puan ve geliştirme adaptörü sözleşmelerini kapsar.
+Son normal tarayıcı kontrolünde yükleme → geri sayım → yarış → çarpışma/sonuç → tekrar akışı tamamlandı. İlk hazırlık sırasında `P` ile duraklatmada süre 00:00 kaldı; devam sonrası görünür geri sayım 3'ten başladı. Oyuncu araç kimliği korundu; yakın bina ve meşe görüntüsü kontrol edildi. Sayfa JavaScript hatası görülmedi. Bu kısa akış kontrolü uzun sürüş, cihaz ısınması veya duraklatılmış durumda ölçülmüş GPU/FPS kaydı değildir.
+
+7 Eylül 2026 son yerel geliştirme doğrulamasında **40 test geçti, 17 test atlandı**. Önceki aşamada 33 test geçiyordu; yedi görünürlük testi eklendi. Atlanan testler, mevcut mock adaptörlerle uyumlu olmayan üretim cüzdan/fiyat davranışlarını sınar; üretim entegrasyonlarının geçtiği anlamına gelmez. Testler sabit adım, duraklatma, çarpışma, trafik yerleşimi, puan, geliştirme adaptörü sözleşmeleri ve çevre görünürlüğünü kapsar.
 
 Windows'taki kısıtlı çalışma ortamında Vite'ın varsayılan yapılandırma yükleyicisi alt süreç kısıtına takıldı. Üretim paketi `--configLoader native` ile başarıyla oluşturuldu; testler `--configLoader runner` ile çalıştırıldı. Bu ortamda Node 24 kullanıldı.
 

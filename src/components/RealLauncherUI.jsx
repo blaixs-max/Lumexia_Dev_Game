@@ -2,6 +2,7 @@ import { Component, Suspense, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { ContactShadows, useGLTF } from '@react-three/drei';
 import { Box3, Vector3 } from 'three';
+import { usePageVisible } from '../hooks/usePageVisible';
 import './RaceUI.css';
 
 useGLTF.setDecoderPath('/draco/');
@@ -39,12 +40,13 @@ function ShowroomCar() {
 }
 
 function Showroom({ quality }) {
+  const pageVisible = usePageVisible();
   return (
     <div className="lx-showroom" aria-label="Your sports car in the garage" role="img">
       <div className="lx-showroom-grid" aria-hidden="true" />
       <div className="lx-showroom-word" aria-hidden="true">L / X</div>
       <ShowroomBoundary>
-        <Canvas camera={{ position: [6, 3, 7], fov: 34 }} dpr={quality === 'performance' ? 1 : [1, 1.5]} gl={{ alpha: true, antialias: true }}>
+        <Canvas frameloop={pageVisible ? 'always' : 'never'} camera={{ position: [6, 3, 7], fov: 34 }} dpr={quality === 'performance' ? 1 : [1, 1.5]} gl={{ alpha: true, antialias: true }}>
           <ambientLight intensity={1.7} />
           <directionalLight position={[4, 7, 5]} intensity={4} color="#fff1d3" />
           <directionalLight position={[-4, 3, -4]} intensity={3} color="#a6d3dd" />

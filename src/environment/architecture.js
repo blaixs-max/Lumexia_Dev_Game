@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { mergeGeometries, mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
 
 // Original, metre-scale architecture. All entrances/fronts face local +Z.
 // Geometry is baked into one mesh per material; no per-window scene objects.
@@ -168,11 +168,19 @@ class Building {
     group.name = this.name;
     let triangles = 0;
     for (const [name, parts] of this.batches) {
-      const geometry = mergeGeometries(parts, false);
+      const merged = mergeGeometries(parts, false);
       parts.forEach(part => part.dispose());
+      // Complete attribute tuples keep brick UV seams and sharp trim normals
+      // while sharing duplicate corners within each material batch.
+      const indexed = mergeVertices(merged, 1e-5);
+      const stride = Object.values(merged.attributes).reduce((sum, attribute) => sum + attribute.itemSize * attribute.array.BYTES_PER_ELEMENT, 0);
+      const savedBytes = (merged.attributes.position.count - indexed.attributes.position.count) * stride;
+      const useIndex = savedBytes > indexed.index.array.byteLength;
+      const geometry = useIndex ? indexed : merged;
+      (useIndex ? merged : indexed).dispose();
       geometry.computeBoundingBox();
       geometry.computeBoundingSphere();
-      triangles += geometry.attributes.position.count / 3;
+      triangles += (geometry.index?.count ?? geometry.attributes.position.count) / 3;
       const mesh = new THREE.Mesh(geometry, this.palette[name]);
       mesh.name = `${this.name}/${name}`;
       mesh.castShadow = mesh.receiveShadow = true;
@@ -192,21 +200,35 @@ function facade(width, depth, side = 'front') {
 
 function windowUnit(building, frame, x, y, width, height, variation, divisions = true) {
   const glass = variation % 9 === 0 ? 'warmGlass' : variation % 3 === 0 ? 'coolGlass' : 'darkGlass';
-  building.plane('metal', width + 0.2, height + 0.2, x, y, 0.025, frame);
-  building.plane(glass, width, height, x, y, 0.043, frame);
+  // The reveal surrounds the opening instead of sitting behind the entire
+  // pane. Curtains partition the glass, so no thin opaque planes compete.
   for (const side of [-1, 1]) {
-    building.box('trim', 0.095, height + 0.2, 0.13, x + side * (width / 2 + 0.055), y, 0.06, undefined, frame);
-    building.box('metal', width + 0.04, 0.055, 0.09, x, y + side * (height / 2 - 0.015), 0.09, undefined, frame);
+    building.plane('metal', 0.1, height, x + side * (width / 2 + 0.05), y, 0.06, frame);
+    building.plane('metal', width + 0.2, 0.1, x, y + side * (height / 2 + 0.05), 0.06, frame);
+  }
+  if (variation % 7 === 0) {
+    building.plane('curtain', width * 0.22, height * 0.93, x - width * 0.36, y, 0.08, frame);
+    building.plane(glass, width * 0.03, height, x - width * 0.485, y, 0.08, frame);
+    building.plane(glass, width * 0.75, height, x + width * 0.125, y, 0.08, frame);
+    for (const side of [-1, 1]) building.plane(glass, width * 0.22, height * 0.035, x - width * 0.36, y + side * height * 0.4825, 0.08, frame);
+  } else building.plane(glass, width, height, x, y, 0.08, frame);
+  for (const side of [-1, 1]) {
+    building.box('trim', 0.095, height + 0.2, 0.18, x + side * (width / 2 + 0.055), y, 0.12, undefined, frame);
+    building.box('metal', width + 0.04, 0.055, 0.12, x, y + side * (height / 2 - 0.015), 0.14, undefined, frame);
   }
   building.box('trim', width + 0.35, 0.1, 0.29, x, y - height / 2 - 0.1, 0.11, undefined, frame);
-  if (divisions) building.box('metal', 0.045, height, 0.08, x, y, 0.091, undefined, frame);
-  if (variation % 7 === 0) building.plane('curtain', width * 0.22, height * 0.93, x - width * 0.36, y, 0.052, frame);
+  if (divisions) building.box('metal', 0.045, height, 0.12, x, y, 0.14, undefined, frame);
 }
 
 function entrance(building, frame, x, width = 1.15, height = 2.25) {
   building.box('trim', width + 0.26, height + 0.18, 0.2, x, height / 2 + 0.2, 0.03, undefined, frame);
-  building.box('timber', width, height, 0.09, x, height / 2 + 0.2, 0.16, undefined, frame);
-  building.plane('darkGlass', width * 0.45, height * 0.54, x, height * 0.68, 0.209, frame);
+  const paneWidth = width * 0.45, stileWidth = (width - paneWidth) / 2;
+  for (const side of [-1, 1]) building.box('timber', stileWidth, height, 0.09, x + side * (paneWidth + stileWidth) / 2, height / 2 + 0.2, 0.16, undefined, frame);
+  const lowerHeight = height * 0.41 - 0.2, upperHeight = height * 0.05 + 0.2;
+  building.box('timber', paneWidth, lowerHeight, 0.09, x, 0.2 + lowerHeight / 2, 0.16, undefined, frame);
+  building.box('timber', paneWidth, upperHeight, 0.09, x, height * 0.95 + upperHeight / 2, 0.16, undefined, frame);
+  // A real inset opening replaces glass overlaid 4 mm above a solid door.
+  building.plane('darkGlass', paneWidth, height * 0.54, x, height * 0.68, 0.18, frame);
   building.box('metal', 0.035, 0.29, 0.08, x + width * 0.34, height * 0.54, 0.24, undefined, frame);
   building.box('trim', width + 0.65, 0.18, 0.65, x, 0.09, 0.3, undefined, frame);
 }
@@ -328,22 +350,25 @@ function apartment(palette) {
   b.box('concrete', width + 0.6, 0.3, depth + 0.6, 0, 0.15, 0);
   b.box('brick', width, height - 0.3, depth, 0, (height + 0.3) / 2, 0);
   b.box('concrete', width + 0.08, 2.8, depth + 0.08, 0, 1.7, 0);
-  b.box('plaster', 2.7, height - 0.3, depth + 0.18, 0, (height + 0.3) / 2, 0);
+  // Keep the stairwell cladding clear of the adjacent window reveals.
+  b.box('plaster', 2.2, height - 0.3, depth + 0.18, 0, (height + 0.3) / 2, 0);
   for (let floor = 1; floor <= 6; floor++) b.box('trim', width + 0.2, 0.11, depth + 0.2, 0, floor * 3.1 + 0.45, 0);
-  const front = facade(width, depth);
+  const front = facade(width, depth + 0.18);
   entrance(b, front, 0, 1.65, 2.5);
   for (let floor = 0; floor < 6; floor++) {
     const y = 1.83 + floor * 3.1;
     for (const side of ['front', 'back']) {
-      const frame = facade(width, depth, side);
+      // Windows start at their actual wall surface: the ground-floor wrap
+      // projects 4 cm and the stairwell cladding projects 9 cm from the brick.
+      const frame = facade(width, depth + (floor === 0 ? 0.08 : 0), side);
       for (let column = 0; column < 4; column++) {
         const x = [-5.65, -2.15, 2.15, 5.65][column];
         windowUnit(b, frame, x, y, 1.83, 1.85, floor * 7 + column * 3);
         if (side === 'front' && floor > 0) balcony(b, frame, x, y - 1.04);
       }
-      if (floor > 0) windowUnit(b, frame, 0, y, 0.78, 1.5, floor + 2, false);
+      if (floor > 0) windowUnit(b, facade(width, depth + 0.18, side), 0, y, 0.78, 1.5, floor + 2, false);
     }
-    for (const side of ['left', 'right']) for (const x of [-3.5, 0, 3.5]) windowUnit(b, facade(width, depth, side), x, y, 1.56, 1.82, floor * 5 + Math.round(x * 2));
+    for (const side of ['left', 'right']) for (const x of [-3.5, 0, 3.5]) windowUnit(b, facade(width + (floor === 0 ? 0.08 : 0), depth, side), x, y, 1.56, 1.82, floor * 5 + Math.round(x * 2));
   }
   flatRoof(b, width, depth, height);
   b.box('concrete', 3.8, 2.25, 4.0, -2.7, height + 1.12, -1.8);

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
 
 const UP = new THREE.Vector3(0, 1, 0);
 const TAU = Math.PI * 2;
@@ -52,9 +53,17 @@ class Surface {
     geometry.setAttribute('normal', new THREE.Float32BufferAttribute(this.normals, 3));
     geometry.setAttribute('uv', new THREE.Float32BufferAttribute(this.uvs, 2));
     geometry.setAttribute('color', new THREE.Float32BufferAttribute(this.colors, 3));
-    geometry.computeBoundingBox();
-    geometry.computeBoundingSphere();
-    const mesh = new THREE.Mesh(geometry, material);
+    // Weld complete attribute tuples, preserving UV seams, hard normals and
+    // needle colors. Unique triangle fans gain nothing from an index buffer.
+    const indexed = mergeVertices(geometry, 1e-5);
+    const stride = Object.values(geometry.attributes).reduce((sum, attribute) => sum + attribute.itemSize * attribute.array.BYTES_PER_ELEMENT, 0);
+    const savedBytes = (geometry.attributes.position.count - indexed.attributes.position.count) * stride;
+    const useIndex = savedBytes > indexed.index.array.byteLength;
+    const compact = useIndex ? indexed : geometry;
+    (useIndex ? geometry : indexed).dispose();
+    compact.computeBoundingBox();
+    compact.computeBoundingSphere();
+    const mesh = new THREE.Mesh(compact, material);
     mesh.name = name;
     mesh.castShadow = true;
     mesh.receiveShadow = true;
@@ -206,10 +215,15 @@ function pineNeedleFan(surface, base, end, cross, width, random) {
     const t = 0.06 + i * 0.115;
     const spread = width * (0.55 + Math.sin(t * Math.PI) * 0.45);
     for (const side of [-1, 1]) {
-      const a = base.clone().addScaledVector(axis, t - 0.025).addScaledVector(cross, side * spread * 0.08);
-      const b = base.clone().addScaledVector(axis, t + 0.15).addScaledVector(cross, side * spread * 0.08);
-      const tip = base.clone().addScaledVector(axis, t + 0.22 + random() * 0.08).addScaledVector(cross, side * spread * (0.86 + random() * 0.24));
-      const color = new THREE.Color().setHSL(0.32 + random() * 0.035, 0.3 + random() * 0.12, 0.16 + random() * 0.08);
+      // Four broad pairs use 9 triangles per fan instead of 15, retaining the
+      // full spray span. Consume every sample to keep branch positions fixed.
+      const tipLength = random(), tipWidth = random();
+      const hue = random(), saturation = random(), lightness = random();
+      if (i % 2) continue;
+      const a = base.clone().addScaledVector(axis, Math.max(0, t - 0.1)).addScaledVector(cross, side * spread * 0.08);
+      const b = base.clone().addScaledVector(axis, t + 0.18).addScaledVector(cross, side * spread * 0.08);
+      const tip = base.clone().addScaledVector(axis, t + 0.22 + tipLength * 0.08).addScaledVector(cross, side * spread * (0.86 + tipWidth * 0.24));
+      const color = new THREE.Color().setHSL(0.32 + hue * 0.035, 0.3 + saturation * 0.12, 0.16 + lightness * 0.08);
       surface.triangle(a, b, tip, color);
     }
   }
@@ -364,7 +378,9 @@ export function buildNatureAssets({ leafTexture, barkTexture } = {}) {
   barkMap.needsUpdate = true;
   const materials = {
     bark: new THREE.MeshStandardMaterial({ map: barkMap, roughness: 0.94, vertexColors: true }),
-    leaves: new THREE.MeshStandardMaterial({ map: leafTexture || fallbackLeaves(), roughness: 0.87, side: THREE.DoubleSide, alphaTest: 0.45, vertexColors: true }),
+    // The source leaf alpha averages 0.425: a 0.45 cutout erases its smallest
+    // mip. Native MSAA coverage smooths moving edges without temporal dither.
+    leaves: new THREE.MeshStandardMaterial({ map: leafTexture || fallbackLeaves(), roughness: 0.87, side: THREE.DoubleSide, alphaTest: 0.3, alphaToCoverage: true, forceSinglePass: true, vertexColors: true }),
     needles: new THREE.MeshStandardMaterial({ color: '#a3ac83', roughness: 0.96, side: THREE.DoubleSide, vertexColors: true }),
     metal: new THREE.MeshStandardMaterial({ color: '#e0e5e5', metalness: 0.74, roughness: 0.49, vertexColors: true }),
     darkMetal: new THREE.MeshStandardMaterial({ metalness: 0.58, roughness: 0.6, vertexColors: true }),
@@ -383,7 +399,7 @@ export function buildNatureAssets({ leafTexture, barkTexture } = {}) {
     const bounds = new THREE.Box3().setFromObject(asset);
     asset.children.forEach(mesh => mesh.geometry.translate(0, -bounds.min.y, 0));
     asset.userData.dimensions = new THREE.Box3().setFromObject(asset).getSize(new THREE.Vector3()).toArray();
-    asset.userData.triangles = asset.children.reduce((sum, mesh) => sum + mesh.geometry.attributes.position.count / 3, 0);
+    asset.userData.triangles = asset.children.reduce((sum, mesh) => sum + (mesh.geometry.index?.count ?? mesh.geometry.attributes.position.count) / 3, 0);
     asset.userData.drawCalls = asset.children.length;
     asset.userData.originalProceduralAsset = true;
   }
