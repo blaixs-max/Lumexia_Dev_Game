@@ -7,7 +7,7 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 export default defineConfig([
   // Sprint 4.1: extended ignore list. Edge Functions are Deno + TypeScript
   // with their own toolchain; .claude is local Claude Code metadata.
-  globalIgnores(['dist', 'node_modules', '.claude', '.netlify', 'supabase/functions']),
+  globalIgnores(['dist', 'node_modules', '.claude', '.netlify', 'supabase/functions', 'public/draco']),
   {
     files: ['**/*.{js,jsx}'],
     extends: [

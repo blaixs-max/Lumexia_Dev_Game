@@ -1,6 +1,21 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+#root { width: 100%; min-height: 100dvh; }
+.lx-race { position: fixed; inset: 0; background: #647e91; touch-action: none; user-select: none; }
+.lx-race > div:first-child { position: absolute !important; inset: 0; }
+.lx-track-vignette { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(#09101922, transparent 27%, transparent 65%, #070f1940); }
+.lx-track-loading, .lx-load-error { position: absolute; inset: 0; z-index: 30; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; background: #0b1013; padding: 28px; text-align: center; }
+.lx-track-loading p { letter-spacing: .22em; font-weight: 700; }
+.lx-track-loading small, .lx-load-error p { color: #96a4ac; }
+.lx-track-loading button, .lx-load-error button { max-width: 300px; }
+.lx-loading-spinner { width: 40px; height: 40px; border: 2px solid #34414a; border-top-color: #defb7b; border-radius: 50%; animation: lx-spin 1s linear infinite; }
+@keyframes lx-spin { to { transform: rotate(360deg); } }
+.lx-touch-controls { display: none; }
+@media (pointer: coarse), (max-width: 700px) {
+  .lx-touch-controls { display: flex; position: absolute; z-index: 25; bottom: max(20px, env(safe-area-inset-bottom)); left: max(16px, env(safe-area-inset-left)); right: max(16px, env(safe-area-inset-right)); justify-content: space-between; pointer-events: none; }
+  .lx-touch-steering { display: flex; gap: 8px; }
+  .lx-touch-controls button { width: 58px; height: 60px; border: 1px solid #c0d5dc55; border-radius: 15px; color: #eef2ef; background: #121e28bd; backdrop-filter: blur(8px); font-size: 26px; pointer-events: auto; touch-action: none; -webkit-user-select: none; }
+  .lx-touch-controls button:active { background: #defb7b; color: #152015; border-color: #defb7b; }
+  .lx-touch-controls .lx-touch-nitro { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; font-size: 9px; font-weight: 800; letter-spacing: .12em; color: #defb7b; border-color: #defb7b77; }
+  .lx-touch-nitro span { font-size: 23px; }
 }
+@media (max-height: 480px) { .lx-touch-controls button { width: 52px; height: 48px; } }
+@media (prefers-reduced-motion: reduce) { .lx-loading-spinner { animation: none; } }

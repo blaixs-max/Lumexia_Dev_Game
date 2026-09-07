@@ -1,8 +1,26 @@
 # Lumexia Racing Game - Gelistirme Plani
 
-> Son guncelleme: 2026-05-03 (v12)
+> Son güncelleme: 2026-09-07
 
-## Mevcut Durum Ozeti
+## Güncel durum — 2026-09-07
+
+`Lumexia_Dev_Game` şu anda **ücretsiz ve yerel antrenman sürümüdür**. `DEV_MODE=true`; cüzdan, fiyat ve backend adaptörleri mock durumundadır. Oyun kredi tüketmez, sunucu sıralamasına skor göndermez veya ödül ödemez. Yerel rekorlar tarayıcıda, oyun modu bazında tutulur. Yalnız bayrağı değiştirmek üretim entegrasyonlarını geri getirmez.
+
+Oynanış, sabit 120 Hz simülasyon, yumuşak direksiyon, hareket boyunca çarpışma kontrolü, trafik aralıkları, nitro ve duraklatmayla yenilendi. Garaj, yarış HUD'si, sonuç ekranı, çevre, kamera, ses ve grafik seçenekleri ayrı bileşenlere taşındı. Oyuncu modelinde üçgenler korunarak indirme boyutu %30,39 azaltıldı; yerel Draco decoder eklendi. Ayrıntılar [kalite raporunda](QUALITY_REVIEW.md).
+
+**Yerel doğrulama:** 33 test geçti, mock modundaki üretim davranışlarına ait 17 test atlandı. Kısıtlı Windows ortamında testler `--configLoader runner`, build `--configLoader native` ile başarıyla çalıştı. Normal ve kısıtlı ortam komutları README'dedir. Test sayısı üretim hizmetleri için başarı iddiası değildir.
+
+### Sonraki kabul çalışmaları
+
+1. Windows entegre GPU, orta sınıf Android ve iPhone Safari'de en az 15 dakika sürüş ve kare süresi ölçümü.
+2. Klavye ve çoklu dokunma, yön + nitro, duraklatma, odak kaybı, ekran döndürme ve 30/60/120 Hz karşılaştırması.
+3. Boş önbellek/yavaş bağlantı, varlık yükleme hatası ve art arda 20 yeniden başlatmada kaynak kullanımı.
+4. Compact oyuncu modelinin yakın kamera ve mobil çözünürlükte görsel kabulü.
+5. Üretim cüzdan, ödeme, sıralama ve ödül servisleri için ayrı test ortamında entegrasyon ve kabul planı. Bu çalışma tamamlanana kadar mevcut antrenman kapsamı korunur.
+
+## Tarihsel durum özeti — 2026-05-03
+
+**Arşiv notu:** Aşağıdaki plan ve sprint kayıtları tarihsel bağlamı korumak için bırakılmıştır. “Çalışıyor”, “prod” ve “operasyonel” ifadeleri 3 Mayıs 2026'daki üretim anlatımına aittir; mevcut geliştirme deposunun doğrulanmış durumu değildir. Güncel kapsam ve kalan kabul işleri yukarıdadır.
 
 Proje, **calisir ve oyunabilir** durumda bir 3D yaris oyunu. TOKABU token ile odeme akisi end-to-end calisiyor. Sprint 0-4 + Sprint 4.5 + Sprint 6 + Sprint 7-mini tamamlandi. **Cycle reward payout pipeline operasyonel:** her cycle sonu Edge Function USD + SOL + TOKABU yazar, ekip manuel runbook ile ödeme yapar ve `paid_at` ile işaretler.
 

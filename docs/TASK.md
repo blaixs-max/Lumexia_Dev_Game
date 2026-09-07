@@ -1,8 +1,33 @@
 # Lumexia Racing Game - Gorev Takip
 
-> Son guncelleme: 2026-05-03 (v24)
+> Son güncelleme: 2026-09-07
 
 ---
+
+## 2026-09-07: Geliştirme sürümünde oynanış ve görsel yenileme
+
+**Güncel kapsam:** Bu depo `DEV_MODE=true` ile ücretsiz, yerel antrenman oyunudur. Cüzdan, fiyat ve backend adaptörleri mock durumundadır. Yarış kredi tüketmez, sunucu skoru göndermez ve ödül ödemez. Önceki kayıtlardaki üretim ve dağıtım iddiaları ait oldukları tarihin geçmiş kaydıdır; mevcut geliştirme sürümünün doğrulanmış özelliği değildir.
+
+**Tamamlanan çalışma:**
+
+- [x] Sabit 120 Hz simülasyon; yumuşak direksiyon, nitro ve hareket boyunca çarpışma kontrolü.
+- [x] Kaçış boşluğunu değerlendiren trafik, sinyalli şerit değişimi ve araç başına tek yakın-geçiş ödülü.
+- [x] Duraklatma, sekme/odak kaybında giriş bırakma ve çoklu dokunma kontrolü.
+- [x] Yeni 3D garaj, yarış HUD'si, duraklatma ve sonuç ekranı; mod başına yerel rekorlar.
+- [x] Kamera, ışık, çevre, ses ve grafik seçenekleri; yükleme ve sahne hatası geri dönüşleri.
+- [x] `sport_car_compact.glb`: 237.482 üçgen korunarak model dosyasında %30,39 azalma; yerel Draco decoder ve lisansı.
+- [x] Ayrı oyun, sahne, HUD ve kontrol bileşenleri; saf oynanış kuralları ve geliştirme adaptörü testleri.
+- [x] README, kalite raporu ve güncel çalışma modu belgelerinin eşitlenmesi.
+
+**Doğrulama:** 33 test geçti, 17 üretim cüzdan/fiyat testi mock geliştirme modunda atlandı. Kısıtlı Windows ortamında testler `npm test -- --configLoader runner`, üretim paketi `npm run build -- --configLoader native` ile doğrulandı. Normal ortam komutları ve isteğe bağlı `npm ci --ignore-scripts` kurulumu [kalite raporunda](QUALITY_REVIEW.md) açıklanır. Bu sonuç canlı servis, cihaz FPS veya üretim dağıtım doğrulaması değildir.
+
+**Kalan kabul:** Windows, Android ve iPhone üzerinde uzun sürüş; yavaş bağlantı ve tekrar başlatma ölçümleri; optimize modelin cihazlarda görsel kabulü. Üretim servisleri ancak ayrı entegrasyon doğrulamasından sonra ele alınmalı. Mevcut ayrıntılar: [QUALITY_REVIEW.md](QUALITY_REVIEW.md).
+
+---
+
+## Tarihsel kayıtlar
+
+Aşağıdaki kayıtlar korunmuştur. Özellikle “prod”, “operasyonel” ve “canlı” ifadeleri o tarihlerdeki çalışmaları anlatır; bugünkü `Lumexia_Dev_Game` antrenman sürümünün durum bildirimi değildir.
 
 ## 2026-05-03: Sprint 7-mini KAPALI — manual-payout pipeline operational (3 PR)
 

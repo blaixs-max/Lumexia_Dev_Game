@@ -1,73 +1,83 @@
-# Lumexia Racing Game
+# Lumexia Racing Game — Development Edition
 
-3D browser racing game on Solana. Players connect a Solana wallet (Phantom, Solflare, Coinbase, Trust), buy credits with the **TOKABU** SPL token, and race for daily-leaderboard rewards distributed in USD.
+A 3D browser highway racer built with React, Three.js and Zustand. This repository is the **free practice development edition**: choose Classic Run or Double or Nothing, steer through traffic, collect power-ups and beat your best score on this device.
 
-**Live:** [game.lumexia.net](https://game.lumexia.net) (Netlify)
-**Landing:** [lumexia.net](https://lumexia.net) (separate repo: [v0-lumexia-landing-page-V0](https://github.com/blaixs-max/v0-lumexia-landing-page-V0))
+**Current mode: `DEV_MODE=true`.** Wallet, credit, price and backend adapters are mocked. The race does not spend credits, submit server scores or distribute rewards. No wallet or environment variables are required for local practice. Changing the flag alone does not restore production integrations.
 
----
+Older production and deployment descriptions in the documentation are historical records. They do not describe the active behavior of this development repository.
 
-## Tech Stack
-
-- **Frontend:** Vite + React 19 + Three.js (`@react-three/fiber`, `@react-three/drei`, `@react-three/rapier`)
-- **State:** Zustand
-- **Wallet:** `@solana/wallet-adapter-react` (Phantom / Solflare / Coinbase / Trust)
-- **Backend:** Supabase (Postgres 17) + Edge Functions (Deno/TypeScript)
-- **Token:** TOKABU on Solana — mint `H8xQ6poBjB9DTPMDTKWzWPrnxu4bDEhybxiouF8Ppump`
-
----
-
-## Local Development
+## Play locally
 
 ```bash
-npm install            # install dependencies
-npm run dev            # start Vite dev server (HMR, http://localhost:5173)
-npm test               # run Vitest unit suite
-npm run lint           # run ESLint
-npm run build          # production build (output: dist/)
-npm run preview        # preview the production build locally
+npm ci
+npm run dev       # http://localhost:5173
 ```
 
-### Environment Variables
+Select a mode and graphics quality in the garage, then start a run. Classic Run is endless. Double or Nothing awards twice the final score after reaching level 5; finishing earlier gives zero. Best scores are stored locally per mode.
 
-Create `.env.local` (Vite picks up `VITE_*` keys at build time):
+| Input | Action |
+|---|---|
+| Left / Right arrows or A / D | Hold to steer |
+| Space | Hold for nitro |
+| Esc or P | Pause / resume |
+| M | Toggle sound |
+| Touch controls | Hold a direction and nitro together |
 
-```env
-VITE_SUPABASE_URL=https://cldjwajhcepyzvmwjcmz.supabase.co
-VITE_SUPABASE_ANON_KEY=<the project's publishable anon key>
-VITE_HELIUS_API_KEY=<domain-restricted public key, optional>
-VITE_WALLETCONNECT_PROJECT_ID=<optional>
+Switching away from the game pauses the run and releases held input. The pause menu includes resume, restart and return to garage. The arcade speed indicator uses `PACE`, not a physical km/h calibration.
+
+Graphics options are Auto, Performance and High. Auto can reduce resolution and scene detail when needed. Sound and graphics preferences are saved locally when browser storage is available.
+
+## Architecture
+
+- **Frontend:** Vite + React 19, Three.js, React Three Fiber and Drei.
+- **Simulation:** Zustand session state in `src/store.js`; fixed 120 Hz gameplay rules in `src/utils/gameplay.js`.
+- **Scene:** `src/components/RaceScene.jsx` handles the highway, vehicles, camera, lighting and scenery. Repeated scenery uses shared geometry and instancing.
+- **Interface:** `RealLauncherUI.jsx`, `RaceHUD.jsx`, `RaceControls.jsx` and `GameOverUI.jsx` separate the garage, telemetry, input and results.
+- **App lifecycle:** `src/App.jsx` connects the screens, lazy-loads the race scene and handles audio and scene loading errors.
+- **Archived integration sources:** Supabase functions, migrations and production integration documentation remain in the repository. Enabling those services requires a separate validated integration effort.
+
+The garage and race use `public/models/sport_car_compact.glb` with locally bundled decoders in `public/draco/`. The original `sport_car.glb` is preserved. Model download size is **30.39% smaller**, with the same 237,482 triangles. The texture memory estimate falls from 160 MiB to 48 MiB under an RGBA8 + full mip-chain assumption; this is not a measured device memory or FPS result.
+
+## Checks and build
+
+```bash
+npm test
+npm run lint
+npm run build       # output: dist/
+npm run preview     # preview the build
 ```
 
-See `docs/INTEGRATION.md` for the full env map (this repo + landing repo + Edge Function secrets + CI).
+Local verification on 7 September 2026: **33 tests passed, 17 skipped**. The skipped tests cover production wallet/price behavior while this repository uses mock adapters. They are not evidence that production services work.
 
----
+Node 24 was used for local verification. In the constrained Windows environment, the build succeeded with Vite's native configuration loader and tests used the runner loader. If your environment also restricts installation scripts or configuration-loader subprocesses, these were the commands used:
+
+```bash
+npm ci --ignore-scripts
+npm test -- --configLoader runner
+npm run build -- --configLoader native
+```
+
+Use the ordinary commands above in a normal development environment. The native loader requires a Node version capable of loading the configuration directly.
 
 ## Documentation
 
-| Doc | Purpose |
+| Document | Purpose |
 |---|---|
-| [`docs/PROJECT_DOCS.md`](docs/PROJECT_DOCS.md) | Detailed architecture: store, components, schema, Edge Functions, RLS |
-| [`docs/PLAN.md`](docs/PLAN.md) | Roadmap and remaining priorities |
-| [`docs/TASK.md`](docs/TASK.md) | Per-PR task log (most recent first) |
-| [`docs/INTEGRATION.md`](docs/INTEGRATION.md) | Cross-repo contract: how the racing game and the landing page meet at Supabase |
-| [`CLAUDE.md`](CLAUDE.md) | Project rules for AI-assisted development (Turkish) |
+| [Quality review](docs/QUALITY_REVIEW.md) | Current changes, model metrics, reproduction steps and verification limits |
+| [Development plan](docs/PLAN.md) | Current acceptance work followed by the preserved historical roadmap |
+| [Task log](docs/TASK.md) | Current development entry followed by earlier work |
+| [Project documentation](docs/PROJECT_DOCS.md) | Earlier architecture and integration reference; check against current code |
+| [Integration reference](docs/INTEGRATION.md) | Historical production integration contract |
+| [Project rules](CLAUDE.md) | Repository collaboration rules |
+
+## CI and deployment context
+
+The PR workflow runs tests, a build and lint on Node 20. The existing lint job uses `continue-on-error: true`. Supabase deployment workflows remain in the repository; their presence does not mean the practice game connects to production or that live services were validated in this change.
+
+Real device sessions on Windows, Android and iPhone remain part of the acceptance plan. See the quality review for scope and known limits.
 
 ---
 
-## CI / CD
-
-Three GitHub Actions workflows guard `main`:
-
-| Workflow | Trigger | What it does |
-|---|---|---|
-| `.github/workflows/ci.yml` | every PR | `npm test` + `npm run build` + `npm run lint` (must all pass) |
-| `.github/workflows/deploy-edge-functions.yml` | push to main touching `supabase/functions/**` | deploys 4 Edge Functions via Supabase CLI |
-| `.github/workflows/deploy-migrations.yml` | push to main touching `supabase/migrations/**` | runs `supabase db push` (idempotent, repairs first-run state) |
-
-Branch protection requires PR review + status checks before merge.
-
----
 
 ## Credits
 
@@ -89,3 +99,4 @@ Open-source 3D assets used in the game:
 ## License
 
 Private. Contact: [@lumexia_project on X](https://x.com/lumexia_project).
+

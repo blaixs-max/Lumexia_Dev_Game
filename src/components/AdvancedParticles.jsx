@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { useGameStore } from '../store';
 
 /**
  * NitroBoostParticles - High-performance nitro boost effect
@@ -34,7 +35,7 @@ export function NitroBoostParticles({ isActive = false, position = [0, 0, 0] }) 
   }, [maxParticles]);
 
   useFrame((state, delta) => {
-    if (!particlesRef.current) return;
+    if (!particlesRef.current || useGameStore.getState().gameState === 'paused') return;
 
     const clampedDelta = Math.min(delta, 0.1);
     // PERFORMANCE FIX: Using cached dummy object instead of creating new one each frame
@@ -68,7 +69,7 @@ export function NitroBoostParticles({ isActive = false, position = [0, 0, 0] }) 
 
         // Apply gravity and drag
         particle.velocity.y -= 5 * clampedDelta;
-        particle.velocity.multiplyScalar(0.95);
+        particle.velocity.multiplyScalar(Math.pow(0.95, clampedDelta * 60));
 
         particle.life -= clampedDelta;
         particle.opacity = particle.life / particle.maxLife;
@@ -149,7 +150,7 @@ export function RocketTrailParticles({ isActive = false, position = [0, 0, 0] })
   }, [maxParticles]);
 
   useFrame((state, delta) => {
-    if (!particlesRef.current) return;
+    if (!particlesRef.current || useGameStore.getState().gameState === 'paused') return;
     const clampedDelta = Math.min(delta, 0.1);
 
     particles.current.forEach((particle, i) => {
@@ -175,7 +176,7 @@ export function RocketTrailParticles({ isActive = false, position = [0, 0, 0] })
         particle.position.y += particle.velocity.y * clampedDelta;
         particle.position.z += particle.velocity.z * clampedDelta;
         particle.velocity.y -= 3 * clampedDelta;
-        particle.velocity.multiplyScalar(0.96);
+        particle.velocity.multiplyScalar(Math.pow(0.96, clampedDelta * 60));
         particle.life -= clampedDelta;
 
         const lifeFactor = particle.life / particle.maxLife;
@@ -224,4 +225,3 @@ export function RocketTrailParticles({ isActive = false, position = [0, 0, 0] })
     />
   );
 }
-
