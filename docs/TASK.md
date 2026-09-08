@@ -1,6 +1,28 @@
 # Lumexia Racing Game - Gorev Takip
 
-> Son güncelleme: 2026-09-07
+> Son güncelleme: 2026-09-08
+
+## 2026-09-08: Zaman döngüsü ve değişken yol
+
+- [x] Kullanıcının seçimi: 5 dakika gündüz, 45 saniye gün batımı, 3 dakika gece, 45 saniye gün doğumu; duraklatma/yeni yarış ile tutarlı döngü.
+- [x] Gökyüzü, sis, ay/yıldız, güneş/ay ışığı, sokak lambaları, pencere ve araç farlarının birlikte yumuşak değişmesi.
+- [x] Geniş S virajları: yol, bariyer, kaldırım, çevre, trafik, oyuncu, ödüller ve kamera aynı rota koordinatlarını kullanır.
+- [x] 150 render metre kemerli tünel, beton girişler, toprak örtüsü ve instanced tavan armatürleri; tünel içinde gündüz de farlar açılır.
+- [x] Eğrilmiş model sınırlarına göre görünürlük; tünel çevresinde ağaç/bina/direk çakışmalarını önleyen rota maskesi.
+- [x] Döngü sınırları, geometrinin tekrar deformasyonu, rota sarımı, tünel geçişleri ve virajlı görünürlük testleri; 62 test geçti, 17 mock modu üretim entegrasyon testi atlandı. ESLint başarılı.
+- [x] Son üretim derlemesi başarılı. 1280×720 masaüstü, 844×390 yatay ve 390×844 dikey görünümde gündüz, gün batımı, gece tüneli, gün doğumu ve gündüze dönüş incelendi; HUD aracı kapatmıyor. Ayrı tanılama sahnesinde hızlandırılmış altı tam zaman döngüsü ve tekrarlanan rota/tünel geçişleri sonrasında shader programları 31/31 sabit, 5 gerçek ışık ve 1 gölge kaynağı sabit; shader/sayfa/bağlam kaybı hatası 0. Bu masaüstü tarayıcı kontrolü, gerçek telefon performans veya çoklu dokunma kabulü değildir.
+
+## 2026-09-07: Gece otoyolu
+
+- [x] Gece yarışı varsayılan oldu: lacivert gökyüzü, sabit yıldızlar ve krater detaylı ay; sis ve çevre ışığı aynı gece paletini kullanır.
+- [x] 36 sokak lambasının lensleri yanar; yol/kaldırım üzerinde yumuşak sıcak ışık alanları ve küçük lens haleleri iki instanced çizimde işlenir. Direk başına gerçek ışık veya gölge haritası eklenmedi.
+- [x] Oyuncunun araç dönüşüne bağlı iki gerçek farı öndeki asfaltı ve trafiği aydınlatır. Trafik araçları ışıklı far yüzeyleri, yumuşak yol izleri ve mevcut kırmızı stopları kullanır; seçili bina pencereleri sıcak ışık verir.
+- [x] Far ışık sayısı sabittir. Yeni trafik farı shader'ı geri sayımdan önce hazırlanır; uzak ışık izleri sis içinde alfa ile kaybolur. Performance gölgesizdir, High tek 1024 px ay gölge haritası kullanır.
+- [x] Yerel üretim build, ESLint ve 46 test başarılı; mock modundaki 17 üretim adaptörü testi atlandı.
+- [x] 1280×720 masaüstü, 844×390 yatay ve 390×844 dikey mobil görünüm kontrol edildi: ay/yıldızlar, lamba alanları ve farlar görünür; hız/nitro aracı kapatmıyor. Hazırlık, geri sayım, yarış, duraklatma ve tekrar açıldı; tarayıcı hata kaydı temiz.
+- [x] Performance/High render tekrarlarında gerçek ışık sayısı değişmedi; shader programı artışı 0 (29/30 program). High son tanılamada bağlam kaybı veya shader hatası yok; iki far ve tek ay gölgesi korunur. GPU ortalama 33,10 ms, p95 50,47 ms; teslim edilen kareler ortalama 168,33 ms, p95 525,30 ms olduğundan akıcı FPS kabulü yapılmadı. Ayrıntılar [night-validation.json](night-validation.json).
+
+Gece değişikliği, önceki mobil PR'ın merge edildiği `890ee579` üzerine ayrı `codex/night-highway` dalında hazırlanır. Aynı oturumdaki eski gündüz referansında da 1008 ms kare aralıkları görüldü; bu koşullar karşılaştırmalı FPS iddiası için yeterli değildir. Fiziksel telefon uzun sürüş/ısınma testi bu bilgisayardaki tarayıcı ölçümünden ayrıdır.
 
 ## 2026-09-07: Mobil göstergeler ve ekran üzerinden direksiyon
 

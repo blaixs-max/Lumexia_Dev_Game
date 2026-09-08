@@ -1,6 +1,22 @@
 # Lumexia Racing Game - Gelistirme Plani
 
-> Son güncelleme: 2026-09-07
+> Son güncelleme: 2026-09-08
+
+## Gündüz–gece döngüsü, virajlar ve tünel — 2026-09-08
+
+Yarış gündüz başlar: 300 saniye gündüz, 45 saniye gün batımı, 180 saniye gece, 45 saniye gün doğumu; 570 saniyelik döngü tekrar eder. Zaman oyunun elapsedTime değerinden türetilir, duraklatmada ilerlemez ve yeni yarışta sıfırlanır. Gökyüzü, sis, ay/yıldızlar, ortam ışığı, sokak lambaları, pencereler ve farlar aynı geçişi kullanır.
+
+1800 render metrelik periyodik rota geniş S virajlarını ve 650. metrede başlayan 150 metrelik tüneli içerir. Render mesafesi önceki dünyadaki gibi totalDistance × 5'tir; HUD mesafesiyle aynı birim değildir. Yol yüzeyleri ve tünelin küçük geometrileri bükülür; araçlar, binalar ve ağaçlar ortak yol konumu/yönüne göre katı olarak yerleştirilir. Çarpışmalar yol koordinatlarında kalır, görünürlük gerçek eğrilmiş model sınırlarıyla hesaplanır. Tünelde farlar gündüz de açılır; giriş ve çıkış ışığı 15 render metresi boyunca yumuşar.
+
+Tünel yedi ek çizim, instanced armatürler ve mevcut iki araç farını kullanır; yeni gerçek ışık, postprocess veya ayrı gölge haritası eklenmez. Görsel kabul ve ölçümler TASK.md içinde tutulur; fiziksel telefon performansı ayrıca doğrulanmalıdır.
+
+## Gece yarışı — 2026-09-07
+
+Varsayılan sürüş geceye taşındı. Üç çizimlik procedural gökyüzü ay ve yıldızları içerir; sokak lambalarının tamamı iki instanced ışık alanı/halo çizimiyle desteklenir. Oyuncunun iki shadowless SpotLight'ı araçla birlikte dönen açık hedeflere bağlıdır. NPC farları gerçek ışık sayısını artırmaz. Sis, camlar, asfalt, şeritler ve yansıtma ortamı gece için birlikte ayarlanmıştır; Performance/High aynı gece dünyasını korur.
+
+Kabul: yerel build/lint ve 46 test geçti (17 mock-modu üretim testi atlandı). 1280×720, 844×390 ve 390×844 görünümleri kontrol edildi. Performance/High gerçek ışık sayısı sabit ve shader artışı 0; son High koşusunda shader/bağlam hatası yok. GPU ortalaması 33,10 ms olmasına karşın teslim edilen kare aralıkları ortalama 168,33 ms ve p95 525,30 ms: bu oturum akıcı FPS kabulü veya fiziksel cihaz garantisi sağlamaz. Aynı oturumdaki eski gündüz referansı da uzun kare aralıkları gösterir; neden tek başına geceye bağlanamaz. Sonuçlar [night-validation.json](night-validation.json) içinde.
+
+Render aracı artık yarışın shader hazırlığını bekler; ışık/program sayısı, görünürlük/odak, WebGL hataları ve mevcutsa asenkron GPU sürelerini kaydeder. Yayın ayrı `codex/night-highway` dalı ve yeni inceleme isteği üzerinden ilerler; önceki mobil PR merge edilmiştir.
 
 ## Güncel mobil kontrol düzenlemesi — 2026-09-07
 

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { placeOnRoad, sampleRoadFrame } from './road-path';
 
 // Keep complete scenery beyond the shared 600 m fog end. The bounding sphere
 // is tested, so a large building's visible front cannot disappear early.
@@ -41,6 +42,8 @@ export class RoadVisibility {
     this.previousCamera = new THREE.Matrix4();
     this.previousProjection = new THREE.Matrix4();
     this.scratchSphere = new THREE.Sphere();
+    this.curvedBounds = new THREE.Sphere();
+    this.roadFrame = {};
     this.distance = NaN;
     this.version = 0;
   }
@@ -60,6 +63,15 @@ export class RoadVisibility {
   }
 
   visible(bounds, z) {
-    return isBoundsVisible(bounds, z, this.frustum, this.view, this.scratchSphere);
+    const frame = sampleRoadFrame(this.distance, z, this.roadFrame);
+    this.curvedBounds.center.copy(bounds.center);
+    this.curvedBounds.center.applyAxisAngle(THREE.Object3D.DEFAULT_UP, frame.yaw);
+    this.curvedBounds.center.x += frame.x;
+    this.curvedBounds.radius = bounds.radius;
+    return isBoundsVisible(this.curvedBounds, frame.z, this.frustum, this.view, this.scratchSphere);
+  }
+
+  place(target, local, z) {
+    return placeOnRoad(target, local, z, this.distance);
   }
 }

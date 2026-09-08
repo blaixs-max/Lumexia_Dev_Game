@@ -109,7 +109,7 @@ function materials() {
     timber: plain('oiled-walnut-timber', { color: '#695544', roughness: 0.76 }),
     darkGlass: plain('deep-reflective-glass', { color: '#26363c', metalness: 0.44, roughness: 0.2, envMapIntensity: 1.2 }),
     coolGlass: plain('muted-sky-glass', { color: '#536b71', metalness: 0.56, roughness: 0.18, envMapIntensity: 1.35 }),
-    warmGlass: plain('curtained-window-glass', { color: '#7f7865', metalness: 0.25, roughness: 0.36, emissive: '#9a8254', emissiveIntensity: 0.035 }),
+    warmGlass: plain('curtained-window-glass', { color: '#7f7865', metalness: 0.25, roughness: 0.36, emissive: '#ffd092', emissiveIntensity: 0.85 }),
     curtain: plain('linen-curtain', { color: '#a39e8d', roughness: 0.93 }),
   };
 }

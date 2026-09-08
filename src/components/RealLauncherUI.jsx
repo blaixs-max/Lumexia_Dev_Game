@@ -93,13 +93,13 @@ export default function RealLauncherUI({ onStartGame, quality = 'auto', onQualit
       <div className="lx-shell">
         <header className="lx-header">
           <div className="lx-brand"><span className="lx-brand-mark" aria-hidden="true">L<span>↗</span></span><span>LUMEXIA<small>HIGHWAY DIVISION</small></span></div>
-          <div className="lx-header-right"><span className="lx-status"><i /> FREE PRACTICE</span><span className="lx-edition">VOL. 01 / ENDLESS HIGHWAY</span></div>
+          <div className="lx-header-right"><span className="lx-status"><i /> FREE PRACTICE</span><span className="lx-edition">VOL. 01 / NIGHT HIGHWAY</span></div>
         </header>
         <section className="lx-hero" aria-labelledby="lx-hero-title">
           <div className="lx-hero-copy">
             <p className="lx-eyebrow"><span /> THE ROAD IS YOURS.</p>
             <h1 id="lx-hero-title">FIND YOUR<br /><em>LIMIT.</em></h1>
-            <p className="lx-intro">Thread the traffic. Chase the perfect run.<br />One highway. A little nerve. No finish line.</p>
+            <p className="lx-intro">Chase the perfect run from daylight to starlight.<br />Winding roads. Mountain tunnels. No finish line.</p>
             <div className="lx-hero-stats"><div><strong>03</strong><span>LANES TO MASTER</span></div><div><strong>∞</strong><span>ROOM TO IMPROVE</span></div><div><strong>2×</strong><span>THE CHALLENGE</span></div></div>
           </div>
           <Showroom quality={quality} />

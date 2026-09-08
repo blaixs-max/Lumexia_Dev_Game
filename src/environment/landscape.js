@@ -62,7 +62,9 @@ export function createLandscape() {
   const color = new THREE.Color();
   for (let i = 0; i < positions.count; i++) {
     const x = positions.getX(i), z = positions.getZ(i);
-    const valley = THREE.MathUtils.smoothstep(Math.abs(x), 30, 230);
+    // The complete curved road envelope stays within ±250m before the fog.
+    // Keep distant terrain below this corridor so hills cannot cover a bend.
+    const valley = THREE.MathUtils.smoothstep(Math.abs(x), 280, 520);
     const horizon = THREE.MathUtils.smoothstep(-z, 420, 900);
     const rolling = 33 + Math.sin(x * 0.006 + z * 0.007) * 20 + Math.cos(x * 0.013 - z * 0.011) * 13 + Math.sin(x * 0.031 + z * 0.019) * 4;
     positions.setY(i, -3 + valley * (25 + rolling) * horizon + horizon * 4);
@@ -76,8 +78,16 @@ export function createLandscape() {
   // W-profile crash barrier: two folds catch the sun instead of a flat floating beam.
   const profile = [[0.02, 0.55], [0.10, 0.61], [0.02, 0.69], [-0.03, 0.75], [0.02, 0.81], [0.10, 0.89], [0.02, 0.95]];
   const railVertices = [], railIndices = [];
-  for (const [x, y] of profile) railVertices.push(x, y, -550, x, y, 65);
-  for (let i = 0; i < profile.length - 1; i++) { const a = i * 2; railIndices.push(a, a + 1, a + 2, a + 2, a + 1, a + 3); }
+  const rings = 145;
+  for (let ring = 0; ring < rings; ring++) {
+    const z = 65 - ring * 5;
+    for (const [x, y] of profile) railVertices.push(x, y, z);
+    if (!ring) continue;
+    for (let i = 0; i < profile.length - 1; i++) {
+      const a = (ring - 1) * profile.length + i, b = a + profile.length;
+      railIndices.push(a, b, a + 1, a + 1, b, b + 1);
+    }
+  }
   const rail = new THREE.BufferGeometry();
   rail.setAttribute('position', new THREE.Float32BufferAttribute(railVertices, 3));
   rail.setIndex(railIndices); rail.computeVertexNormals();

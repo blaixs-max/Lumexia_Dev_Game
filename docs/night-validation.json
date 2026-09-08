@@ -1,0 +1,47 @@
+{
+  "date": "2026-09-07",
+  "scenario": "Night highway final High render-only replay; no physics or score submission",
+  "quality": "high",
+  "viewport": [
+    1536,
+    695
+  ],
+  "dpr": 1,
+  "frames": 144,
+  "meanFrameMs": 168.32916666670806,
+  "medianFrameMs": 116.59999999403954,
+  "p95FrameMs": 525.3000000119209,
+  "p99FrameMs": 533.5,
+  "longTasks": 0,
+  "averageTriangles": 1219088,
+  "averageDrawCalls": 248,
+  "lightCounts": {
+    "ambient": 1,
+    "hemisphere": 1,
+    "directional": 1,
+    "spot": 2,
+    "shadowCasting": 1
+  },
+  "lightsStable": true,
+  "programsStart": 30,
+  "programsEnd": 30,
+  "programGrowth": 0,
+  "shaderErrors": [],
+  "contextLost": 0,
+  "visibleFocusedSampleMs": 24239.4,
+  "hiddenSampleMs": 0,
+  "unfocusedSampleMs": 0,
+  "gpu": {
+    "samples": 143,
+    "meanMs": 33.101122489510495,
+    "medianMs": 30.077135,
+    "p95Ms": 50.466718
+  },
+  "renderer": "ANGLE / Intel UHD Graphics / Direct3D11",
+  "limits": [
+    "Delivered frame intervals remain slow and irregular; this is not a smooth-frame or 60 FPS acceptance.",
+    "GPU query times differ substantially from delivered callbacks. Focus and visibility alone cannot rule out OS scheduling, occlusion or competing GPU work.",
+    "Earlier same-session daylight reference also exhibited 1008 ms callback intervals. Those runs had no full diagnostics and are not a matched night-vs-day performance comparison.",
+    "Visual checks at 1280x720, 844x390 and 390x844 passed. Physical phone long-run/thermal acceptance remains separate."
+  ]
+}

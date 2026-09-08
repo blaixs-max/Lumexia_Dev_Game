@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
-import { placedBounds, placementMatrix, RoadVisibility, wrapWorldZ } from './visibility';
+import { CULL_MARGIN, SCENERY_CULL_DISTANCE, placedBounds, placementMatrix, RoadVisibility, wrapWorldZ } from './visibility';
+import { placeOnRoad } from './road-path';
 
 function camera() {
   const result = new THREE.PerspectiveCamera(60, 1, 0.1, 700);
@@ -52,10 +53,42 @@ describe('whole-model visibility', () => {
 
   it('keeps large buildings across the cutoff and removes them only wholly beyond fog', () => {
     const view = new RoadVisibility();
-    view.update(camera(), 0);
+    const activeCamera = camera();
+    view.update(activeCamera, 0);
     const bounds = new THREE.Sphere(new THREE.Vector3(20, 10, 0), 20);
-    expect(view.visible(bounds, -610)).toBe(true); // Center depth 622, nearest face 602.
-    expect(view.visible(bounds, -640)).toBe(false); // Entire sphere beyond 620.
+    const nearestDepth = z => {
+      // Match the rendered model's world matrix, then measure camera-space
+      // depth. Logical road Z is not camera depth once the road curves.
+      const world = bounds.clone().applyMatrix4(placeOnRoad(new THREE.Matrix4(), new THREE.Matrix4(), z, 0));
+      return -world.center.applyMatrix4(activeCamera.matrixWorldInverse).z - world.radius - CULL_MARGIN;
+    };
+    expect(nearestDepth(-640)).toBeCloseTo(613.555, 3);
+    expect(nearestDepth(-640)).toBeLessThan(SCENERY_CULL_DISTANCE);
+    expect(view.visible(bounds, -640)).toBe(true); // Curved near face remains inside 620m.
+    expect(nearestDepth(-680)).toBeGreaterThan(SCENERY_CULL_DISTANCE);
+    expect(view.visible(bounds, -680)).toBe(false);
+  });
+
+  it('culls the bent model bound rather than its old straight-road location', () => {
+    const activeCamera = camera();
+    const view = new RoadVisibility();
+    view.update(activeCamera, 200);
+    const prototype = new THREE.Sphere(new THREE.Vector3(0, 5, 0), 8);
+    for (const [x, z, expectedCurved, expectedStraight] of [[80, -100, true, false], [-120, -250, false, true]]) {
+      const localMatrix = placementMatrix({ x });
+      const localBounds = placedBounds(prototype, localMatrix);
+      const renderedBounds = prototype.clone().applyMatrix4(placeOnRoad(new THREE.Matrix4(), localMatrix, z, 200));
+      const straightBounds = localBounds.clone();
+      straightBounds.center.z += z;
+      renderedBounds.radius += CULL_MARGIN;
+      straightBounds.radius += CULL_MARGIN;
+      expect(view.frustum.intersectsSphere(straightBounds)).toBe(expectedStraight);
+      expect(view.frustum.intersectsSphere(renderedBounds)).toBe(expectedCurved);
+      expect(view.visible(localBounds, z)).toBe(expectedCurved);
+      // Shared prepared bounds must survive repeated visibility tests intact.
+      expect(localBounds.center.toArray()).toEqual([x, 5, 0]);
+      expect(localBounds.radius).toBe(8);
+    }
   });
 
   it('keeps bounds containing the camera and discards objects wholly behind it', () => {
