@@ -1,6 +1,16 @@
 # Lumexia Racing Game - Gorev Takip
 
-> Son güncelleme: 2026-09-07
+> Son güncelleme: 2026-09-08
+
+## 2026-09-08: Zaman döngüsü ve değişken yol
+
+- [x] Kullanıcının seçimi: 5 dakika gündüz, 45 saniye gün batımı, 3 dakika gece, 45 saniye gün doğumu; duraklatma/yeni yarış ile tutarlı döngü.
+- [x] Gökyüzü, sis, ay/yıldız, güneş/ay ışığı, sokak lambaları, pencere ve araç farlarının birlikte yumuşak değişmesi.
+- [x] Geniş S virajları: yol, bariyer, kaldırım, çevre, trafik, oyuncu, ödüller ve kamera aynı rota koordinatlarını kullanır.
+- [x] 150 render metre kemerli tünel, beton girişler, toprak örtüsü ve instanced tavan armatürleri; tünel içinde gündüz de farlar açılır.
+- [x] Eğrilmiş model sınırlarına göre görünürlük; tünel çevresinde ağaç/bina/direk çakışmalarını önleyen rota maskesi.
+- [x] Döngü sınırları, geometrinin tekrar deformasyonu, rota sarımı, tünel geçişleri ve virajlı görünürlük testleri; 62 test geçti, 17 mock modu üretim entegrasyon testi atlandı. ESLint başarılı.
+- [x] Son üretim derlemesi başarılı. 1280×720 masaüstü, 844×390 yatay ve 390×844 dikey görünümde gündüz, gün batımı, gece tüneli, gün doğumu ve gündüze dönüş incelendi; HUD aracı kapatmıyor. Ayrı tanılama sahnesinde hızlandırılmış altı tam zaman döngüsü ve tekrarlanan rota/tünel geçişleri sonrasında shader programları 31/31 sabit, 5 gerçek ışık ve 1 gölge kaynağı sabit; shader/sayfa/bağlam kaybı hatası 0. Bu masaüstü tarayıcı kontrolü, gerçek telefon performans veya çoklu dokunma kabulü değildir.
 
 ## 2026-09-07: Gece otoyolu
 

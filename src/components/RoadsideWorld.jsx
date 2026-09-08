@@ -9,6 +9,9 @@ import { buildStreetDetailsAssets } from '../environment/street-details';
 import { createLandscape, createPlacements, WORLD_SPAN } from '../environment/landscape';
 import { placementMatrix, placedBounds, RoadVisibility, wrapWorldZ } from '../environment/visibility';
 import StreetLighting from './StreetLighting';
+import CurvedRoadMesh from './CurvedRoadMesh';
+import { roadPositionInsideTunnel } from '../environment/road-path';
+import { sampleDayCycle } from '../environment/day-cycle';
 
 function disposeAssets(assets) {
   const geometries = new Set(), materials = new Set(), textures = new Set();
@@ -57,10 +60,9 @@ const AssetInstances = memo(function AssetInstances({ model, placements, visibil
       const z = wrapWorldZ(item.z, visibility.distance, WORLD_SPAN);
       // Every material part shares this full-model test: windows, walls,
       // roof, branches and leaves enter and leave together at screen edges.
-      if (!visibility.visible(item.bounds, z)) continue;
+      if (roadPositionInsideTunnel(visibility.distance, z, item.bounds.radius + 12) || !visibility.visible(item.bounds, z)) continue;
       for (let p = 0; p < prepared.parts.length; p++) {
-        matrix.copy(item.matrices[p]);
-        matrix.setPosition(matrix.elements[12], matrix.elements[13], matrix.elements[14] + z);
+        visibility.place(matrix, item.matrices[p], z);
         refs.current[p]?.setMatrixAt(count, matrix);
       }
       count++;
@@ -117,12 +119,13 @@ function PlotGround({ assets, placements, landscape, visibility }) {
     let shadowCount = 0, walkCount = 0;
     for (const plot of plots) {
       const z = wrapWorldZ(plot.z, visibility.distance, WORLD_SPAN);
+      if (roadPositionInsideTunnel(visibility.distance, z, plot.bounds.radius + 12)) continue;
       if (visibility.visible(plot.bounds, z)) {
-        matrix.copy(plot.matrix); matrix.setPosition(matrix.elements[12], matrix.elements[13], matrix.elements[14] + z);
+        visibility.place(matrix, plot.matrix, z);
         shadows.current.setMatrixAt(shadowCount++, matrix);
       }
       if (plot.walkway && visibility.visible(plot.walkway.bounds, z)) {
-        matrix.copy(plot.walkway.matrix); matrix.setPosition(matrix.elements[12], matrix.elements[13], matrix.elements[14] + z);
+        visibility.place(matrix, plot.walkway.matrix, z);
         walks.current.setMatrixAt(walkCount++, matrix);
       }
     }
@@ -160,7 +163,7 @@ function StreetGround({ landscape, visibility }) {
     for (const post of postPlacements) {
       const z = wrapWorldZ(post.z, visibility.distance, WORLD_SPAN);
       if (!visibility.visible(post.bounds, z)) continue;
-      matrix.copy(post.matrix); matrix.setPosition(matrix.elements[12], matrix.elements[13], matrix.elements[14] + z);
+      visibility.place(matrix, post.matrix, z);
       posts.current.setMatrixAt(count++, matrix);
     }
     uploadVisiblePrefix(posts.current, count);
@@ -170,10 +173,10 @@ function StreetGround({ landscape, visibility }) {
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.14, -200]} receiveShadow><planeGeometry args={[1600, 1600]} /><meshStandardMaterial map={landscape.grass} color="#bac2a5" roughness={1} bumpMap={landscape.grass} bumpScale={0.045} /></mesh>
     <mesh geometry={landscape.terrain}><meshStandardMaterial vertexColors roughness={1} /></mesh>
     {[-1, 1].map(side => <group key={side}>
-      <mesh position={[side * 9, 0, 0]} scale={[1, 1, 1.2]} geometry={landscape.rail}><meshStandardMaterial color="#929c9e" roughness={0.47} metalness={0.72} side={THREE.DoubleSide} /></mesh>
-      <mesh position={[side * 12.5, 0.045, -295]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><planeGeometry args={[2.4, WORLD_SPAN]} /><meshStandardMaterial map={side < 0 ? pavingLeft : pavingRight} color="#c1bcb0" roughness={0.92} bumpMap={landscape.paving} bumpScale={0.025} /></mesh>
-      {[11.2, 13.8].map(x => <mesh key={x} position={[side * x, 0.03, -295]} receiveShadow><boxGeometry args={[0.22, 0.16, WORLD_SPAN]} /><meshStandardMaterial color="#8d8b81" roughness={0.96} /></mesh>)}
-      <mesh position={[side * 10.35, -0.05, -295]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[1.45, WORLD_SPAN]} /><meshStandardMaterial color="#5b5848" roughness={1} /></mesh>
+      <CurvedRoadMesh position={[side * 9, 0, 0]} geometry={landscape.rail}><meshStandardMaterial color="#929c9e" roughness={0.47} metalness={0.72} side={THREE.DoubleSide} /></CurvedRoadMesh>
+      <CurvedRoadMesh position={[side * 12.5, 0.045, -295]} rotation={[-Math.PI / 2, 0, 0]} args={[2.4, WORLD_SPAN, 1, 144]} receiveShadow><meshStandardMaterial map={side < 0 ? pavingLeft : pavingRight} color="#c1bcb0" roughness={0.92} bumpMap={landscape.paving} bumpScale={0.025} /></CurvedRoadMesh>
+      {[11.2, 13.8].map(x => <CurvedRoadMesh key={x} shape="box" args={[0.22, 0.16, WORLD_SPAN, 1, 1, 144]} position={[side * x, 0.03, -295]} receiveShadow><meshStandardMaterial color="#8d8b81" roughness={0.96} /></CurvedRoadMesh>)}
+      <CurvedRoadMesh position={[side * 10.35, -0.05, -295]} rotation={[-Math.PI / 2, 0, 0]} args={[1.45, WORLD_SPAN, 1, 144]}><meshStandardMaterial color="#5b5848" roughness={1} /></CurvedRoadMesh>
     </group>)}
     <instancedMesh ref={mesh => {
       posts.current = mesh;
@@ -205,8 +208,24 @@ export default function RoadsideWorld({ low }) {
   } : fullPlacements, [fullPlacements, low]);
   const landscape = useMemo(() => createLandscape(), []);
   const visibility = useMemo(() => new RoadVisibility(), []);
+  const cycle = useRef({});
+  const nightMaterials = useMemo(() => {
+    const found = new Set();
+    for (const model of Object.values(assets)) model.traverse(node => {
+      for (const material of [node.material].flat()) {
+        if (material?.emissiveIntensity > 0 && material.emissive?.getHex() !== 0) found.add(material);
+      }
+    });
+    return [...found].map(material => ({ material, intensity: material.emissiveIntensity }));
+  }, [assets]);
   useFrame(({ camera }) => {
-    visibility.update(camera, useGameStore.getState().totalDistance * 5);
+    const state = useGameStore.getState();
+    visibility.update(camera, state.totalDistance * 5);
+    const { night } = sampleDayCycle(state.elapsedTime, cycle.current);
+    // Three materials are imperative renderer resources, not React state.
+    /* eslint-disable react-hooks/immutability */
+    for (const entry of nightMaterials) entry.material.emissiveIntensity = entry.intensity * night;
+    /* eslint-enable react-hooks/immutability */
   }, -0.5);
   useEffect(() => () => disposeAssets(assets), [assets]);
   useEffect(() => () => { Object.values(landscape).forEach(resource => resource.dispose()); }, [landscape]);

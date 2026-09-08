@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Lumexia route and daylight QA</title>
+<style>
+  html,body,#root{margin:0;width:100%;height:100%;overflow:hidden;background:#101b32}canvas{display:block}
+  #route-panel{position:fixed;right:12px;top:112px;z-index:10000;width:min(310px,calc(100vw - 24px));max-height:calc(100svh - 130px);overflow:auto;background:#091420ef;color:#edf4fb;border:1px solid #72839580;border-radius:10px;font:12px/1.45 system-ui;padding:10px;box-sizing:border-box}
+  #route-panel summary{cursor:pointer;font-weight:700;letter-spacing:.03em}#route-panel p{margin:8px 0;color:#bbcad8}
+  #route-panel label{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 0}
+  #route-panel select,#route-panel input,#route-panel button{font:inherit;color:#edf4fb;background:#233345;border:1px solid #6c8093;border-radius:5px;padding:7px;min-height:34px;box-sizing:border-box}
+  #route-panel select,#route-panel input{width:155px}#route-panel button{cursor:pointer}#route-panel .buttons{display:flex;gap:6px;flex-wrap:wrap}#route-panel button[aria-pressed=true]{background:#235b56;border-color:#79d7be}
+  #route-metrics{font:11px/1.4 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere;margin:10px 0 0;color:#d8e9f2}
+  #route-status{display:block;margin-top:6px;color:#90e4cc}#route-errors{color:#ffc2ac;white-space:pre-wrap;overflow-wrap:anywhere}
+  @media(max-width:600px){#route-panel{top:100px;max-height:calc(100svh - 120px);font-size:11px}#route-panel select,#route-panel input{width:145px}}
+</style></head><body><div id="root"></div>
+<details id="route-panel" open><summary>ROUTE + DAY CYCLE QA</summary><span id="route-status">Preparing scene…</span>
+<p>Real race scene. Physics and score submission are disabled in this separate fixture. Collapse this panel for screenshots.</p>
+<label>Daylight preset<select id="route-phase"><option value="0">Day · 0 s</option><option value="322.5">Sunset · 322.5 s</option><option value="400">Night · 400 s</option><option value="547.5">Sunrise · 547.5 s</option><option value="570">Day again · 570 s</option></select></label>
+<label>Rendered station<select id="route-station"><option>0</option><option>350</option><option>590</option><option>650</option><option>720</option><option>795</option><option>850</option><option>1200</option><option>1799.9</option><option>1800.1</option></select></label>
+<label>Time (seconds)<input id="route-time-input" type="number" min="0" step="0.1" value="0"></label>
+<label>Station (metres)<input id="route-distance-input" type="number" min="0" step="0.1" value="0"></label>
+<label>Player lane<select id="route-lane"><option value="0">Center</option><option value="-4.5">Left</option><option value="4.5">Right</option></select></label>
+<div class="buttons"><button id="route-replay" type="button" aria-pressed="false">Replay route · 70 m/s</button><button id="route-cycle" type="button" aria-pressed="false">Play cycle · 20×</button><button id="route-reset" type="button">Reset</button><button id="route-reload" type="button">Reload</button></div>
+<pre id="route-metrics">Waiting for renderer.</pre><pre id="route-errors"></pre></details>
+<script type="module" src="./route-check.jsx"></script></body></html>

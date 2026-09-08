@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { useGameStore } from '../store';
 import { WORLD_SPAN } from '../environment/landscape';
 import { placementMatrix, placedBounds, wrapWorldZ } from '../environment/visibility';
+import { sampleDayCycle } from '../environment/day-cycle';
+import { roadPositionInsideTunnel } from '../environment/road-path';
 
 const POOL_WIDTH = 14;
 const POOL_LENGTH = 22;
@@ -13,7 +16,7 @@ function lightMaterial(halo) {
     name: halo ? 'streetlamp-soft-lens-halo' : 'streetlamp-warm-ground-pool',
     uniforms: THREE.UniformsUtils.merge([THREE.UniformsLib.fog, {
       lightColor: { value: new THREE.Color(halo ? '#ffe9c5' : '#ffd7a3') },
-      opacity: { value: halo ? 0.30 : 0.17 },
+      opacity: { value: 0 },
     }]),
     transparent: true,
     depthWrite: false,
@@ -74,9 +77,11 @@ function upload(mesh, count) {
 }
 
 // Two shared draws for the whole street. These local light impressions do not
-// add renderer lights, shadow passes, animated opacity, textures or postprocess.
+// add renderer lights, shadow passes, textures or postprocess. Their strength
+// follows the simulation clock without changing the number of shader variants.
 export default function StreetLighting({ model, placements, visibility }) {
   const pools = useRef(), halos = useRef();
+  const cycle = useRef({});
   const previous = useRef({ version: -1, prepared: null });
   const matrix = useMemo(() => new THREE.Matrix4(), []);
   const resources = useMemo(() => ({
@@ -114,14 +119,19 @@ export default function StreetLighting({ model, placements, visibility }) {
     resources.geometry.dispose(); resources.pool.dispose(); resources.halo.dispose();
   }, [resources]);
   useFrame(() => {
-    if (!pools.current || !halos.current || (previous.current.version === visibility.version && previous.current.prepared === prepared)) return;
+    if (!pools.current || !halos.current) return;
+    const night = sampleDayCycle(useGameStore.getState().elapsedTime, cycle.current).night;
+    pools.current.material.uniforms.opacity.value = night * 0.17;
+    halos.current.material.uniforms.opacity.value = night * 0.30;
+    if (previous.current.version === visibility.version && previous.current.prepared === prepared) return;
     let count = 0;
     for (const item of prepared) {
       const z = wrapWorldZ(item.z, visibility.distance, WORLD_SPAN);
+      if (roadPositionInsideTunnel(visibility.distance, z, 24)) continue;
       if (!visibility.visible(item.bounds, z)) continue;
-      matrix.copy(item.pool); matrix.setPosition(matrix.elements[12], matrix.elements[13], matrix.elements[14] + z);
+      visibility.place(matrix, item.pool, z);
       pools.current.setMatrixAt(count, matrix);
-      matrix.copy(item.halo); matrix.setPosition(matrix.elements[12], matrix.elements[13], matrix.elements[14] + z);
+      visibility.place(matrix, item.halo, z);
       halos.current.setMatrixAt(count, matrix);
       count++;
     }

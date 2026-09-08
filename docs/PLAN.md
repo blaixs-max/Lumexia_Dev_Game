@@ -1,6 +1,14 @@
 # Lumexia Racing Game - Gelistirme Plani
 
-> Son güncelleme: 2026-09-07
+> Son güncelleme: 2026-09-08
+
+## Gündüz–gece döngüsü, virajlar ve tünel — 2026-09-08
+
+Yarış gündüz başlar: 300 saniye gündüz, 45 saniye gün batımı, 180 saniye gece, 45 saniye gün doğumu; 570 saniyelik döngü tekrar eder. Zaman oyunun elapsedTime değerinden türetilir, duraklatmada ilerlemez ve yeni yarışta sıfırlanır. Gökyüzü, sis, ay/yıldızlar, ortam ışığı, sokak lambaları, pencereler ve farlar aynı geçişi kullanır.
+
+1800 render metrelik periyodik rota geniş S virajlarını ve 650. metrede başlayan 150 metrelik tüneli içerir. Render mesafesi önceki dünyadaki gibi totalDistance × 5'tir; HUD mesafesiyle aynı birim değildir. Yol yüzeyleri ve tünelin küçük geometrileri bükülür; araçlar, binalar ve ağaçlar ortak yol konumu/yönüne göre katı olarak yerleştirilir. Çarpışmalar yol koordinatlarında kalır, görünürlük gerçek eğrilmiş model sınırlarıyla hesaplanır. Tünelde farlar gündüz de açılır; giriş ve çıkış ışığı 15 render metresi boyunca yumuşar.
+
+Tünel yedi ek çizim, instanced armatürler ve mevcut iki araç farını kullanır; yeni gerçek ışık, postprocess veya ayrı gölge haritası eklenmez. Görsel kabul ve ölçümler TASK.md içinde tutulur; fiziksel telefon performansı ayrıca doğrulanmalıdır.
 
 ## Gece yarışı — 2026-09-07
 

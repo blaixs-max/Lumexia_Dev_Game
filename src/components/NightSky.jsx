@@ -1,6 +1,8 @@
 import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { useGameStore } from '../store';
+import { DAY_LIGHT_POSITIONS, DAY_SKY_COLORS, sampleDayCycle } from '../environment/day-cycle';
 
 const MOON_POSITION = [82, 85, -460];
 const MOON_ROTATION = new THREE.Quaternion().setFromUnitVectors(
@@ -19,11 +21,19 @@ const skyFragment = /* glsl */`
   uniform vec3 uHorizon;
   uniform vec3 uZenith;
   uniform vec3 uLowerSky;
+  uniform vec3 uSunDirection;
+  uniform vec3 uSunColor;
+  uniform float uDay;
   varying vec3 vDirection;
   void main() {
-    float elevation = normalize(vDirection).y;
+    vec3 direction = normalize(vDirection);
+    float elevation = direction.y;
     vec3 sky = mix(uHorizon, uZenith, smoothstep(0.0, 0.62, elevation));
     sky = mix(sky, uLowerSky, smoothstep(0.0, 0.32, -elevation));
+    float sunAlignment = max(dot(direction, uSunDirection), 0.0);
+    float sunDisc = smoothstep(0.99965, 0.99982, sunAlignment);
+    float sunHaze = pow(sunAlignment, 180.0) * 0.09;
+    sky += uSunColor * (sunDisc * 0.9 + sunHaze) * uDay;
     gl_FragColor = vec4(sky, 1.0);
     #include <colorspace_fragment>
   }
@@ -42,10 +52,11 @@ const starVertex = /* glsl */`
 `;
 
 const starFragment = /* glsl */`
+  uniform float uOpacity;
   varying vec3 vTint;
   void main() {
     float radius = length(gl_PointCoord - 0.5) * 2.0;
-    float alpha = 1.0 - smoothstep(0.12, 1.0, radius);
+    float alpha = (1.0 - smoothstep(0.12, 1.0, radius)) * uOpacity;
     if (alpha < 0.015) discard;
     gl_FragColor = vec4(vTint, alpha);
     #include <colorspace_fragment>
@@ -61,6 +72,7 @@ const moonVertex = /* glsl */`
 `;
 
 const moonFragment = /* glsl */`
+  uniform float uOpacity;
   varying vec2 vUv;
   float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
   float noise(vec2 p) {
@@ -76,7 +88,7 @@ const moonFragment = /* glsl */`
     float edge = max(fwidth(radius), 0.001);
     float disc = 1.0 - smoothstep(0.44 - edge, 0.44 + edge, radius);
     float halo = exp(-radius * radius * 7.0) * 0.14;
-    float alpha = disc + halo * (1.0 - disc);
+    float alpha = (disc + halo * (1.0 - disc)) * uOpacity;
     if (alpha < 0.001) discard;
 
     vec3 color = vec3(0.18, 0.28, 0.46);
@@ -131,29 +143,55 @@ function createStars() {
   return { positions, tints, sizes };
 }
 
-/** Three inexpensive draws: navy dome, fixed stars and a procedural moon. */
+/** Three persistent draws carry the entire daylight-to-night sky cycle. */
 export default function NightSky() {
   const group = useRef();
-  const starMaterial = useRef();
+  const skyMaterial = useRef(), starMaterial = useRef(), moonMaterial = useRef();
+  const cycle = useRef({});
   const stars = useMemo(() => createStars(), []);
-  const skyUniforms = useMemo(() => ({
-    uHorizon: { value: new THREE.Color('#101b32') },
-    uZenith: { value: new THREE.Color('#030711') },
-    uLowerSky: { value: new THREE.Color('#0a1427') },
+  const palette = useMemo(() => ({
+    day: { horizon: new THREE.Color(DAY_SKY_COLORS.day.horizon), zenith: new THREE.Color(DAY_SKY_COLORS.day.zenith), lower: new THREE.Color(DAY_SKY_COLORS.day.lower) },
+    night: { horizon: new THREE.Color(DAY_SKY_COLORS.night.horizon), zenith: new THREE.Color(DAY_SKY_COLORS.night.zenith), lower: new THREE.Color(DAY_SKY_COLORS.night.lower) },
+    twilight: { horizon: new THREE.Color(DAY_SKY_COLORS.twilight.horizon), zenith: new THREE.Color(DAY_SKY_COLORS.twilight.zenith), lower: new THREE.Color(DAY_SKY_COLORS.twilight.lower) },
+    positions: [new THREE.Vector3(...DAY_LIGHT_POSITIONS.day), new THREE.Vector3(...DAY_LIGHT_POSITIONS.night), new THREE.Vector3(...DAY_LIGHT_POSITIONS.twilight)],
+    sun: [new THREE.Color('#fff4dc'), new THREE.Color('#f49a61')],
   }), []);
-  const starUniforms = useMemo(() => ({ uPixelRatio: { value: 1 } }), []);
+  const skyUniforms = useMemo(() => ({
+    uHorizon: { value: new THREE.Color(DAY_SKY_COLORS.day.horizon) },
+    uZenith: { value: new THREE.Color(DAY_SKY_COLORS.day.zenith) },
+    uLowerSky: { value: new THREE.Color(DAY_SKY_COLORS.day.lower) },
+    uSunDirection: { value: new THREE.Vector3(...DAY_LIGHT_POSITIONS.day).normalize() },
+    uSunColor: { value: new THREE.Color('#fff4dc') },
+    uDay: { value: 1 },
+  }), []);
+  const starUniforms = useMemo(() => ({ uPixelRatio: { value: 1 }, uOpacity: { value: 0 } }), []);
+  const moonUniforms = useMemo(() => ({ uOpacity: { value: 0 } }), []);
 
   // Follow translation after ChaseCamera (-0.75), keeping stars fixed in the
-  // world. No animation, temporal noise, allocations or React state per frame.
+  // world. No twinkling, temporal noise, allocations or React state per frame.
   useFrame(({ camera, gl }) => {
     if (group.current) group.current.position.copy(camera.position);
-    if (starMaterial.current) starMaterial.current.uniforms.uPixelRatio.value = gl.getPixelRatio();
+    const { night, day, twilight } = sampleDayCycle(useGameStore.getState().elapsedTime, cycle.current);
+    if (skyMaterial.current) {
+      const uniforms = skyMaterial.current.uniforms;
+      uniforms.uHorizon.value.copy(palette.day.horizon).lerp(palette.night.horizon, night).lerp(palette.twilight.horizon, twilight * 0.8);
+      uniforms.uZenith.value.copy(palette.day.zenith).lerp(palette.night.zenith, night).lerp(palette.twilight.zenith, twilight * 0.8);
+      uniforms.uLowerSky.value.copy(palette.day.lower).lerp(palette.night.lower, night).lerp(palette.twilight.lower, twilight * 0.8);
+      uniforms.uSunDirection.value.lerpVectors(palette.positions[0], palette.positions[1], night).lerp(palette.positions[2], twilight).normalize();
+      uniforms.uSunColor.value.copy(palette.sun[0]).lerp(palette.sun[1], twilight);
+      uniforms.uDay.value = day;
+    }
+    if (starMaterial.current) {
+      starMaterial.current.uniforms.uPixelRatio.value = gl.getPixelRatio();
+      starMaterial.current.uniforms.uOpacity.value = THREE.MathUtils.smoothstep(night, 0.25, 0.95);
+    }
+    if (moonMaterial.current) moonMaterial.current.uniforms.uOpacity.value = THREE.MathUtils.smoothstep(night, 0.18, 0.95);
   }, -0.5);
 
   return <group ref={group}>
     <mesh renderOrder={-1000} frustumCulled={false}>
       <sphereGeometry args={[650, 24, 12]} />
-      <shaderMaterial vertexShader={skyVertex} fragmentShader={skyFragment} uniforms={skyUniforms}
+      <shaderMaterial ref={skyMaterial} vertexShader={skyVertex} fragmentShader={skyFragment} uniforms={skyUniforms}
         side={THREE.BackSide} depthWrite={false} depthTest={false} toneMapped={false} fog={false} />
     </mesh>
     <points renderOrder={-900} frustumCulled={false}>
@@ -167,7 +205,7 @@ export default function NightSky() {
     </points>
     <mesh position={MOON_POSITION} quaternion={MOON_ROTATION} renderOrder={-800}>
       <planeGeometry args={[76, 76]} />
-      <shaderMaterial vertexShader={moonVertex} fragmentShader={moonFragment}
+      <shaderMaterial ref={moonMaterial} vertexShader={moonVertex} fragmentShader={moonFragment} uniforms={moonUniforms}
         transparent depthWrite={false} toneMapped={false} fog={false} />
     </mesh>
   </group>;

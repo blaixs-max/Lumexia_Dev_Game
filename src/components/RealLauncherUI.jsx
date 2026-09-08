@@ -99,7 +99,7 @@ export default function RealLauncherUI({ onStartGame, quality = 'auto', onQualit
           <div className="lx-hero-copy">
             <p className="lx-eyebrow"><span /> THE ROAD IS YOURS.</p>
             <h1 id="lx-hero-title">FIND YOUR<br /><em>LIMIT.</em></h1>
-            <p className="lx-intro">Chase the perfect run under a starlit sky.<br />Headlights on. One highway. No finish line.</p>
+            <p className="lx-intro">Chase the perfect run from daylight to starlight.<br />Winding roads. Mountain tunnels. No finish line.</p>
             <div className="lx-hero-stats"><div><strong>03</strong><span>LANES TO MASTER</span></div><div><strong>∞</strong><span>ROOM TO IMPROVE</span></div><div><strong>2×</strong><span>THE CHALLENGE</span></div></div>
           </div>
           <Showroom quality={quality} />

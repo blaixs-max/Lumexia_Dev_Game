@@ -88,7 +88,7 @@ function Race({ quality }) {
           <RaceScene low={low} adaptive={quality === 'auto'} onReady={() => setReady(true)} onReduceQuality={() => setRenderDpr(value => Math.max(Math.min(value, 0.65), value * 0.85))} />
         </Suspense>
       </Canvas>
-      {ready ? <RaceHUD onMainMenu={quitGame} /> : <div className="lx-ui lx-track-loading" role="status"><span className="lx-loading-spinner" /><p>PREPARING YOUR RUN</p><small>Lighting the night highway and preparing your car…</small><button className="lx-button lx-button-secondary" onClick={quitGame}>BACK TO GARAGE</button></div>}
+      {ready ? <RaceHUD onMainMenu={quitGame} /> : <div className="lx-ui lx-track-loading" role="status"><span className="lx-loading-spinner" /><p>PREPARING YOUR RUN</p><small>Preparing the highway and your car…</small><button className="lx-button lx-button-secondary" onClick={quitGame}>BACK TO GARAGE</button></div>}
       <RaceControls touchVisible={ready && gameState === 'playing'} />
       <RaceAudio ready={ready} />
     </GameBoundary>
