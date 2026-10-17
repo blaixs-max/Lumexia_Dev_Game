@@ -1,0 +1,680 @@
+[
+  {
+    "errors": [
+      0,
+      0,
+      0
+    ],
+    "phase": "day",
+    "quality": "high",
+    "shadows": [
+      {
+        "cascade": 1,
+        "cascadeBlendDistance": 8,
+        "cascadeFade": true,
+        "cascadeFar": 32,
+        "cascadeNear": 0.5,
+        "shadowMapSize": 1536,
+        "shadowProfile": "high",
+        "sunShadowMaxFar": 360
+      },
+      {
+        "cascade": 2,
+        "cascadeBlendDistance": 8,
+        "cascadeFade": true,
+        "cascadeFar": 110,
+        "cascadeNear": 32,
+        "shadowMapSize": 1536,
+        "shadowProfile": "high",
+        "sunShadowMaxFar": 360
+      },
+      {
+        "cascade": 3,
+        "cascadeBlendDistance": 8,
+        "cascadeFade": true,
+        "cascadeFar": 360,
+        "cascadeNear": 110,
+        "shadowMapSize": 1536,
+        "shadowProfile": "high",
+        "sunShadowMaxFar": 360
+      }
+    ],
+    "traffic": {
+      "active": 1,
+      "enabled": true,
+      "fixedStepSeconds": 0.008333333333333333,
+      "label": "Shadow approach pass",
+      "laneChangesCompleted": 0,
+      "laneChangesStarted": 0,
+      "level": 1,
+      "maxSpeedReduction": 0,
+      "minimumPairGap": null,
+      "minimumPairGapObserved": null,
+      "npcContacts": [],
+      "overlapTicks": 0,
+      "passingCorridor": {
+        "definition": "Production spatial passing corridor; both lanes reserved during signals/changes",
+        "open": true,
+        "playerSpeeds": [
+          116,
+          205,
+          210
+        ],
+        "reservedDistance": 106.5,
+        "worldSpeedScale": 0.5
+      },
+      "peak": 1,
+      "persistentWrites": false,
+      "playerCollisionsDisabled": true,
+      "randomPrefix": "none",
+      "removed": 0,
+      "running": false,
+      "seed": 2026,
+      "signalsStarted": 0,
+      "simulatedSeconds": 0.2083,
+      "spawned": 0,
+      "ticks": 25,
+      "vehicles": [
+        {
+          "actualSpeed": 55,
+          "changeProgress": 0,
+          "desiredSpeed": 55,
+          "forwardWorldSpeed": 27.5,
+          "id": "shadow-approach",
+          "indicator": 0,
+          "isChanging": false,
+          "lane": -1,
+          "relativeWorldSpeed": 30.5,
+          "targetLane": -1,
+          "type": "suv",
+          "x": -4.5,
+          "z": -173.6458
+        }
+      ]
+    }
+  },
+  {
+    "errors": [
+      0,
+      0,
+      0
+    ],
+    "phase": "day",
+    "quality": "high",
+    "traffic": {
+      "active": 1,
+      "enabled": true,
+      "fixedStepSeconds": 0.008333333333333333,
+      "label": "Shadow approach pass",
+      "laneChangesCompleted": 0,
+      "laneChangesStarted": 0,
+      "level": 1,
+      "maxSpeedReduction": 0,
+      "minimumPairGap": null,
+      "minimumPairGapObserved": null,
+      "npcContacts": [],
+      "overlapTicks": 0,
+      "passingCorridor": {
+        "definition": "Production spatial passing corridor; both lanes reserved during signals/changes",
+        "open": true,
+        "playerSpeeds": [
+          116,
+          205,
+          210
+        ],
+        "reservedDistance": 106.5,
+        "worldSpeedScale": 0.5
+      },
+      "peak": 1,
+      "persistentWrites": false,
+      "playerCollisionsDisabled": true,
+      "randomPrefix": "none",
+      "removed": 0,
+      "running": false,
+      "seed": 2026,
+      "signalsStarted": 0,
+      "simulatedSeconds": 5.2083,
+      "spawned": 0,
+      "ticks": 625,
+      "vehicles": [
+        {
+          "actualSpeed": 55,
+          "changeProgress": 0,
+          "desiredSpeed": 55,
+          "forwardWorldSpeed": 27.5,
+          "id": "shadow-approach",
+          "indicator": 0,
+          "isChanging": false,
+          "lane": -1,
+          "relativeWorldSpeed": 30.5,
+          "targetLane": -1,
+          "type": "suv",
+          "x": -4.5,
+          "z": -21.1458
+        }
+      ]
+    }
+  },
+  {
+    "errors": [
+      0,
+      0,
+      0
+    ],
+    "phase": "night",
+    "programs": 43,
+    "quality": "high",
+    "traffic": {
+      "active": 1,
+      "enabled": true,
+      "fixedStepSeconds": 0.008333333333333333,
+      "label": "Shadow approach pass",
+      "laneChangesCompleted": 0,
+      "laneChangesStarted": 0,
+      "level": 1,
+      "maxSpeedReduction": 0,
+      "minimumPairGap": null,
+      "minimumPairGapObserved": null,
+      "npcContacts": [],
+      "overlapTicks": 0,
+      "passingCorridor": {
+        "definition": "Production spatial passing corridor; both lanes reserved during signals/changes",
+        "open": true,
+        "playerSpeeds": [
+          116,
+          205,
+          210
+        ],
+        "reservedDistance": 106.5,
+        "worldSpeedScale": 0.5
+      },
+      "peak": 1,
+      "persistentWrites": false,
+      "playerCollisionsDisabled": true,
+      "randomPrefix": "none",
+      "removed": 0,
+      "running": false,
+      "seed": 2026,
+      "signalsStarted": 0,
+      "simulatedSeconds": 5.2083,
+      "spawned": 0,
+      "ticks": 625,
+      "vehicles": [
+        {
+          "actualSpeed": 55,
+          "changeProgress": 0,
+          "desiredSpeed": 55,
+          "forwardWorldSpeed": 27.5,
+          "id": "shadow-approach",
+          "indicator": 0,
+          "isChanging": false,
+          "lane": -1,
+          "relativeWorldSpeed": 30.5,
+          "targetLane": -1,
+          "type": "suv",
+          "x": -4.5,
+          "z": -21.1458
+        }
+      ]
+    }
+  },
+  {
+    "errors": [
+      0,
+      0,
+      0
+    ],
+    "phase": "day",
+    "quality": "high",
+    "traffic": {
+      "active": 10,
+      "enabled": true,
+      "fixedStepSeconds": 0.008333333333333333,
+      "label": "Live seeded traffic",
+      "laneChangesCompleted": 8,
+      "laneChangesStarted": 10,
+      "level": 8,
+      "maxSpeedReduction": 19.1861,
+      "minimumPairGap": 4.3298,
+      "minimumPairGapObserved": 4.2525,
+      "npcContacts": [],
+      "overlapTicks": 0,
+      "passingCorridor": {
+        "definition": "Production spatial passing corridor; both lanes reserved during signals/changes",
+        "open": true,
+        "playerSpeeds": [
+          116,
+          205,
+          210
+        ],
+        "reservedDistance": 106.5,
+        "worldSpeedScale": 0.5
+      },
+      "peak": 12,
+      "persistentWrites": false,
+      "playerCollisionsDisabled": true,
+      "randomPrefix": "none",
+      "removed": 12,
+      "running": false,
+      "seed": 2026,
+      "signalsStarted": 10,
+      "simulatedSeconds": 20.1833,
+      "spawned": 20,
+      "ticks": 2422,
+      "vehicles": [
+        {
+          "actualSpeed": 57.939,
+          "changeProgress": 1,
+          "desiredSpeed": 57.93901137378998,
+          "forwardWorldSpeed": 28.9695,
+          "id": "traffic-11",
+          "indicator": 0,
+          "isChanging": false,
+          "lane": 1,
+          "relativeWorldSpeed": 29.0305,
+          "targetLane": 1,
+          "type": "suv",
+          "x": 4.5,
+          "z": 23.9319
+        },
+        {
+          "actualSpeed": 59.1365,
+          "changeProgress": 1,
+          "desiredSpeed": 71.57257963647135,
+          "forwardWorldSpeed": 29.5682,
+          "id": "traffic-12",
+          "indicator": 0,
+          "isChanging": false,
+          "lane": 0,
+          "relativeWorldSpeed": 28.4318,
+          "targetLane": 0,
+          "type": "sport",
+          "x": 0,
+          "z": -35.9535
+        },
+        {
+          "actualSpeed": 51.7712,
+          "changeProgress": 1,
+          "desiredSpeed": 64.01568577205762,
+          "forwardWorldSpeed": 25.8856,
+          "id": "traffic-13",
+          "indicator": 0,
+          "isChanging": false,
+          "lane": 1,
+          "relativeWorldSpeed": 32.1144,
+          "targetLane": 1,
+          "type": "sport",
+          "x": 4.5,
+          "z": -41.5295
+        },
+        {
+          "actualSpeed": 51.6403,
+          "changeProgress": 1,
+          "desiredSpeed": 51.640284857712686,
+          "forwardWorldSpeed": 25.8201,
+          "id": "traffic-14",
+          "indicator": 0,
+          "isChanging": false,
+          "lane": 1,
+          "relativeWorldSpeed": 32.1799,
+          "targetLane": 1,
+          "type": "sedan",
+          "x": 4.5,
+          "z": -51.1424
+        },
+        {
+          "actualSpeed": 58.8461,
+          "changeProgress": 0.642,
+          "desiredSpeed": 67.7027894675266,
+          "forwardWorldSpeed": 29.423,
+          "id": "traffic-15",
+          "indicator": -1,
+          "isChanging": true,
+          "lane": 1,
+          "relativeWorldSpeed": 28.577,
+          "targetLane": 0,
+          "type": "sport",
+          "x": 1.3174,
+          "z": -133.6961
+        },
+        {
+          "actualSpeed": 58.5217,
+          "changeProgress": 0.4938,
+          "desiredSpeed": 58.52165420190431,
+          "forwardWorldSpeed": 29.2608,
+          "id": "traffic-16",
+          "indicator": 1,
+          "isChanging": true,
+          "lane": 0,
+          "relativeWorldSpeed": 28.7392,
+          "targetLane": 1,
+          "type": "sedan",
+          "x": 2.2083,
+          "z": -143.3715
+        },
+        {
+          "actualSpeed": 59.2125,
+          "changeProgress": 0,
+          "desiredSpeed": 59.21249469299801,
+          "forwardWorldSpeed": 29.6062,
+          "id": "traffic-17",
+          "indicator": 0,
+          "isChanging": false,
+          "lane": 0,
+          "relativeWorldSpeed": 28.3938,
+          "targetLane": 0,
+          "type": "sedan",
+          "x": 0,
+          "z": -192.8136
+        },
+        {
+          "actualSpeed": 64.9319,
+          "changeProgress": 0,
+          "desiredSpeed": 64.93190132942982,
+          "forwardWorldSpeed": 32.466,
+          "id": "traffic-18",
+          "indicator": 0,
+          "isChanging": false,
+          "lane": 1,
+          "relativeWorldSpeed": 25.534,
+          "targetLane": 1,
+          "type": "sport",
+          "x": 4.5,
+          "z": -222.5467
+        },
+        {
+          "actualSpeed": 58.4713,
+          "changeProgress": 0,
+          "desiredSpeed": 58.471284127095714,
+          "forwardWorldSpeed": 29.2356,
+          "id": "traffic-19",
+          "indicator": 0,
+          "isChanging": false,
+          "lane": 0,
+          "relativeWorldSpeed": 28.7644,
+          "targetLane": 0,
+          "type": "suv",
+          "x": 0,
+          "z": -237.9169
+        },
+        {
+          "actualSpeed": 66.1083,
+          "changeProgress": 0,
+          "desiredSpeed": 66.1083442165982,
+          "forwardWorldSpeed": 33.0542,
+          "id": "traffic-20",
+          "indicator": 0,
+          "isChanging": false,
+          "lane": 0,
+          "relativeWorldSpeed": 24.9458,
+          "targetLane": 1,
+          "type": "sport",
+          "x": 0,
+          "z": -264.6601
+        }
+      ]
+    }
+  },
+  {
+    "errors": [
+      0,
+      0,
+      0
+    ],
+    "phase": "night",
+    "programs": 43,
+    "quality": "performance",
+    "shadows": [
+      {
+        "cascade": 1,
+        "cascadeBlendDistance": 8,
+        "cascadeFade": true,
+        "cascadeFar": 32,
+        "cascadeNear": 0.5,
+        "shadowMapSize": 1024,
+        "shadowProfile": "performance",
+        "sunShadowMaxFar": 320
+      },
+      {
+        "cascade": 2,
+        "cascadeBlendDistance": 8,
+        "cascadeFade": true,
+        "cascadeFar": 320,
+        "cascadeNear": 32,
+        "shadowMapSize": 1024,
+        "shadowProfile": "performance",
+        "sunShadowMaxFar": 320
+      }
+    ],
+    "traffic": {
+      "active": 10,
+      "enabled": true,
+      "fixedStepSeconds": 0.008333333333333333,
+      "label": "Live seeded traffic",
+      "laneChangesCompleted": 14,
+      "laneChangesStarted": 14,
+      "level": 8,
+      "maxSpeedReduction": 19.1861,
+      "minimumPairGap": 24.7047,
+      "minimumPairGapObserved": 4.2525,
+      "npcContacts": [],
+      "overlapTicks": 0,
+      "passingCorridor": {
+        "definition": "Production spatial passing corridor; both lanes reserved during signals/changes",
+        "open": true,
+        "playerSpeeds": [
+          116,
+          205,
+          210
+        ],
+        "reservedDistance": 106.5,
+        "worldSpeedScale": 0.5
+      },
+      "peak": 12,
+      "persistentWrites": false,
+      "playerCollisionsDisabled": true,
+      "randomPrefix": "none",
+      "removed": 22,
+      "running": false,
+      "seed": 2026,
+      "signalsStarted": 15,
+      "simulatedSeconds": 33.3667,
+      "spawned": 30,
+      "ticks": 4004,
+      "vehicles": [
+        {
+          "actualSpeed": 71.2144,
+          "changeProgress": 0,
+          "desiredSpeed": 71.21442714799196,
+          "forwardWorldSpeed": 35.6072,
+          "id": "traffic-21",
+          "indicator": 0,
+          "isChanging": false,
+          "lane": 0,
+          "planned": false,
+          "relativeWorldSpeed": 22.3928,
+          "reservedLanes": [
+            0
+          ],
+          "targetLane": 0,
+          "type": "sport",
+          "x": 0,
+          "z": -13.5589
+        },
+        {
+          "actualSpeed": 65.6792,
+          "changeProgress": 0,
+          "desiredSpeed": 65.67919289902784,
+          "forwardWorldSpeed": 32.8396,
+          "id": "traffic-22",
+          "indicator": 0,
+          "isChanging": false,
+          "lane": 1,
+          "planned": false,
+          "relativeWorldSpeed": 25.1604,
+          "reservedLanes": [
+            1
+          ],
+          "targetLane": 1,
+          "type": "sport",
+          "x": 4.5,
+          "z": 6.5376
+        },
+        {
+          "actualSpeed": 71.1086,
+          "changeProgress": 1,
+          "desiredSpeed": 71.10855286265723,
+          "forwardWorldSpeed": 35.5543,
+          "id": "traffic-23",
+          "indicator": 0,
+          "isChanging": false,
+          "lane": 1,
+          "planned": false,
+          "relativeWorldSpeed": 22.4457,
+          "reservedLanes": [
+            1
+          ],
+          "targetLane": 1,
+          "type": "sport",
+          "x": 4.5,
+          "z": -55.1546
+        },
+        {
+          "actualSpeed": 58.9941,
+          "changeProgress": 1,
+          "desiredSpeed": 72.6647789212875,
+          "forwardWorldSpeed": 29.4971,
+          "id": "traffic-24",
+          "indicator": 0,
+          "isChanging": false,
+          "lane": 1,
+          "planned": false,
+          "relativeWorldSpeed": 28.5029,
+          "reservedLanes": [
+            1
+          ],
+          "targetLane": 1,
+          "type": "sport",
+          "x": 4.5,
+          "z": -89.2672
+        },
+        {
+          "actualSpeed": 56.5825,
+          "changeProgress": 1,
+          "desiredSpeed": 56.5825247161556,
+          "forwardWorldSpeed": 28.2913,
+          "id": "traffic-25",
+          "indicator": 0,
+          "isChanging": false,
+          "lane": 0,
+          "planned": false,
+          "relativeWorldSpeed": 29.7087,
+          "reservedLanes": [
+            0
+          ],
+          "targetLane": 0,
+          "type": "sedan",
+          "x": 0,
+          "z": -99.2184
+        },
+        {
+          "actualSpeed": 57.1037,
+          "changeProgress": 0,
+          "desiredSpeed": 57.103705300949514,
+          "forwardWorldSpeed": 28.5519,
+          "id": "traffic-26",
+          "indicator": 1,
+          "isChanging": false,
+          "lane": 0,
+          "planned": false,
+          "relativeWorldSpeed": 29.4481,
+          "reservedLanes": [
+            0,
+            1
+          ],
+          "targetLane": 1,
+          "type": "sedan",
+          "x": 0,
+          "z": -130.6732
+        },
+        {
+          "actualSpeed": 53.5111,
+          "changeProgress": 0,
+          "desiredSpeed": 53.511096922913566,
+          "forwardWorldSpeed": 26.7555,
+          "id": "traffic-27",
+          "indicator": 0,
+          "isChanging": false,
+          "lane": 0,
+          "planned": false,
+          "relativeWorldSpeed": 31.2445,
+          "reservedLanes": [
+            0
+          ],
+          "targetLane": 0,
+          "type": "suv",
+          "x": 0,
+          "z": -172.6789
+        },
+        {
+          "actualSpeed": 69.6173,
+          "changeProgress": 0,
+          "desiredSpeed": 69.61733079329133,
+          "forwardWorldSpeed": 34.8087,
+          "id": "traffic-28",
+          "indicator": 0,
+          "isChanging": false,
+          "lane": 1,
+          "planned": true,
+          "relativeWorldSpeed": 23.1913,
+          "reservedLanes": [
+            1,
+            0
+          ],
+          "targetLane": 0,
+          "type": "sport",
+          "x": 4.5,
+          "z": -219.6034
+        },
+        {
+          "actualSpeed": 66.279,
+          "changeProgress": 0,
+          "desiredSpeed": 66.2790294685401,
+          "forwardWorldSpeed": 33.1395,
+          "id": "traffic-29",
+          "indicator": 0,
+          "isChanging": false,
+          "lane": 0,
+          "planned": false,
+          "relativeWorldSpeed": 24.8605,
+          "reservedLanes": [
+            0
+          ],
+          "targetLane": 0,
+          "type": "sport",
+          "x": 0,
+          "z": -278.6614
+        },
+        {
+          "actualSpeed": 47.2895,
+          "changeProgress": 0,
+          "desiredSpeed": 47.289464111672714,
+          "forwardWorldSpeed": 23.6447,
+          "id": "traffic-30",
+          "indicator": 0,
+          "isChanging": false,
+          "lane": 1,
+          "planned": false,
+          "relativeWorldSpeed": 34.3553,
+          "reservedLanes": [
+            1
+          ],
+          "targetLane": 1,
+          "type": "truck",
+          "x": 4.5,
+          "z": -295.9919
+        }
+      ]
+    }
+  }
+]

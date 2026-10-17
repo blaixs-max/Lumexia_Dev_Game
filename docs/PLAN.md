@@ -1,6 +1,32 @@
 # Lumexia Racing Game - Gelistirme Plani
 
-> Son güncelleme: 2026-10-17
+> Son güncelleme: 2026-10-18
+
+## Yayın akışı — 18 Ekim
+
+Modele uygun çarpışma alanları ve NPC sürüşü/gölgeleri aynı yayın paketindedir. Kullanıcı canlı yayını onayladı; hedef mevcut GitHub deposunun `main` dalı ve Vercel'deki `lumexia-dev-game` üretim projesidir. Yerel 130 test, lint ve derleme kabulüne ek olarak GitHub test/lint/derleme kontrolleri ve Vercel'de hedef commit'in READY durumu doğrulanır. Aşağıdaki yerel kabul kayıtları uygulama aşamalarının tarihsel kapsamını korur.
+
+## Güncel çalışma — 18 Ekim NPC sürüşü ve sürekli gölgeler
+
+NPC hareketi yolun kullandığı dünya ölçeğiyle eşleştirildi: HUD hızının dünya karşılığı 0,5 kattır. Eski hareket farkı oyuncu 110, NPC 55 hızındayken NPC'yi çevreye göre sabit gösteriyordu; yeni hareketle NPC aynı çevrede saniyede 27,5 dünya birimi ilerler. İstenen seyir hızı ile takip sırasında uygulanan hız ayrıdır. Öndeki araç ve geçiş koridoru için yavaşlama, hızlanma ve asgari gövde ayrımı uygulanır.
+
+Şerit kararları sırayla alınır; planlama, sinyal ve geçiş boyunca çıkış/hedef şeritleri birlikte rezerve edilir. Rastgele bitişik şerit seçimi, yaklaşan oyuncuya tepki payı, öndeki/arkadaki trafik ve geçiş yolu kontrolünden geçer. Bazı sürücüler şeridini korur; tekrarlayan manevra fırsatları iki sabit trafik akışında kilitlenmeyi engeller. Sinyalin yaklaşımda başlaması sayesinde normal hızdaki geçişler görünür 70–160 dünya birimi alanında tamamlanır. Trafik oluşumu da aynı kuralları kullanır. Çarpışma ve yakın geçişte eski/yeni araçlar dizi sırasına göre değil kalıcı araç kimliğine göre eşleştirilir; önceki modele uygun çarpışma düzeltmesi korunur.
+
+Dar oyuncu gölge hacmi yerine aynı güneşin kademeli gölgeleri kullanılır: Performance 2×1024, High 3×1536; kapsam 320/360 dünya birimidir. Gerçek araç geometrisi güneş/ay yönünü izler. Yakın kademe geçişleri en az 8 dünya biriminde karışır; uzak uçta kademeli sönüm vardır. Oyuncu yaklaşırken oluşan ani gölge sınırı kaldırılır. Kaynak model malzemeleri ve ortak shader kodları yarış kapanırken geri yüklenir; yeni NPC lambası eklenmez.
+
+Ayrı QA sayfası aynı üretim trafik güncellemesini 120 Hz çalıştırır. Canlı seviye trafiği, takip/frenleme, tek şerit değişimi ve uzak gölge yaklaşımı senaryoları vardır; duraklatma, 0,1/1 saniye ilerletme ve sabit rastgele başlangıç desteğiyle gözlenebilir. Oyuncu kazası, ödül ve kalıcı yazma bu sayfada kapalıdır. Bu çalışma yereldir; GitHub/Vercel yayını yapılmadı.
+
+Son kabul: **130 test başarılı, 17 üretim adaptörü testi atlandı**; lint, üretim derlemesi (654 modül) ve QA derlemesi başarılı. 72 simülasyon dakikasında NPC gövde çakışması veya geçiş koridoru kapanması görülmedi; her profil tekrarlayan geçişler içerir. Seviye 1/3/5/8 ortalama yaklaşan trafik 2,46/4,26/7,18/8,62; seviye 5 yaklaşık 2,9 kat yoğunluk verir. Bu yoğunluk örneği z > −20 araçlarını çıkarır ve pickup içermez; gerçek FPS değildir. High gündüz canlı düzeneği 20,18 saniyede 8 tamamlanmış geçiş ve sıfır NPC teması; Performance gece 33,37 saniyede 14 geçiş ve sıfır temas verdi. Uzak/yakın gölge, takip ve normal ana uygulamada Subaru ile sürüş → garaj dönüşü doğrulandı. Kaynak malzemeler ve garaj görünümü korundu. Görsel: [8. seviye trafik](../artifacts/npc-live-level8.png). Fiziksel telefon gölge maliyeti ayrı kabul kalır.
+
+## Güncel düzeltme — 17 Ekim görünmeyen çarpışma
+
+Boş yolda çarpışma bildirimi üzerine görsel model ile fizik sınırı karşılaştırıldı. Modellerin üst sınıra orantılı sığdırılması, o sınırın tamamını kapladıkları anlamına gelmiyordu; eski fizik daha büyük kutuyu ve 0,2 birim dış payı kullanıyordu. Apex ile kamyon arasında 2,489275 birim, oyuncu ile yandaki SUV arasında 0,422766 birim görünür boşluk varken eski çarpışma yeniden üretildi. Arkadaki kamyon da aynı yanlış teması üretebiliyordu. Son kullanıcı oturumunun kaydı olmadığından geçmiş olayın kesin nesnesi belirlenemedi.
+
+Çizim boyutlarını koruyan `VEHICLE_RENDER_LIMITS` ile gerçek sığdırılmış model alanlarını ayıran ortak modül kullanılır. Kilitli yarış aracına göre altı oyuncu alanı ve dört trafik alanı vardır; çarpışma, tamamen geçme ve yakın geçiş aynı 0,03 birim iç toleransı kullanır. Süpürülmüş denetim yüksek hızda korunur. Model yolları trafik çizimi ve bağımsız varlık testi için aynı kaynaktan gelir; GLB/glTF sınır/dönüşüm testi model değişiminde eski alanların sessizce kalmasını önler.
+
+QA düzeneğinde **Traffic layout** dört sabit temas/boşluk örneği sunar; eski/yeni sonuç, görünür boşluk miktarı ve açılabilir zemin çizgileri vardır. Ayrı düzenekte fizik ve kalıcı kayıt devre dışıdır. Normal yarış akışına tanılama arayüzü eklenmez. Kabul görseli: [Boşluğun çarpışma sayılmaması](../artifacts/collision-truck-clearance.png). Bu düzeltme yereldir; GitHub/Vercel yayını yapılmadı.
+
+Son kabul: **111 test başarılı, 17 üretim adaptörü testi atlandı**; lint ve üretim derlemesi (649 modül) başarılı. High gündüz dört senaryonun sonucu, Performance gece yan geçişi ve 30/60/144 FPS simülasyonları doğrulandı. Gerçek yarış çiziminde sayfa/shader/WebGL bağlam hatası yoktu. Ödeme, çevrimiçi skor, yerel sahiplik ve ödül formülleri değişmedi.
 
 ## GitHub birleştirme — 17 Ekim
 

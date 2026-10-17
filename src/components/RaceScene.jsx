@@ -4,6 +4,8 @@ import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import { useGameStore } from '../store';
 import { VEHICLE_DIMENSIONS, damp } from '../utils/gameplay';
+import { TRAFFIC_MODELS, VEHICLE_RENDER_LIMITS } from '../utils/vehicleDimensions';
+import { LANE_CHANGE_DURATION, LANE_WIDTH, WORLD_SPEED_SCALE } from '../utils/traffic';
 import { NitroBoostParticles, RocketTrailParticles } from './AdvancedParticles';
 import RoadsideWorld from './RoadsideWorld';
 import RaceLighting from './RaceLighting';
@@ -18,12 +20,6 @@ import MagnetPickup from './MagnetPickup';
 import RocketPickup from './RocketPickup';
 
 useGLTF.setDecoderPath('/draco/');
-const TRAFFIC_MODELS = {
-  sport: { path: '/models/ferrari_runtime.glb', rotation: 0 },
-  sedan: { path: '/models/Car 3/scene.gltf', rotation: Math.PI },
-  suv: { path: '/models/Car 2/scene.gltf', rotation: Math.PI },
-  truck: { path: '/models/truck.glb', rotation: Math.PI },
-};
 
 function VehicleModel({ path, type = 'player', rotation = 0, carId, equipmentLevels }) {
   const { scene } = useGLTF(path);
@@ -33,8 +29,8 @@ function VehicleModel({ path, type = 'player', rotation = 0, carId, equipmentLev
     const box = new THREE.Box3().setFromObject(model);
     const size = box.getSize(new THREE.Vector3());
     const center = box.getCenter(new THREE.Vector3());
-    const dimensions = VEHICLE_DIMENSIONS[type];
-    // Rendered vehicles fit their collision bounds, including their origin.
+    const dimensions = VEHICLE_RENDER_LIMITS[type];
+    // Preserve the visual fit; physics uses the resulting model footprint.
     const scale = Math.min(dimensions.width / size.x, dimensions.length / size.z);
     return { model, scale, offset: [-center.x * scale, -box.min.y * scale, -center.z * scale], fittedDimensions: { width: size.x * scale, length: size.z * scale, height: size.y * scale } };
   }, [scene, type]);
@@ -108,27 +104,37 @@ const TrafficCar = memo(function TrafficCar({ id, type }) {
   const group = useRef();
   const roadFrame = useRef({});
   const signals = useRef();
+  const turn = useRef(0);
+  const rearMaterial = useMemo(() => new THREE.MeshBasicMaterial({ color: '#ad3530', toneMapped: false }), []);
+  useEffect(() => () => rearMaterial.dispose(), [rearMaterial]);
   const model = TRAFFIC_MODELS[type] || TRAFFIC_MODELS.sedan;
   const dimensions = VEHICLE_DIMENSIONS[type] || VEHICLE_DIMENSIONS.sedan;
-  useFrame(() => {
+  useFrame((_, delta) => {
     const state = useGameStore.getState();
     const enemy = state.enemies.find(item => item.id === id);
     if (!group.current || !enemy) return;
     const road = sampleRoadFrame(state.totalDistance * 5, enemy.z, roadFrame.current);
     group.current.position.set(road.x + enemy.x * Math.cos(road.yaw), -0.025, road.z - enemy.x * Math.sin(road.yaw));
-    group.current.rotation.y = road.yaw + (enemy.isChanging ? enemy.indicator * -0.09 : 0);
+    const progress = THREE.MathUtils.clamp(enemy.changeProgress ?? 0, 0, 1);
+    const lateralSpeed = enemy.isChanging ? 6 * progress * (1 - progress) * (enemy.targetLane - enemy.lane) * LANE_WIDTH / LANE_CHANGE_DURATION : 0;
+    const forwardSpeed = (enemy.actualSpeed ?? enemy.ownSpeed ?? 55) * WORLD_SPEED_SCALE;
+    const targetTurn = THREE.MathUtils.clamp(-Math.atan2(lateralSpeed, Math.max(1, forwardSpeed)), -0.18, 0.18);
+    if (state.gameState !== 'paused') turn.current = damp(turn.current, targetTurn, 10, Math.min(delta, 0.1));
+    group.current.rotation.y = road.yaw + turn.current;
+    const braking = Number.isFinite(enemy.actualSpeed) && enemy.actualSpeed < enemy.ownSpeed - 6;
+    rearMaterial.color.setHex(braking ? 0xff7461 : 0xad3530);
     if (signals.current) {
       signals.current.visible = Boolean(enemy.indicator) && Math.sin(state.elapsedTime * 14) > 0;
       signals.current.position.x = enemy.indicator * dimensions.width * 0.4;
     }
   });
-  return <group ref={group} position={[0, -0.025, -350]}>
+  return <group ref={group} name={`traffic-car-${id}`} position={[0, -0.025, -350]}>
     <Suspense fallback={<mesh position={[0, 0.8, 0]}><boxGeometry args={[dimensions.width, 1.6, dimensions.length]} /><meshStandardMaterial color="#acbac5" /></mesh>}>
       <VehicleModel path={model.path} type={type} rotation={model.rotation} />
     </Suspense>
     <TrafficHeadlights id={id} width={dimensions.width} length={dimensions.length} />
     <group position={[0, 0.72, dimensions.length * 0.48]}>
-      {[-1, 1].map(side => <mesh key={side} position={[side * dimensions.width * 0.32, 0, 0]}><boxGeometry args={[0.28, 0.12, 0.06]} /><meshBasicMaterial color="#fd544f" toneMapped={false} /></mesh>)}
+      {[-1, 1].map(side => <mesh key={side} position={[side * dimensions.width * 0.32, 0, 0]} material={rearMaterial}><boxGeometry args={[0.28, 0.12, 0.06]} /></mesh>)}
       <mesh ref={signals}><boxGeometry args={[0.25, 0.17, 0.1]} /><meshBasicMaterial color="#ffd15b" toneMapped={false} /></mesh>
     </group>
   </group>;
@@ -295,7 +301,7 @@ export default function RaceScene({ low, adaptive, onReady, onReduceQuality }) {
     }
   }, -1);
   return <>
-    <RaceLighting low={low} /><ChaseCamera /><Road /><RoadsideWorld low={low} /><RoadTunnels />
+    <RaceLighting low={low} shadowAssets={loaded} /><ChaseCamera /><Road /><RoadsideWorld low={low} /><RoadTunnels />
     <PlayerCar /><Traffic /><Pickups /><FeedbackParticles />
   </>;
 }

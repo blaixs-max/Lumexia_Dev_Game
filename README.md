@@ -6,7 +6,17 @@ A 3D browser highway racer built with React, Three.js and Zustand. This reposito
 
 Older production and deployment descriptions in the documentation are historical records. They do not describe the active behavior of this development repository.
 
-## Current race revision — 17 October 2026: magnet and rocket pickups
+## Current race revision — 18 October 2026: moving NPC traffic and continuous shadows
+
+NPCs now move in the same world scale as the road, follow slower vehicles with braking, and perform signaled random adjacent-lane changes. Planned moves reserve both lanes before signaling; sequential reservations and following constraints keep a passing corridor open as traffic converges. Successful spawn intervals for levels 1–8 are 48 / 35 / 27 / 19 / 13 / 10 / 8 / 7 HUD metres, then capped; traffic remains limited to 12 vehicles. Collision footprints match the fitted model assets, and old/new NPC snapshots are matched by stable IDs.
+
+Geometry-based sun/moon shadows cover approaching traffic with two 1024 maps in Performance or three 1536 maps in High, reaching 320/360 world units. Cascade transitions blend over at least eight world units, with a gradual far fade. Shared materials and shader hooks are restored when leaving the race.
+
+Checks: **130 tests passed, 17 skipped**; lint, production build (654 modules) and QA build passed. Independent body-overlap and passing-lane checks cover 72 simulated minutes across levels, seeds and boost speeds. The real race fixture at level 8 completed eight changes in 20 seconds with zero NPC contacts; High daylight and Performance night had no shader, page or WebGL context errors. Normal race start, driving and return to the garage were also verified. [Traffic capture](artifacts/npc-live-level8.png), [near NPC shadow](artifacts/npc-shadow-near.png).
+
+`/tools/route-check.html?simulation=live&level=8&seed=2026` runs the production NPC update without player crashes or persistent writes. Following, lane-change and shadow-approach presets support pause and fixed-step inspection. Release follows the existing GitHub pull-request checks → `main` → Vercel production workflow for `lumexia-dev-game.vercel.app`. Physical-phone shadow performance remains unmeasured. The following sections retain earlier acceptance records.
+
+## Previous race revision — 17 October 2026: magnet and rocket pickups
 
 The magnet and rocket now have distinct solid 3D models instead of a shared coin-shaped badge and cone. The magnet is a beveled red-and-blue horseshoe with silver pole caps and fasteners. The rocket has a pearl body, orange nose and swept fins, copper trim, a cyan window, an engine nozzle and three-dimensional exhaust. Both are original code-native Three.js models; this change adds no downloaded asset, image-generation dependency or external license.
 

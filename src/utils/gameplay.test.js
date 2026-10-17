@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { calculateFinalScore, collisionWithPlayer, damp, isTrafficPlacementSafe, sweptOverlap } from './gameplay.js';
+import { getPlayerDimensions } from './vehicleDimensions.js';
 
 const traffic = (lane, z = -200, ownSpeed = 50) => ({
   id: `car-${lane}`, lane, targetLane: lane, x: lane * 4.5, z,
@@ -40,6 +41,36 @@ describe('continuous collision detection', () => {
     const truck = { ...traffic(0, -12), type: 'truck' };
     expect(collisionWithPlayer(truck, { ...truck, z: 12 }, -4.5, 0)).toBe(true);
     expect(collisionWithPlayer(truck, { ...truck, z: 12 }, -4.5, -4.5)).toBe(false);
+  });
+
+  it('allows a visible gap alongside the SUV instead of hitting its unused fit rectangle', () => {
+    // The fitted SUV is 2.354468 wide. At x=2.5 its body clears the 1.8-wide
+    // player by 0.422766; the former 2.9-wide padded collider counted a hit.
+    const suv = { ...traffic(0, -2), type: 'suv', x: 2.5 };
+    expect(collisionWithPlayer(suv, suv, 0, 0)).toBe(false);
+    expect(collisionWithPlayer({ ...suv, x: 1.9 }, { ...suv, x: 1.9 }, 0, 0)).toBe(true);
+  });
+
+  it.each([['ahead', -9, -6], ['behind', 5, 2]])('allows visible clearance from a truck %s of the Apex', (_side, clearZ, contactZ) => {
+    // Fitted half-lengths total 4.510725; seven units between centers leave
+    // about 2.49 units of clear road, despite the old collider reporting a hit.
+    const truck = { ...traffic(0, clearZ), type: 'truck' };
+    const apex = getPlayerDimensions('apex');
+    expect(collisionWithPlayer(truck, truck, 0, 0, apex)).toBe(false);
+    const touching = { ...truck, z: contactZ };
+    expect(collisionWithPlayer(touching, touching, 0, 0, apex)).toBe(true);
+  });
+
+  it.each([
+    ['default', 5.018034], ['gt', 4.613987], ['apex', 3.615425],
+    ['rally', 3.982186], ['street', 4.104111], ['formula', 3.908048],
+  ])('uses the fitted %s body for longitudinal contact', (carId, measuredLength) => {
+    const player = getPlayerDimensions(carId);
+    const truckHalfLength = (measuredLength + 5.406025) / 2;
+    const clear = { ...traffic(0, -2 - truckHalfLength - 0.1), type: 'truck' };
+    const overlapping = { ...clear, z: -2 - truckHalfLength + 0.1 };
+    expect(collisionWithPlayer(clear, clear, 0, 0, player)).toBe(false);
+    expect(collisionWithPlayer(overlapping, overlapping, 0, 0, player)).toBe(true);
   });
 });
 
