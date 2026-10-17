@@ -15,6 +15,9 @@ function buyStages(store, part, count) {
   for (let stage = 0; stage < count; stage++) expect(store.getState().purchaseUpgrade(part).success).toBe(true);
 }
 
+const existingCarIds = ['default', 'gt', 'apex'];
+const newCars = CARS.filter(car => !existingCarIds.includes(car.id));
+
 describe('local garage and race loadouts', () => {
   it('migrates old builds without losing equipped levels and recovers corrupt saves', () => {
     expect(readGarage({ getItem: () => '{broken' })).toMatchObject({ selectedCar: 'default', ownedCars: ['default'], gold: STARTER_GOLD, schemaVersion: 3 });
@@ -42,6 +45,121 @@ describe('local garage and race loadouts', () => {
     expect(safe).toMatchObject({ selectedCar: 'default', ownedCars: ['default', 'gt'], upgrades: { apex: { engine: 0 }, gt: { nitro: 2 } } });
     expect(sanitizeGarage({ schemaVersion: 3, ownedCars: 'apex', selectedCar: 'apex' }).ownedCars).toEqual(['default']);
     expect(sanitizeGarage({ schemaVersion: 99, ownedCars: ['apex'], selectedCar: 'apex' }).selectedCar).toBe('default');
+  });
+
+  it('extends a current save with locked stock cars while preserving existing purchases, builds and gold', () => {
+    const previousSave = {
+      schemaVersion: 3,
+      gold: 158,
+      selectedCar: 'apex',
+      ownedCars: ['default', 'apex'],
+      upgrades: {
+        default: { engine: 1, handling: 0, nitro: 1 },
+        apex: { engine: 3, handling: 1, nitro: 3 },
+      },
+    };
+    data.set(GARAGE_KEY, JSON.stringify(previousSave));
+    const restored = createGameStore();
+    expect(restored.getState()).toMatchObject({
+      selectedCar: 'apex', garageGold: 158, garageOwnedCars: ['default', 'apex'],
+      garageUpgrades: previousSave.upgrades,
+    });
+    expect(newCars).toHaveLength(3);
+    restored.getState().openGarage();
+    for (const car of newCars) {
+      expect(restored.getState().garageUpgrades[car.id]).toEqual({ engine: 0, handling: 0, nitro: 0 });
+      restored.getState().selectCar(car.id);
+      expect(restored.getState().selectedCar).toBe('apex');
+      expect(restored.getState().purchaseCar(car.id)).toEqual({ success: false, reason: 'insufficient-gold', cost: car.price });
+    }
+    expect(restored.getState().garageGold).toBe(158);
+    expect(data.get(GARAGE_KEY)).toBe(JSON.stringify(previousSave));
+  });
+
+  it('keeps all replacement vehicle purchases and individual builds under their original save IDs', () => {
+    const builds = {
+      rally: { engine: 1, handling: 3, nitro: 2 },
+      street: { engine: 2, handling: 1, nitro: 3 },
+      formula: { engine: 3, handling: 2, nitro: 1 },
+    };
+    data.set(GARAGE_KEY, JSON.stringify({
+      schemaVersion: 3, gold: 47, selectedCar: 'formula',
+      ownedCars: ['default', 'rally', 'street', 'formula'], upgrades: builds,
+    }));
+    const store = createGameStore();
+    expect(store.getState()).toMatchObject({
+      selectedCar: 'formula', garageGold: 47,
+      garageOwnedCars: ['default', 'rally', 'street', 'formula'], garageUpgrades: builds,
+    });
+    for (const id of ['rally', 'street', 'formula']) {
+      store.getState().openGarage();
+      expect(store.getState().purchaseCar(id)).toEqual({ success: false, reason: 'already-owned' });
+      store.getState().selectCar(id);
+      store.getState().startGame();
+      expect(store.getState()).toMatchObject({ runCar: id, runStats: builds[id], garageGold: 47 });
+    }
+    expect(JSON.parse(data.get(GARAGE_KEY))).toMatchObject({
+      selectedCar: 'formula', gold: 47, upgrades: builds,
+      ownedCars: ['default', 'rally', 'street', 'formula'],
+    });
+  });
+
+  it.each(newCars)('buys $name with earned gold once and races its independently upgraded loadout after reload', car => {
+    const originalBuild = { engine: 2, handling: 1, nitro: 0 };
+    data.set(GARAGE_KEY, JSON.stringify({
+      schemaVersion: 3, gold: car.price - 1, selectedCar: 'default', ownedCars: ['default'],
+      upgrades: { default: originalBuild },
+    }));
+    const store = createGameStore();
+    store.getState().openGarage();
+    expect(store.getState().purchaseCar(car.id)).toEqual({ success: false, reason: 'insufficient-gold', cost: car.price });
+    expect(store.getState().garageGold).toBe(car.price - 1);
+
+    // One completed ten-meter run earns the missing gold through the real reward action.
+    store.getState().startGame();
+    store.setState({ gameState: 'playing', totalDistance: 10 });
+    store.getState().setGameOver();
+    store.getState().openGarage();
+    expect(store.getState().purchaseCar(car.id)).toEqual({ success: true, cost: car.price });
+    expect(store.getState()).toMatchObject({ selectedCar: car.id, garageGold: 0, garageOwnedCars: ['default', car.id] });
+    const purchaseSave = data.get(GARAGE_KEY);
+    expect(store.getState().purchaseCar(car.id)).toEqual({ success: false, reason: 'already-owned' });
+    expect(data.get(GARAGE_KEY)).toBe(purchaseSave);
+
+    // Earn the upgrade budget, keeping the existing car's tune separate.
+    store.getState().startGame();
+    store.setState({ gameState: 'playing', coinsCollected: 36 });
+    store.getState().setGameOver();
+    store.getState().openGarage();
+    buyStages(store, 'engine', 1);
+    buyStages(store, 'handling', 1);
+    buyStages(store, 'nitro', 1);
+    const restored = createGameStore();
+    expect(restored.getState()).toMatchObject({
+      selectedCar: car.id, garageGold: 0, garageOwnedCars: ['default', car.id],
+      garageUpgrades: { default: originalBuild, [car.id]: { engine: 1, handling: 1, nitro: 1 } },
+    });
+    restored.getState().startGame();
+    expect(restored.getState()).toMatchObject({
+      runCar: car.id,
+      runStats: {
+        cruiseSpeed: car.cruise + 4, boostSpeed: car.boost + 5,
+        acceleration: car.acceleration + 0.2, steeringRate: car.steering + 0.8,
+        steeringResponse: car.response + 1, maxNitro: car.capacity + 15,
+        nitroRegenRate: car.regen + 0.75, engine: 1, handling: 1, nitro: 1,
+      },
+      nitro: car.capacity + 15, maxNitro: car.capacity + 15,
+    });
+    restored.getState().selectCar('default');
+    expect(restored.getState().purchaseCar('gt')).toEqual({ success: false, reason: 'not-in-garage' });
+    expect(restored.getState().purchaseUpgrade('engine')).toEqual({ success: false, reason: 'not-in-garage' });
+    expect(restored.getState().runCar).toBe(car.id);
+    expect(restored.getState().runStats.engine).toBe(1);
+    restored.getState().openGarage();
+    restored.getState().selectCar('default');
+    restored.getState().startGame();
+    expect(restored.getState()).toMatchObject({ runCar: 'default', runStats: { engine: 2, handling: 1, nitro: 0 } });
+    expect(restored.getState().garageUpgrades[car.id]).toEqual({ engine: 1, handling: 1, nitro: 1 });
   });
 
   it('starts with one owned vehicle and charges once when buying and selecting a new car', () => {

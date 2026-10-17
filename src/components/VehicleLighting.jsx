@@ -9,7 +9,20 @@ import { createTrafficBeamMaterial } from '../environment/vehicle-lighting';
 // Targets live in the same car group as the lights, so steering rotates the
 // entire beam. Keep this pair mounted throughout the run to avoid recompiling
 // every lit material when traffic or quality changes.
-export function PlayerHeadlights() {
+const CAR_LIGHTS = {
+  rally: { native: true, front: -1.66, height: .577, spacing: .526 },
+  street: { native: true, front: -1.932, height: .58, spacing: .484 },
+  formula: { native: true, front: -1.618, height: .679, spacing: .657 },
+};
+
+export function PlayerHeadlights({ carId }) {
+  const layout = CAR_LIGHTS[carId];
+  const front = layout?.front ?? -2.018;
+  const rear = layout?.rear ?? 2.18;
+  const height = layout?.height ?? .53;
+  const spacing = layout?.spacing ?? .63;
+  const lensWidth = layout?.lensWidth ?? .19;
+  const lensHeight = layout?.lensHeight ?? .105;
   const lights = useRef([]), lenses = useRef([]);
   const cycle = useRef({});
   const targets = useMemo(() => [-1, 1].map(side => {
@@ -28,20 +41,22 @@ export function PlayerHeadlights() {
   return <group name="player-headlights">
     {[-1, 1].map((side, index) => <group key={side}>
       <primitive object={targets[index]} />
-      <spotLight ref={light => { lights.current[index] = light; }} position={[side * 0.63, 0.55, -1.95]} target={targets[index]}
+      <spotLight ref={light => { lights.current[index] = light; }} position={[side * spacing, height + .02, front + .068]} target={targets[index]}
         color="#dcecff" intensity={0} distance={70} angle={0.29} penumbra={0.8} decay={2} castShadow={false} />
-      <mesh position={[side * 0.63, 0.52, -1.9]}>
-        <boxGeometry args={[0.24, 0.17, 0.22]} />
+      {!layout?.native ? <>
+      <mesh position={[side * 0.63, height - .01, front + .118]}>
+        <boxGeometry args={[lensWidth + .05, lensHeight + .065, 0.22]} />
         <meshStandardMaterial color="#1c283c" metalness={0.6} roughness={0.35} />
       </mesh>
-      <mesh ref={mesh => { lenses.current[index] = mesh; }} position={[side * 0.63, 0.53, -2.018]} rotation={[0, Math.PI, 0]}>
-        <planeGeometry args={[0.19, 0.105]} />
+      <mesh ref={mesh => { lenses.current[index] = mesh; }} position={[side * 0.63, height, front]} rotation={[0, Math.PI, 0]}>
+        <planeGeometry args={[lensWidth, lensHeight]} />
         <meshStandardMaterial color="#9caabb" emissive="#dcecff" emissiveIntensity={0.02} metalness={0.3} roughness={0.24} />
       </mesh>
-      <mesh position={[side * 0.58, 0.4, 2.18]}>
+      <mesh position={[side * 0.58, layout?.rearHeight ?? (layout ? height * .75 : .4), rear]}>
         <boxGeometry args={[0.16, 0.07, 0.045]} />
         <meshBasicMaterial color="#ff343d" toneMapped={false} />
       </mesh>
+      </> : null}
     </group>)}
   </group>;
 }

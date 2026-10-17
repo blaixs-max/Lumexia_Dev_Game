@@ -1,6 +1,26 @@
 # Runtime vehicle models
 
-Updated 7 September 2026. The race uses the two `*_runtime.glb` files below. The garage keeps `sport_car_compact.glb`. Original sources are preserved.
+Updated 17 October 2026. The six-car catalog uses the existing Sport, sedan and Ferrari sources plus three realistic replacement bodies: Subaru WRX STI, BMW M3 E30 and Nissan Z Proto. These replace the earlier stylized Kenney models. The original save IDs (`rally`, `street`, `formula`), prices and arcade handling remain unchanged, preserving purchases and equipped builds. The names identify the visual models; gameplay values do not represent manufacturer specifications.
+
+The replacement GLBs use embedded images and the same files in both the garage and race. A root rotation converts their original +Z fronts to the game's -Z forward direction; catalog rotation is zero. See the [model source, license and modification records](realistic/credits.html). That page is also linked from both menu footers. Model-specific equipment and race light placements are adjusted independently of the assets. Existing collision dimensions are shared by all player cars.
+
+## Realistic replacements
+
+| File | Vehicle | Triangles | Material primitives | Bytes |
+|---|---|---:|---:|---:|
+| `realistic/rally.glb` | Subaru WRX STI | 42,128 | 80 | 669,112 |
+| `realistic/street.glb` | BMW M3 E30 | 52,728 | 30 | 9,952,100 |
+| `realistic/formula.glb` | Nissan Z Proto | 24,387 | 14 | 649,216 |
+
+Total: **11,270,428 bytes**. Primitive counts describe base model draws; shadows and other rendering passes can add draw calls. These measurements are not FPS results. The fixed source mirror had already simplified/compressed the original Sketchfab models. Lumexia adds a 180-degree Y scene parent; downloaded geometry, normals, materials, images and Meshopt compression remain unchanged. All three models use [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); original sources, authors, mirror commit and source/output hashes are in [source-record.json](realistic/source-record.json).
+
+Run `node tools/check-realistic-cars.mjs` for offline hash/resource, Meshopt decoding, finite-attribute, triangle-index and bound checks. All final models passed. Khronos validation separately returned zero errors and zero warnings for each GLB; its extension-support information is complemented by the custom Meshopt decoding checks. The importer and reproduction command are recorded with the [credits](realistic/CREDITS.md).
+
+The workshop adds a front three-quarter view, a single-frame 64 px reflection map and car-only contact shadows. Existing headlamp geometry is retained; equipment mounts use the new body dimensions. All three previews rendered without browser errors. A fresh Subaru purchase, engine upgrade, reload and actual completed race were verified; existing ownership/build/gold survived replacement. Physical-device performance, long-run handling balance and every upgrade stage remain pending.
+
+## Earlier Sport and Ferrari optimization
+
+The earlier Sport/Ferrari optimization record below is preserved. The race uses their `*_runtime.glb` files; the garage keeps `sport_car_compact.glb`. Original sources are preserved.
 
 | Model | Triangles | Material primitives¹ | Bytes |
 |---|---:|---:|---:|

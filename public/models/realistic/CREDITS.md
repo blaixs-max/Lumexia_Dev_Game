@@ -1,0 +1,12 @@
+# Vehicle model credits
+
+- **Subaru Impreza WRX STi 2004 Custom** by [MAC ULT ARTS](https://sketchfab.com/MACULTARTS). [Original model](https://sketchfab.com/3d-models/08296bc950364621b6174a3078bb19e0); [fixed source mirror](https://raw.githubusercontent.com/pedrosoandre/carros/0a56de377f02f2574d781f6920fed08d6423ec2f/assets/subaru-impreza.glb). Licensed under [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/).
+  File: `rally.glb`. Changes: The carros mirror had already simplified/compressed the Sketchfab models before download. Lumexia added only a 180-degree Y scene parent to face game front -Z; the downloaded mirror geometry, vertex normals, materials, paint, embedded images and meshopt compression are unchanged.
+
+- **[FREE] BMW M3 E30** by [Martin Trafas](https://sketchfab.com/TinoD2). [Original model](https://sketchfab.com/3d-models/free-bmw-m3-e30-ac3c7013434e403e8faff87948caf422); [fixed source mirror](https://raw.githubusercontent.com/pedrosoandre/carros/0a56de377f02f2574d781f6920fed08d6423ec2f/assets/bmw-m3-e30.glb). Licensed under [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/).
+  File: `street.glb`. Changes: The carros mirror had already simplified/compressed the Sketchfab models before download. Lumexia added only a 180-degree Y scene parent to face game front -Z; the downloaded mirror geometry, vertex normals, materials, paint, embedded images and meshopt compression are unchanged.
+
+- **Nissan Z Proto** by [Lexyc16](https://sketchfab.com/Lexyc16). [Original model](https://sketchfab.com/3d-models/nissan-z-proto-db9a5f7ae9d84a0fb01cac96afe3e69c); [fixed source mirror](https://raw.githubusercontent.com/pedrosoandre/carros/0a56de377f02f2574d781f6920fed08d6423ec2f/assets/nissan-proto.glb). Licensed under [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/).
+  File: `formula.glb`. Changes: The carros mirror had already simplified/compressed the Sketchfab models before download. Lumexia added only a 180-degree Y scene parent to face game front -Z; the downloaded mirror geometry, vertex normals, materials, paint, embedded images and meshopt compression are unchanged.
+
+These models are used under CC BY 4.0. Model titles identify the represented vehicles. The downloaded carros mirror is a simplified/compressed derivative of the linked Sketchfab originals. Its source hashes and the final Lumexia hashes are recorded in [source-record.json](source-record.json).

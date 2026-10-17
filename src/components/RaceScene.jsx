@@ -72,7 +72,7 @@ function PlayerCar() {
     <group ref={group} position={[0, 0.09, -2]}>
       <ContactPatch width={1.8} length={5.5} />
       <VehicleModel path={car.model} rotation={car.rotation} carId={car.id} equipmentLevels={equipmentLevels} />
-      <PlayerHeadlights />
+      <PlayerHeadlights carId={car.id} />
       <mesh position={[0, 0.12, 0]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[1.6, 4]} /><meshBasicMaterial color={rocket ? '#ff894c' : '#9eeff2'} transparent opacity={boosting || rocket ? 0.32 : 0.1} depthWrite={false} /></mesh>
     </group>
     <NitroBoostParticles position={playerPosition} isActive={boosting && !reducedMotion} />

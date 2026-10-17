@@ -1,6 +1,6 @@
-import { Component, Suspense, useMemo, useRef } from 'react';
+import { Component, Suspense, useLayoutEffect, useMemo, useRef } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { ContactShadows, OrbitControls, PerspectiveCamera, useGLTF } from '@react-three/drei';
+import { ContactShadows, Environment, Lightformer, OrbitControls, PerspectiveCamera, useGLTF } from '@react-three/drei';
 import { Box3, Vector3 } from 'three';
 import { usePageVisible } from '../hooks/usePageVisible';
 import { useGameStore } from '../store';
@@ -18,18 +18,29 @@ class ShowroomBoundary extends Component {
 function ShowroomCar({ car, levels, stationary = false }) {
   const { scene } = useGLTF(car.preview);
   const group = useRef();
+  const angle = (car.showroomRotation || 0) - .4;
   const reducedMotion = useMemo(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches, []);
   const prepared = useMemo(() => {
     const model = scene.clone(true);
+    model.traverse(node => { if (node.isMesh) node.layers.enable(1); });
     const bounds = new Box3().setFromObject(model), size = bounds.getSize(new Vector3()), center = bounds.getCenter(new Vector3());
-    const scale = 5.2 / Math.max(size.x, size.z, 1);
+    const scale = Math.min(5.2 / Math.max(size.x, size.z, 1), 1.65 / Math.max(size.y, .01));
     return { model, scale, position: [-center.x * scale, -bounds.min.y * scale, -center.z * scale],
       dimensions: { width: size.x * scale, length: size.z * scale, height: size.y * scale } };
   }, [scene]);
   useFrame(({ clock }) => {
-    if (group.current && !reducedMotion && !stationary) group.current.rotation.y = -.4 + Math.sin(clock.elapsedTime * .18) * .12;
+    if (group.current && !reducedMotion && !stationary) group.current.rotation.y = angle + Math.sin(clock.elapsedTime * .18) * .12;
   });
-  return <group ref={group} rotation={[0, -.4, 0]}><group rotation={[0, car.rotation, 0]}><primitive object={prepared.model} scale={prepared.scale} position={prepared.position} dispose={null} /></group><EquippedParts carId={car.id} levels={levels} {...prepared.dimensions} /></group>;
+  return <group ref={group} rotation={[0, angle, 0]}><group rotation={[0, car.rotation, 0]}><primitive object={prepared.model} scale={prepared.scale} position={prepared.position} dispose={null} /></group><EquippedParts carId={car.id} levels={levels} {...prepared.dimensions} /></group>;
+}
+
+function VehicleContactShadows({ workshop }) {
+  const shadow = useRef();
+  useLayoutEffect(() => {
+    // Capture the vehicle only; workshop walls must not become a large floor shadow.
+    shadow.current?.traverse(node => { if (node.isCamera) node.layers.set(1); });
+  }, []);
+  return <ContactShadows ref={shadow} position={[0, -.015, 0]} opacity={workshop ? .45 : .65} scale={8} blur={2.6} far={4} resolution={256} frames={1} color="#000000" />;
 }
 
 function WorkshopRoom() {
@@ -73,20 +84,25 @@ export default function VehicleShowroom({ carId, quality = 'auto', interactive =
   return <div className={`lx-showroom${workshop ? ' lx-showroom--workshop' : ''}`} role="img" aria-label={`${car.name} 3D önizlemesi${interactive ? ', döndürmek için sürükle' : ''}`}>
     {!workshop ? <><div className="lx-showroom-grid" aria-hidden="true" /><div className="lx-showroom-word" aria-hidden="true">L / X</div></> : null}
     <ShowroomBoundary key={car.id}>
-      <Canvas frameloop={visible ? 'always' : 'never'} camera={{ position: workshop ? [6.4, 2.8, 7.3] : [6, 3, 7], fov: workshop ? 33 : 34 }} dpr={quality === 'performance' ? 1 : [1, 1.5]} gl={{ alpha: !workshop, antialias: true }}>
+      <Canvas frameloop={visible ? 'always' : 'never'} camera={{ position: workshop ? [6.4, 2.8, 7.3] : [6, 3, 7], fov: workshop ? 33 : 34 }} dpr={quality === 'performance' ? 1 : [1, 1.5]} gl={{ alpha: true, antialias: true }}>
         {workshop ? <><color attach="background" args={['#615b4e']} /><fog attach="fog" args={['#615b4e', 16, 34]} /><WorkshopRoom /><WorkshopFraming /></> : null}
         <ambientLight intensity={workshop ? 1.25 : 1.7} />
         <directionalLight position={[4, 7, 5]} intensity={workshop ? 3 : 4} color="#fff1d3" />
         <directionalLight position={[-4, 3, -4]} intensity={workshop ? 1.3 : 3} color={workshop ? '#d9e3de' : '#a6d3dd'} />
         {!workshop ? <pointLight position={[0, 2, -3]} intensity={18} color="#defb7b" /> : null}
+        <Environment resolution={64} frames={1}>
+          <Lightformer form="rect" intensity={3} position={[0, 5, 0]} rotation={[Math.PI / 2, 0, 0]} scale={[7, 5, 1]} color="#fff5e6" />
+          <Lightformer form="rect" intensity={2} position={[-5, 2, 0]} rotation={[0, Math.PI / 2, 0]} scale={[8, 2, 1]} color="#cfdfed" />
+          <Lightformer form="rect" intensity={2} position={[5, 2, -2]} rotation={[0, -Math.PI / 2, 0]} scale={[8, 2, 1]} color="#ffffff" />
+        </Environment>
         <Suspense fallback={null}>
           <ShowroomCar car={car} levels={upgrades[car.id]} stationary={workshop && interactive} />
-          {!workshop && quality !== 'performance' ? <ContactShadows position={[0, -.015, 0]} opacity={.65} scale={8} blur={2.6} far={4} resolution={256} frames={1} color="#000000" /> : null}
+          {quality !== 'performance' ? <VehicleContactShadows workshop={workshop} /> : null}
         </Suspense>
         {!workshop ? <><mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -.04, 0]}><circleGeometry args={[3.35, 64]} /><meshStandardMaterial color="#1a2023" metalness={.6} roughness={.45} /></mesh><mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -.025, 0]}><ringGeometry args={[3.25, 3.28, 64]} /><meshBasicMaterial color="#defb7b" transparent opacity={.5} /></mesh></> : null}
         {interactive ? <OrbitControls enableZoom={false} enablePan={false} target={[0, workshop ? .65 : .5, 0]} minPolarAngle={workshop ? .9 : .6} maxPolarAngle={1.45} minAzimuthAngle={workshop ? -.75 : -Infinity} maxAzimuthAngle={workshop ? 1.35 : Infinity} /> : null}
       </Canvas>
     </ShowroomBoundary>
-    {!workshop ? <div className="lx-car-caption"><span><i /> {car.name}</span><span>{interactive ? 'Döndürmek için sürükle' : { BALANCED: 'Dengeli', 'GRAND TOURER': 'Uzun yol', SPRINT: 'Atak' }[car.className]}</span></div> : null}
+    {!workshop ? <div className="lx-car-caption"><span><i /> {car.name}</span><span>{interactive ? 'Döndürmek için sürükle' : car.classLabel}</span></div> : null}
   </div>;
 }

@@ -2,7 +2,37 @@
 
 > Son güncelleme: 2026-10-17
 
+## 2026-10-17: Sade ana menü ve yarış modu penceresi
+
+- [x] Ana menüde iki birincil eylem: **Yarışa başla** ve **Garaj**; ana ekrandaki mod kartları kaldırıldı.
+- [x] Başlangıç düğmesi ortalanmış yerel HTML `dialog` açar. Mevcut Classic Run / Double or Nothing görselleri, adları ve Türkçe kuralları pencerede korunur.
+- [x] Mod seçimi pencere içinde geçicidir; yalnız pencerenin **Yarışa başla** onayı seçili modu yarış başlangıcına gönderir. Geri dön, kapat, Esc ve dışarı tıklama önceki modu değiştirmez.
+- [x] Seçili radyo seçeneğine ilk odak, yön tuşuyla seçim, Tab ile pencere içinde odak dolaşımı, iptal sonrası başlangıç düğmesine dönüş ve pasif arka plan.
+- [x] Tarayıcıda açma/seçme/iptal, Esc, dışarı tıklama, odak geri dönüşü ve garaj akışı doğrulandı. 320×700: pencere 286×516,4 px, üst konumu 91,8 px; 844×390: 660×347,3 px, üst konumu 21,55 px. Yatay taşma yok; yatay görünümde pencere içi kaydırma gerekmiyor.
+- [x] Pencereden onaylanan Double or Nothing gerçek HUD'de **HEDEF: SEVİYE 5**, duraklatmada doğru mod adıyla gösterildi; menüye dönüp pencere açılınca Double or Nothing seçili kaldı. Classic Run seçilip onaylanan ikinci gerçek yarış, 87 m / 1 jeton sonunda Classic Run · SUBARU WRX STI sonuç ekranına ulaştı.
+- [x] 85 test başarılı, 17 üretim adaptörü testi atlandı; son Tab ve yatay ekran düzenlemeleri sonrası lint ve üretim derlemesi başarılı. Radyo seçeneklerinin klavye kullanımı ve Tab sınır dolaşımı doğrulandı; 844×390 penceresinde clientHeight / scrollHeight 346 px, iç kaydırma yok.
+
+Önceki çalışma ve kabul kayıtları aşağıda tarihsel kapsamlarıyla korunur.
+
 ## 2026-10-17: Yerel garaj, araç seçimi, ekipman ve HUD
+
+### Revizyon: üç gerçekçi araç modeli
+
+- [x] Kenney gövdeleri yerine Subaru WRX STI (900), BMW M3 E30 (2.400) ve Nissan Z Proto (4.800 altın) katalog adları, sınıfları ve Türkçe açıklamaları.
+- [x] Eski `rally` / `street` / `formula` kimlikleri, schema 3, fiyatlar ve sürüş ayarları korunur; mevcut sahiplik, ekipman ve altına dokunulmaz.
+- [x] Önceden alınmış üç aracı ve farklı yükseltmelerini aynı bakiye ile seçip yarışta kullanma regresyon testi eklendi; odaklı garaj paketi 22/22 başarılı.
+- [x] Ana menü ve garaj ortak alt bilgisinde erişilebilir **Model katkıları** bağlantısı.
+- [x] Üç bağımsız GLB toplam 11.270.428 bayt: Subaru 669.112 bayt / 42.128 üçgen / 80 primitive; BMW 9.952.100 / 52.728 / 30; Nissan 649.216 / 24.387 / 14. Dokular yerel dosyalara gömülüdür.
+- [x] CC BY 4.0 kaynak/lisans/değişiklik ve SHA-256 kayıtları sabit kaynak sürümüyle eklendi. Özel çevrimdışı denetim geometriyi, Meshopt çözümlemesini, indisleri ve yerel kaynakları doğruladı; Khronos her modelde 0 hata / 0 uyarı verdi.
+- [x] Yarışta ön yön -Z; garajda ön üç çeyrek açı, tek karelik 64 px yansıma haritası ve yalnız araç için temas gölgesi. Yerel farlar korunur. Kompakt motor (0,72), Subaru kanadı altında küçük arka nitro, BMW'de enine tek tüp ve Nissan'da arkaya eğimli tüpler için montajlar düzenlendi.
+- [x] 85 test başarılı, 17 üretim testi atlandı; lint ve üretim derlemesi başarılı. Üç gerçekçi önizleme tarayıcıda hatasız gösterildi.
+- [x] Masaüstü ve 320 px dar garaj kontrolü: belge/kaydırma genişliği 320 px, altı araç kartı iki sütunda (kart başına 121,6 px), uzun Subaru adı iki satıra sığar; örtüşme veya yatay taşma yok. Katkılar sayfası açıldı; üç yazar, özgün kaynak ve CC BY bağlantısı doğrulandı.
+- [x] Mevcut ayrı `127.0.0.2` kaydı model değişiminden sonra Subaru seçimi, 4 altın, Yol tutuşu 1 / Nitro 1 ekipmanını korudu.
+- [x] Yeni `127.0.0.3` kaydında Subaru alımı 1.500 → 600, motor yükseltme 600 → 300 altın; yenileme seçimi ve Motor 1'i korudu. Gerçek yarış HUD'si 112 oyun hızı / Motor 1 gösterdi. Tamamlanan 40 m yarış +4 altın verdi; bakiye 304 oldu. İkinci gerçek sürüş 76 m / 1 jeton / 253 puanda görüntülendi.
+- [x] Kabul görselleri: [Nissan garajı](../artifacts/realistic-nissan-garage.png), [Subaru yarışta](../artifacts/realistic-subaru-race.png).
+- [ ] Fiziksel telefon performansı, uzun sürüş dengesi ve tüm seviye montajlarının cihazda kabulü.
+
+Önceki Kenney denemesi oyuncak görünümü nedeniyle bu revizyonla değiştirildi; modelleri, dönüştürme/denetim betikleri ve görselleri çalışma alanı dışında arşivlendi. O turun 84 testlik doğrulaması tarihsel kayıttır; yukarıdaki kabul yeni modeller içindir.
 
 ### Ek çalışma: anlaşılır Türkçe arayüz ve simge sistemi
 
