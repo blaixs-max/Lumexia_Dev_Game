@@ -2,6 +2,30 @@
 
 > Son güncelleme: 2026-10-17
 
+## GitHub birleştirme — 17 Ekim
+
+Gölge, seviye trafiği ve mıknatıs/roket modelleri birlikte yayımlanır. Yerelde doğrulanan sürüm GitHub test/lint/derleme kontrollerinden sonra `main` dalına birleştirilir; Vercel'in mevcut Git bağlantısı yayını tetikler. Aşağıdaki yerel kabul kayıtları uygulama aşamalarının tarihsel kapsamını korur.
+
+## Güncel yarış revizyonu — 17 Ekim mıknatıs ve roket
+
+Mıknatıs ve roket, ortak para biçimli rozet/koni yerine iki özgün Three.js modeliyle çizilir. Mıknatıs kırmızı/mavi pahlanmış at nalı, gümüş kutup uçları ve vidalardan oluşur. Rokette inci gövde, turuncu burun ve geriye uzanan kanatlar, bakır detaylar, camgöbeği pencere, motor ağzı ve üç boyutlu egzoz bulunur. Yeni dış varlık veya görsel üretimi yoktur; eski harici dosyaların atıfları README'de tarihsel kaynaklar olarak korunur.
+
+Gerçek yarış bileşeninde hafif yön/düşey salınım okunabilir silueti korur; zemin halkası yolda sabittir. Azaltılmış hareket tercihi bu salınımları kapatır. Mevcut aydınlatma kullanılır, ek gerçek ışık eklenmez. Oluşum, çarpışma, toplama ve etki süreleri aynı kalır. Önceki gölge ve trafik düzeltmeleri bu çalışma içinde korunur.
+
+Tamamlanan yerel kabul: **89 test başarılı, 17 üretim adaptörü testi atlandı**; son lint ve üretim derlemesi (648 modül) başarılı. Gerçek yarış QA düzeneğinde High/Performance gündüz/gece kontrollerinin tamamı 2 mıknatıs / 2 roket / 1 jeton gösterdi; shader, sayfa ve WebGL bağlam hatası yoktu. High gündüz/gece 31 shader programıyla kaldı; Performance 512×512 gölge haritası gözlendi. Sonlu konum/normal denetiminde mıknatıs 1.456 üçgen / 6 model çizimi, roket 3.680 üçgen / 9 model çizimidir; gölgeler ve zemin halkaları bu sayılara dahil değildir. Örnek başına önbelleğe alınan kaynaklar kaldırılırken serbest bırakılır.
+
+Düzenekteki **Pickup layout → Magnet + rocket** seçeneği yakın ve uzaktaki iki nesneyi aynı anda gösterir, tür/adet/konum ölçümlerini sunar ve kalıcı bakiye yazmaz. Görseller: [Performance gündüz](../artifacts/powerups-day.png), [High gece](../artifacts/powerups-night.png). Fiziksel telefon görünürlüğü ve uzun sürüş performansı ayrı kabuldür. Bu revizyon yereldir, bu çalışma kapsamında yayın yapılmadı.
+
+## Önceki yerel yarış revizyonu — 17 Ekim gölge ve trafik
+
+Yarıştaki yuvarlak oyuncu/trafik gölge düzlemleri ve boşta alt aydınlatma kaldırıldı. Araç geometrisi, mevcut tek yönlü güneş/ay ışığıyla PCF yumuşak gölge üretir. Oyuncuyu izleyen ortografik gölge hacmi ±8, near/far 1/80; harita Performance'ta 512×512, High'da 1024×1024'tür. Model tabanı −0,025, asfalt −0,03 konumundadır. Gölge araç biçimine, ışık açısına ve oyuncunun şerit konumuna bağlıdır; ek yönlü ışık yoktur.
+
+Trafiğin hedef oluşma aralığı 1–8. seviyelerde **29 / 22 / 17 / 13 / 10,5 / 9 / 8 / 7 HUD metresi** olur; 8. seviyeden sonra sabitlenir. Güvenli yerleşim bulunamazsa 1,5 m sonra yeniden denenir. Normal/nitro/roket hızlarında kaçış şeridi kontrolü, 65 dünya birimi aynı şerit ayrımı, NPC hız sınırları ve 12 araç üst sınırı korunur.
+
+Yerel kabul: **89 test başarılı, 17 üretim adaptörü testi atlandı**; lint ve üretim derlemesi (646 modül) başarılı. Dört başlangıç değeriyle 60 saniyelik simülasyonda seviye 1 / 3 / 5 sırasıyla **23 / 39 / 61–63** oluşum ve yaklaşık **2,0 / 3,6 / 5,5** ortalama yaklaşan araç verdi. Toplanabilir nesneler kapalıdır ve z > −20 bölgesine ulaşan araçlar çarpışmayı önlemek için çıkarılır; bu, gerçek sürüş FPS veya bellek ölçümü değildir. Geç seviye yoğunluk sınırı, güvenli oluşumlar, engel sonrası yeniden deneme ve 30/60/144 FPS eşitliği test edilir.
+
+Gerçek yarış bileşenlerini kullanan tarayıcı QA düzeneğinde Apex Performance gündüz, Apex High gece/gün batımı ve Subaru High gündüz/viraj kontrol edildi. 512/1024 gölge haritaları gözlendi; gölge yönü, uzaması ve şerit takibi incelendi. Shader, sayfa veya WebGL bağlam hatası yoktu. Bu düzenek ana uygulamanın başlangıç akışından ayrıdır. Kalan kabul: fiziksel telefonda gölge maliyeti, uzun sürüş dengesi, FPS ve bellek ölçümü. Revizyon yereldir; bu çalışma kapsamında yayın yapılmadı. Önceki menü/model kabulünün 85 testlik kaydı aşağıda korunur.
+
 ## Güncel arayüz akışı — 17 Ekim yarış modu penceresi
 
 Ana menüde **Yarışa başla** ve **Garaj** iki birincil eylemdir. Mod kartları yalnız başlangıç düğmesiyle açılan, ekran ortasındaki yerel HTML `dialog` penceresinde gösterilir. Classic Run / Double or Nothing simgeleri ve kuralları korunur. Kart seçimi geçicidir; pencere içindeki başlangıç onayı seçili modu yarışa gönderir. Geri dön, kapat, Esc ve dışarı tıklama önceki modu koruyarak menüye döner.

@@ -84,7 +84,7 @@ function Race({ quality }) {
   const openGarage = useGameStore(s => s.openGarage);
   return <main className="lx-race" aria-label="Lumexia otoyol yarışı">
     <GameBoundary onBack={quitGame}>
-      <Canvas dpr={renderDpr} shadows={!low} frameloop={!pageVisible ? 'never' : ready && gameState === 'paused' ? 'demand' : 'always'} camera={{ position: [0, 5.2, 11.5], fov: 54, near: 0.5, far: 750 }}
+      <Canvas dpr={renderDpr} shadows="soft" frameloop={!pageVisible ? 'never' : ready && gameState === 'paused' ? 'demand' : 'always'} camera={{ position: [0, 5.2, 11.5], fov: 54, near: 0.5, far: 750 }}
         gl={{ antialias: true, alpha: false, powerPreference: 'high-performance', toneMapping: ACESFilmicToneMapping }}>
         <color attach="background" args={['#070e20']} />
         <Suspense fallback={null}>

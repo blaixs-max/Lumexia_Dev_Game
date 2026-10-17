@@ -6,6 +6,30 @@ A 3D browser highway racer built with React, Three.js and Zustand. This reposito
 
 Older production and deployment descriptions in the documentation are historical records. They do not describe the active behavior of this development repository.
 
+## Current race revision — 17 October 2026: magnet and rocket pickups
+
+The magnet and rocket now have distinct solid 3D models instead of a shared coin-shaped badge and cone. The magnet is a beveled red-and-blue horseshoe with silver pole caps and fasteners. The rocket has a pearl body, orange nose and swept fins, copper trim, a cyan window, an engine nozzle and three-dimensional exhaust. Both are original code-native Three.js models; this change adds no downloaded asset, image-generation dependency or external license.
+
+Powerups gently turn and float while keeping their recognizable face visible. Their ground markers stay on the road; reduced-motion preference disables the turning and bobbing. Existing scene lighting is reused without extra lights. Pickup placement, collisions, collection effects and effect durations are unchanged.
+
+Local checks: **89 tests passed, 17 skipped**; final lint and production build passed (648 modules). The real race QA fixture rendered two magnets, two rockets and one coin in both High and Performance, in daylight and at night, with no shader, page or WebGL context errors. High retained 31 shader programs across day/night; the Performance 512×512 shadow map was observed. Geometry checks found finite positions and normals: magnet 1,456 triangles / 6 model draws; rocket 3,680 triangles / 9 model draws, excluding shadows and ground markers. Resources are cached per instance and disposed on removal. See the [Performance daylight capture](artifacts/powerups-day.png) and [High night capture](artifacts/powerups-night.png).
+
+The fixture's **Pickup layout → Magnet + rocket** preset is available at `/tools/route-check.html?pickups=powerups`; it also retains the vehicle, daylight and graphics controls. Physical-device performance remains unverified. The release combines these pickups with the shadow and traffic changes below. GitHub pull-request CI checks tests, lint and the build before merging; the existing Vercel integration deploys `main`.
+
+## Previous local race revision — 17 October 2026: shadows and traffic
+
+Race shadows now use the vehicle meshes and the existing directional sun/moon light. The circular player/traffic patches and idle underglow were removed. A tight shadow volume follows the player, so the silhouette follows the car and the day-cycle light direction. PCF soft shadow maps are enabled in every graphics mode: 512×512 in Performance and 1024×1024 in High. The shadow camera spans ±8 with near/far 1/80; the vehicle ground offset is −0.025 above the asphalt at −0.03. This reuses the existing single directional light.
+
+Traffic now increases more noticeably with level. Target spacing between successful traffic spawns, in HUD metres:
+
+| Level | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8+ |
+|---|---|---|---|---|---|---|---|---|
+| Spacing (m) | 29 | 22 | 17 | 13 | 10.5 | 9 | 8 | 7 |
+
+An occupied spawn point is retried after 1.5 m. The passing-gap checks at cruise/nitro/rocket speeds, same-lane separation, bounded NPC speeds and 12-vehicle cap remain in place. Four seeded 60-second simulations produced 23 spawns at level 1, 39 at level 3 and 61–63 at level 5; mean approaching traffic was approximately 2.0, 3.6 and 5.5 vehicles respectively. These simulations remove vehicles after z = −20 to prevent collisions from ending the sample and disable pickups. They measure traffic progression, not real gameplay FPS or memory performance. Level 8 and level 80 tests verify the density limit; dense traffic matches at 30/60/144 render FPS.
+
+Checks for that revision: **89 tests passed, 17 skipped**; lint and the production build passed (646 modules). Browser checks used the real race components in a QA fixture: Apex in Performance daylight and High night/sunset, plus Subaru in High daylight on a curved road. The 512/1024 shadow maps were observed with no shader, page or WebGL context errors. See the [Performance shadow capture](artifacts/physical-shadow-performance.png). Physical-phone performance remains unverified. This revision is included in the combined release. Earlier acceptance records below retain their original test counts and scope.
+
 ## Play locally
 
 The Turkish main menu has two primary actions: **Yarışa başla** (Start race) and **Garaj** (Garage). Start race opens a centered mode dialog; Classic Run and Double or Nothing cards appear there with their existing symbols and Turkish rules. Selecting a card only changes the draft choice. Confirm with **Yarışa başla** inside the dialog to start that mode, or dismiss it with **Geri dön**, close, Escape or the backdrop to keep the previous choice. The garage offers six playable vehicles: starter LX Sport, LX GT (1,250 gold), LX Apex (3,000), Subaru WRX STI (900), BMW M3 E30 (2,400), and Nissan Z Proto (4,800). The three new cars use realistic proportions and textured models, replacing the earlier stylized Kenney bodies. Each has different arcade driving stats and its own upgrades; these stats are game tuning, not manufacturer specifications. Inspecting a car previews it without changing the active vehicle; buy or select an owned car to use it for the next run. Existing purchases, builds, selected car and gold are preserved under the original save IDs.
@@ -42,6 +66,7 @@ Graphics options are Auto, Performance and High. Auto can reduce resolution and 
 - **Scene:** `src/components/RaceScene.jsx` handles the highway, vehicles, camera, lighting and scenery. Repeated scenery uses shared geometry and instancing.
 - **Interface:** `RealLauncherUI.jsx` provides the main menu; `GaragePage.jsx` and `GaragePanel.jsx` handle preview, ownership and upgrades. `VehicleShowroom.jsx` is shared between both screens. `RaceHUD.jsx`, `RaceControls.jsx` and `GameOverUI.jsx` handle telemetry, input and results.
 - **Symbols:** `UIIcon.jsx` is the shared code-native SVG control set; generated mode emblems remain in `public/modes/` and equipment artwork in `public/equipment/`.
+- **Powerup models:** `MagnetPickup.jsx` and `RocketPickup.jsx` supply original Three.js geometry to the race pickup renderer; the original coin model and gameplay rules are retained.
 - **App lifecycle:** `src/App.jsx` connects the screens, lazy-loads the race scene and handles audio and scene loading errors.
 - **Archived integration sources:** Supabase functions, migrations and production integration documentation remain in the repository. Enabling those services requires a separate validated integration effort.
 
@@ -57,7 +82,7 @@ npm run preview     # preview the build
 node tools/check-realistic-cars.mjs
 ```
 
-Local verification on 17 October 2026: **85 tests passed, 17 skipped**; lint and production build passed. Garage tests cover ownership, one-time car purchases, insufficient gold, save migration, paid upgrades, separate builds, malformed/unavailable storage, locked race tuning, actual gameplay effects and once-only end-of-run gold. A replacement regression covers all three original save IDs with pre-existing purchases and different equipped builds. All three final GLBs passed the custom offline geometry/resource checks and Khronos validation with zero errors and zero warnings.
+Earlier menu/model verification on 17 October 2026: **85 tests passed, 17 skipped**; lint and production build passed. Garage tests cover ownership, one-time car purchases, insufficient gold, save migration, paid upgrades, separate builds, malformed/unavailable storage, locked race tuning, actual gameplay effects and once-only end-of-run gold. A replacement regression covers all three original save IDs with pre-existing purchases and different equipped builds. All three final GLBs passed the custom offline geometry/resource checks and Khronos validation with zero errors and zero warnings.
 
 The new mode dialog passed desktop, 320×700 and 844×390 browser checks, including keyboard selection, Tab containment, cancel/Escape/backdrop dismissal, focus restoration and Garage navigation. Confirming Double or Nothing produced the level-5 target in the race HUD; reopening the dialog retained that committed mode. Switching to Classic Run started a real run that reached Classic Run results. Both compact dialog views fit without horizontal overflow; the landscape dialog needed no internal scrolling.
 
@@ -95,13 +120,18 @@ Real device sessions on Windows, Android and iPhone remain part of the acceptanc
 
 ## Credits
 
-Open-source 3D assets used in the game:
+External 3D asset contributions, including retained historical assets:
 
 ### CC-BY (Attribution required)
 - **Subaru Impreza WRX STI 2004 Custom** by MAC ULT ARTS — Subaru WRX STI; CC BY 4.0.
 - **BMW M3 E30** by Martin Trafas — BMW M3 E30; CC BY 4.0.
 - **Nissan Z Proto** by Lexyc16 — Nissan Z Proto; CC BY 4.0.
   [Model sources, licenses and modifications](public/models/realistic/credits.html). The same contributions page is linked from the main menu and garage.
+
+### Archived pickup assets (CC BY 3.0)
+
+These older files are retained in the repository. The current race magnet and rocket use the original code-native models described above, rather than these external assets.
+
 - **"Magnet"** by Poly by Google — [CC-BY 3.0](https://creativecommons.org/licenses/by/3.0/)
   ([source](https://poly.pizza/m/dD2RIIea6WR))
 - **"Rocketship"** by Poly by Google — [CC-BY 3.0](https://creativecommons.org/licenses/by/3.0/)

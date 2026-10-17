@@ -251,7 +251,7 @@ export default function Benchmark() {
   const [ready, setReady] = useState(false);
   useEffect(() => { const start = document.querySelector('#start'); start.onclick = () => { start.disabled = true; setStarted(true); }; document.querySelector('#repeat').onclick = () => location.reload(); }, []);
   return started ? <>
-    <Canvas onCreated={attachDiagnostics} dpr={dpr} shadows={!low} frameloop={complete ? 'demand' : 'always'} camera={{ position: [0, 5.2, 11.5], fov: 54, near: 0.5, far: 750 }} gl={{ antialias: true, alpha: false, powerPreference: 'high-performance', toneMapping: ACESFilmicToneMapping }}>
+    <Canvas onCreated={attachDiagnostics} dpr={dpr} shadows="soft" frameloop={complete ? 'demand' : 'always'} camera={{ position: [0, 5.2, 11.5], fov: 54, near: 0.5, far: 750 }} gl={{ antialias: true, alpha: false, powerPreference: 'high-performance', toneMapping: ACESFilmicToneMapping }}>
       <Suspense fallback={null}><RaceScene low={low} adaptive={false} onReady={() => setReady(true)} onReduceQuality={() => {}} /><Drive ready={ready} finished={() => setComplete(true)} /></Suspense>
     </Canvas><RaceHUD />
   </> : null;

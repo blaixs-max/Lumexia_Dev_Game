@@ -1,10 +1,11 @@
 import { Component, Suspense, useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { ACESFilmicToneMapping } from 'three';
+import { ACESFilmicToneMapping, BasicShadowMap, PCFShadowMap, PCFSoftShadowMap, VSMShadowMap } from 'three';
 import RaceScene from '../src/components/RaceScene';
 import RaceHUD from '../src/components/RaceHUD';
 import { useGameStore } from '../src/store';
+import { CARS, getCar, getCarStats } from '../src/utils/garage';
 import { sampleDayCycle } from '../src/environment/day-cycle';
 import { ROAD_ROUTE_LENGTH, sampleRoadFrame, sampleTunnelAmount, tunnelStartZ } from '../src/environment/road-path';
 import '../src/App.css';
@@ -12,11 +13,22 @@ import '../src/App.css';
 const parameters = new URLSearchParams(location.search);
 const low = parameters.get('quality') === 'performance';
 const dpr = Math.min(2, Math.max(0.5, Number(parameters.get('dpr')) || 1));
-const settings = { time: 0, station: 0, lane: 0, replay: false, cycle: false, version: 0, ready: false };
+const settings = { car: getCar(parameters.get('car')).id, pickups: parameters.get('pickups') === 'powerups' ? 'powerups' : 'coins', time: 0, station: 0, lane: 0, replay: false, cycle: false, version: 0, ready: false };
 const diagnostics = { shaderErrors: [], pageErrors: [], contextLost: 0, contextRestored: 0, renderer: '', programsInitial: null, programsMax: 0, cleanup: null };
 const types = ['sport', 'sedan', 'suv', 'truck', 'sport', 'sedan', 'suv', 'sedan'];
 const element = id => document.getElementById(id);
 const noop = () => {};
+
+function pickupLayout() {
+  if (settings.pickups === 'powerups') return [
+    { id: 'route-magnet-near', kind: 'magnet', x: -4.5, z: -12 },
+    { id: 'route-rocket-near', kind: 'rocket', x: 4.5, z: -12 },
+    { id: 'route-coin-middle', kind: 'coin', x: 0, z: -25 },
+    { id: 'route-magnet-far', kind: 'magnet', x: -4.5, z: -45 },
+    { id: 'route-rocket-far', kind: 'rocket', x: 4.5, z: -45 },
+  ];
+  return Array.from({ length: 8 }, (_, i) => ({ id: `route-coin-${i}`, kind: 'coin', x: [-4.5, 0, 4.5][i % 3], z: -28 - i * 38 }));
+}
 
 function showErrors() {
   element('route-errors').textContent = JSON.stringify({ shaderErrors: diagnostics.shaderErrors, pageErrors: diagnostics.pageErrors }, null, 2);
@@ -60,6 +72,28 @@ function lightCounts(scene, camera) {
   return { mounted, visible, shadowCasting: shadows };
 }
 
+function shadowSettings(gl, scene) {
+  const names = { [BasicShadowMap]: 'BasicShadowMap', [PCFShadowMap]: 'PCFShadowMap', [PCFSoftShadowMap]: 'PCFSoftShadowMap', [VSMShadowMap]: 'VSMShadowMap' };
+  const lights = [];
+  let castingMeshes = 0, receivingMeshes = 0, playerCastingMeshes = 0;
+  scene.traverse(object => {
+    if (object.isMesh) {
+      if (object.castShadow) castingMeshes++;
+      if (object.receiveShadow) receivingMeshes++;
+    }
+    if (!object.isLight || !object.castShadow || !object.shadow) return;
+    const shadow = object.shadow, camera = shadow.camera;
+    lights.push({ name: object.name || object.type, type: object.type, intensity: object.intensity, visible: object.visible,
+      position: object.position.toArray(), target: object.target?.position.toArray(),
+      mapSize: shadow.mapSize.toArray(), bias: shadow.bias, normalBias: shadow.normalBias, radius: shadow.radius,
+      camera: { near: camera.near, far: camera.far, left: camera.left, right: camera.right, top: camera.top, bottom: camera.bottom },
+    });
+  });
+  scene.getObjectByName('player-car')?.traverse(object => { if (object.isMesh && object.castShadow) playerCastingMeshes++; });
+  return { enabled: gl.shadowMap.enabled, type: names[gl.shadowMap.type] || gl.shadowMap.type,
+    autoUpdate: gl.shadowMap.autoUpdate, castingMeshes, receivingMeshes, playerCastingMeshes, lights };
+}
+
 function bindControls() {
   const listeners = [];
   const listen = (id, event, handler) => { const node = element(id); node.addEventListener(event, handler); listeners.push(() => node.removeEventListener(event, handler)); };
@@ -67,6 +101,22 @@ function bindControls() {
     const parsed = Number(value);
     if (Number.isFinite(parsed) && (key === 'lane' || parsed >= 0)) { settings[key] = parsed; settings.version++; }
   };
+  const carSelect = element('route-car');
+  carSelect.replaceChildren(...CARS.map(car => new Option(car.name, car.id)));
+  carSelect.value = settings.car;
+  element('route-quality').value = low ? 'performance' : 'high';
+  element('route-pickups').value = settings.pickups;
+  listen('route-car', 'change', event => {
+    settings.car = getCar(event.target.value).id; settings.version++;
+    const url = new URL(location.href); url.searchParams.set('car', settings.car); history.replaceState(null, '', url);
+  });
+  listen('route-quality', 'change', event => {
+    const url = new URL(location.href); url.searchParams.set('quality', event.target.value); url.searchParams.set('car', settings.car); location.assign(url);
+  });
+  listen('route-pickups', 'change', event => {
+    settings.pickups = event.target.value === 'powerups' ? 'powerups' : 'coins'; settings.version++;
+    const url = new URL(location.href); url.searchParams.set('pickups', settings.pickups); history.replaceState(null, '', url);
+  });
   listen('route-phase', 'change', event => { setNumber('time', event.target.value); element('route-time-input').value = settings.time; });
   listen('route-station', 'change', event => { setNumber('station', event.target.value); element('route-distance-input').value = settings.station; });
   listen('route-time-input', 'change', event => setNumber('time', event.target.value));
@@ -94,12 +144,14 @@ function Drive() {
     if (settings.ready && settings.replay) { settings.station += dt * 70; settings.version++; }
     if (settings.ready && settings.cycle) { settings.time += dt * 20; settings.version++; }
     if (current.version !== settings.version) {
+      const runStats = getCarStats(settings.car);
       useGameStore.setState({ gameState: 'playing', gameOver: false, sessionType: 'practice', soundEnabled: false, updateGame: noop,
+        runCar: settings.car, runStats, nitro: runStats.maxNitro, maxNitro: runStats.maxNitro,
         elapsedTime: settings.time, totalDistance: settings.station / 5, currentX: settings.lane, steeringVelocity: 0,
         speed: 220, score: 0, isNitroActive: false, rocketActive: false, magnetActive: false, message: '', particles: [],
         enemies: types.map((type, i) => ({ id: `route-${i}`, type, x: [-4.5, 0, 4.5][i % 3],
           z: 24 - ((i * 51 + 360 - settings.station / 70 * 12 % 360) % 360), isChanging: false, indicator: 0 })),
-        coins: Array.from({ length: 8 }, (_, i) => ({ id: `route-coin-${i}`, kind: 'coin', x: [-4.5, 0, 4.5][i % 3], z: -28 - i * 38 })),
+        coins: pickupLayout(),
       });
       current.version = settings.version;
     }
@@ -108,12 +160,17 @@ function Drive() {
       if (settings.ready) diagnostics.programsInitial ??= programs;
       diagnostics.programsMax = Math.max(diagnostics.programsMax, programs);
       const frame = sampleRoadFrame(settings.station, -2);
+      const pickups = pickupLayout();
+      const byKind = pickups.reduce((counts, pickup) => { counts[pickup.kind] = (counts[pickup.kind] || 0) + 1; return counts; }, {});
       const report = {
         ready: settings.ready, phase: sampleDayCycle(settings.time), elapsedTime: Number(settings.time.toFixed(2)),
         station: Number(settings.station.toFixed(2)), routeStation: Number((settings.station % ROAD_ROUTE_LENGTH).toFixed(2)),
         tunnelFrontZ: Number(tunnelStartZ(settings.station).toFixed(2)), tunnelAmount: sampleTunnelAmount(settings.station, -2),
         playerRoadFrame: frame, replay: settings.replay, cycle: settings.cycle,
         viewport: [size.width, size.height], dpr: gl.getPixelRatio(), quality: low ? 'performance' : 'high',
+        player: { id: settings.car, name: getCar(settings.car).name, model: getCar(settings.car).model, stats: getCarStats(settings.car) },
+        pickups: { layout: settings.pickups, count: pickups.length, byKind, positions: pickups.map(({ kind, x, z }) => ({ kind, x, z })) },
+        shadows: shadowSettings(gl, scene),
         programs, programsInitial: diagnostics.programsInitial, programsMax: diagnostics.programsMax,
         lights: lightCounts(scene, camera), mainPassDrawCalls: gl.info.render.calls, mainPassTriangles: gl.info.render.triangles,
         geometryCount: gl.info.memory.geometries, textureCount: gl.info.memory.textures,
@@ -141,11 +198,13 @@ export default function RouteCheck() {
   const [ready, setReady] = useState(false);
   useEffect(() => {
     const unbind = bindControls();
-    useGameStore.setState({ gameState: 'playing', updateGame: noop, soundEnabled: false });
+    const runStats = getCarStats(settings.car);
+    useGameStore.setState({ gameState: 'playing', updateGame: noop, soundEnabled: false,
+      runCar: settings.car, runStats, nitro: runStats.maxNitro, maxNitro: runStats.maxNitro });
     return () => { unbind(); diagnostics.cleanup?.(); };
   }, []);
   return <Boundary><div className="lx-race" style={{ width: '100%', height: '100%' }}>
-    <Canvas onCreated={attachDiagnostics} dpr={dpr} shadows={!low} camera={{ position: [0, 5.2, 11.5], fov: 54, near: 0.5, far: 750 }}
+    <Canvas onCreated={attachDiagnostics} dpr={dpr} shadows="soft" camera={{ position: [0, 5.2, 11.5], fov: 54, near: 0.5, far: 750 }}
       gl={{ antialias: true, alpha: false, powerPreference: 'high-performance', toneMapping: ACESFilmicToneMapping }}>
       <Suspense fallback={null}><RaceScene low={low} adaptive={false} onReady={() => { settings.ready = true; setReady(true); }} onReduceQuality={noop} /><Drive /></Suspense>
     </Canvas>

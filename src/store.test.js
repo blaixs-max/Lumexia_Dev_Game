@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { audioSystem, createGameStore } from './store.js';
+import { isTrafficPlacementSafe } from './utils/gameplay.js';
 
 function seededRandom(seed = 3) {
   let value = seed;
@@ -162,6 +163,96 @@ describe('fixed simulation', () => {
   });
 });
 
+describe('level traffic progression', () => {
+  function simulateTraffic(level, seed, seconds = 60) {
+    const distance = (level - 1) * 1000;
+    const store = createGameStore({ random: seededRandom(seed), now: () => 1_000_000 });
+    store.setState({
+      gameState: 'playing', speed: 110, elapsedTime: 3,
+      totalDistance: distance, currentLevel: level,
+      nextTrafficDistance: distance, nextPickupDistance: Infinity,
+    });
+    let spawned = 0;
+    let activeSamples = 0;
+    let peak = 0;
+    let samples = 0;
+    const placedIds = new Set();
+    for (let frame = 0; frame < seconds * 120; frame++) {
+      // Measure approaching traffic without an artificial crash ending the
+      // sample. Remove vehicles only after they leave the observation area;
+      // keep spawn placement, movement and lane decisions fully simulated.
+      store.setState(state => ({ enemies: state.enemies.filter(car => car.z < -20) }));
+      store.getState().updateGame(1 / 120);
+      const state = store.getState();
+      expect(state.gameOver).toBe(false);
+      for (const car of state.enemies) {
+        if (placedIds.has(car.id)) continue;
+        placedIds.add(car.id);
+        spawned++;
+        expect(isTrafficPlacementSafe(car, state.enemies, [110, 200, state.rocketTargetSpeed])).toBe(true);
+      }
+      peak = Math.max(peak, state.enemies.length);
+      if (frame >= 10 * 120) {
+        activeSamples += state.enemies.length;
+        samples++;
+      }
+    }
+    return { spawned, peak, active: activeSamples / samples };
+  }
+
+  it('makes levels three and five visibly busier while retaining safe passing gaps across seeds', () => {
+    for (const seed of [3, 17, 101, 2026]) {
+      const easy = simulateTraffic(1, seed);
+      const medium = simulateTraffic(3, seed);
+      const hard = simulateTraffic(5, seed);
+      expect(medium.spawned).toBeGreaterThan(easy.spawned * 1.5);
+      expect(hard.spawned).toBeGreaterThan(medium.spawned * 1.4);
+      expect(medium.active).toBeGreaterThan(easy.active * 1.5);
+      expect(hard.active).toBeGreaterThan(medium.active * 1.4);
+      expect(hard.peak).toBeLessThanOrEqual(12);
+    }
+  });
+
+  it('bounds late-game density instead of growing without limit', () => {
+    for (const seed of [3, 101]) {
+      const busy = simulateTraffic(8, seed);
+      const late = simulateTraffic(80, seed);
+      expect(late.spawned).toBeGreaterThanOrEqual(busy.spawned - 1);
+      expect(late.spawned).toBeLessThanOrEqual(busy.spawned + 1);
+      expect(late.active).toBeCloseTo(busy.active, 1);
+      expect(late.peak).toBeLessThanOrEqual(12);
+    }
+  });
+
+  it('produces the same dense traffic at 30, 60 and 144 fps', () => {
+    const runs = [30, 60, 144].map(fps => {
+      const store = makePlaying({
+        speed: 110, elapsedTime: 3, currentLevel: 5,
+        totalDistance: 4000, nextTrafficDistance: 4000,
+      });
+      advance(store, 4, fps);
+      return store.getState();
+    });
+    expect(runs[0].enemies.length).toBeGreaterThanOrEqual(4);
+    expect(runs[0].enemies).toEqual(runs[1].enemies);
+    expect(runs[2].enemies).toEqual(runs[1].enemies);
+    expect(runs[0].nextTrafficDistance).toBeCloseTo(runs[2].nextTrafficDistance, 10);
+  });
+
+  it('retries a blocked spawn after the obstruction clears without violating lane reservations', () => {
+    const store = makePlaying({
+      speed: 110, elapsedTime: 3, nextTrafficDistance: 0,
+      enemies: [enemy({ id: 'left', lane: -1, targetLane: -1, x: -4.5, z: -300 }), enemy({ id: 'right', lane: 1, targetLane: 1, x: 4.5, z: -300 })],
+    });
+    advance(store, 0.1);
+    expect(store.getState().enemies).toHaveLength(2);
+    store.setState({ enemies: [] });
+    advance(store, 0.1);
+    expect(store.getState().enemies).toHaveLength(1);
+    expect(store.getState().totalDistance).toBeLessThan(29);
+  });
+});
+
 describe('collisions and rewards', () => {
   it('emits a single crash and never awards a simultaneous pickup', () => {
     const store = makePlaying({ speed: 200, enemies: [enemy({ z: -8 })], coins: [{ id: 'gold', x: 0, z: -2, kind: 'coin' }] });
@@ -216,8 +307,6 @@ describe('collisions and rewards', () => {
     store.setState({ rocketRemaining: 0.01, nextTrafficDistance: 0 });
     advance(store, 0.1);
     expect(store.getState().rocketActive).toBe(false);
-    store.setState({ nextTrafficDistance: 0 });
-    advance(store, 0.1);
     expect(store.getState().enemies).toHaveLength(1);
     expect(store.getState().enemies.every(car => car.z < -180)).toBe(true);
   });
