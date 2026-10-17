@@ -1,6 +1,37 @@
 # Lumexia Racing Game - Gorev Takip
 
-> Son güncelleme: 2026-10-17
+> Son güncelleme: 2026-10-18
+
+## 2026-10-18: GitHub ve Vercel yayın paketi
+
+Kullanıcının yayın isteği, modele uygun çarpışma alanları ile NPC hareketi, takip/frenleme, güvenli şerit değişimi ve sürekli gölgeleri birlikte kapsar. Hedef mevcut `blaixs-max/Lumexia_Dev_Game` deposunun `main` dalı ve `lumexia-dev-game.vercel.app` canlı ortamıdır. Paket, 130 başarılı test / 17 atlanan üretim adaptörü testi, lint ve 654 modüllük üretim derlemesiyle yerelde doğrulandı. GitHub PR kontrollerinden sonra birleştirme mevcut Vercel Git bağlantısının yayınını tetikler; yayın durumu ve commit eşleşmesi ayrıca kontrol edilir. Aşağıdaki yerel uygulama notları önceki kabul aşamalarının kapsamını korur.
+
+## 2026-10-18: NPC hareketi, trafik etkileşimi ve uzak gölgeler
+
+- [x] NPC/yol ölçeği düzeltildi: oyuncu 110 ve NPC 55 örneğinde eski çevreye göre hız 0, yeni hız 27,5 dünya birimi/saniye. Göreli trafik hareketi de yol ile aynı 0,5 katsayısını kullanır.
+- [x] İstenen hız ve takip hızı ayrıldı; NPC'ler öndeki araç için yavaşlar, gövdeler arası asgari mesafeyi korur. Sinyal, yumuşak bitişik şerit geçişi, sırayla alınan şerit rezervasyonları ve son geçiş koridorunun korunması ortak trafik modülündedir.
+- [x] Eski/yeni NPC eşleştirmesi sabit kimlikle yapılır; oluşma veya silinme dizi sırasını değiştirse de çarpışma/bonus denetimleri başka araca bağlanmaz. Önceki model boyutu düzeltmesi korunur.
+- [x] Gerçek geometriden kademeli güneş gölgesi: Performance 2×1024 / 320 birim, High 3×1536 / 360 birim. Kademe sınırlarında en az 8 birim yumuşak karışım ve uzak sönüm; gölge aynı ışık yönünü izler. NPC yönelmesi şerit eğrisine göre yumuşar; yavaşlayan NPC'nin fren lambası belirginleşir.
+- [x] Ayrı QA düzeneğine canlı trafik, sabit seviye/başlangıç, takip, şerit değişimi ve gölge yaklaşımı örnekleri eklendi. Görünür ölçümlerde gerçek/istenen hız, sinyal/geçiş sayıları, NPC temasları, gövde boşlukları, geçiş koridoru ve kademe bilgileri bulunur; kalıcı bakiye yazılmaz.
+- [x] Sinyal öncesinde planlanan manevra da iki şeridi rezerve eder; görünür sinyal rastgele 145–180 dünya birimi yaklaşımında, etkin boost için daha erken başlar. 36×120 saniye = **72 simülasyon dakikası**: seviye 1/8/80, dört başlangıç ve hız 110/225/235; her 120 Hz adımda bağımsız gövde çakışması, yerel koridor ve 1,15 saniyelik varış kümelerinde üç şerit duvarı denetlenir. Her profilde en az dört tamamlanmış geçiş; normal hızda en az dört geçiş 70–160 dünya birimi görünür yaklaşımında tamamlanır. Yoğun trafik 30/60/144 FPS sonuçları eşittir.
+- [x] 60 saniyelik yoğunluk örneklerinde seviye 1/3/5/8 ortalama yaklaşan araç sayısı **2,46 / 4,26 / 7,18 / 8,62**; seviye 5, seviye 1'in yaklaşık 2,9 katıdır. Ölçüm, kazayla bitmemesi için z > −20'ye gelen araçları çıkarır ve pickup içermez; FPS ölçümü değildir. Normal hızda 8. seviye 120 saniyede 56–70, boost altında 177–191 güvenli geçiş tamamlar. Toplam araç sınırı 12'dir; 8. seviyeden sonra oluşum eğrisi sabitlenir.
+- [x] Son tam kabul: **130 test başarılı, 17 üretim adaptörü testi atlandı**; lint, 654 modüllük üretim derlemesi ve 642 modüllük ayrı QA derlemesi başarılı. Önceki model boyutu regresyonları dahil.
+- [x] Gerçek yarış sahnesinde High gündüz, 8. seviye / seed 2026: 20,18 saniyede 10 etkin NPC, 8 tamamlanmış ve 2 devam eden geçiş, asgari gözlenen gövde boşluğu 4,2525, sıfır NPC teması; geçiş koridoru açık. Performance gece 33,37 saniyede 14 geçiş / sıfır temas / açık koridor verdi. İkisinde 43 shader programı, sıfır shader/sayfa/WebGL bağlam hatası. Görseller: [yoğun trafik](../artifacts/npc-live-level8.png), [Performance gece](../artifacts/npc-live-performance-night.png); [tarayıcı ölçümleri](../artifacts/npc-browser-qa.json).
+- [x] Aynı NPC, yaklaşık z = −82 ve −21 konumlarında gölgesini korur; High gündüz/gece açıları kontrol edildi. Takip örneğinde 73 istenen hız 45,35'e düşer ve 5,41 birim gövde boşluğu korunur. Duraklatılmış QA, üretim fiziğini 0,1/1 saniye sabit adımlarla ilerletebilir. Görseller: [uzak gölge](../artifacts/npc-shadow-far.png), [yakın gölge](../artifacts/npc-shadow-near.png), [takip/frenleme](../artifacts/npc-following-braking.png).
+- [x] QA dışında normal ana uygulama: Performans → Classic Run → Subaru Motor 1 ile gerçek sürüş (282 m / 4 jeton) → duraklat → garaj. Garaj önizlemesi doğru çizildi; seçili Subaru/Motor 1 ve 304 altın korundu. Görsel: [gerçek yarış](../artifacts/npc-production-race.png).
+
+Bu çalışma yereldir; GitHub/Vercel yayını yapılmadı. Fiziksel telefonlarda gölge maliyeti ayrıca ölçülmelidir.
+
+## 2026-10-17: Boş yolda görünmeyen çarpışma incelemesi
+
+- [x] Yeniden üretilen neden: modeller bir üst sınıra orantılı sığdırılırken çarpışma, görünür gövde yerine üst sınırın tamamını ve dışa doğru 0,2 birim payı kullanıyordu. Apex görünür uzunluğu 3,615425 iken eski oyuncu kutusu 5,5; kamyon görünür uzunluğu 5,406025 iken eski kutusu 8,3 idi. Merkezler 7 birim ayrıyken 2,489275 birim görünür boşluk olmasına rağmen eski sistem önde/arkada çarpışma sayıyordu. Yandaki SUV örneğinde 0,422766 birim boşluk da eski sistemde çarpışmaydı.
+- [x] Görüntü boyutları korunarak çizim sınırları ve ölçülmüş çarpışma alanları ayrıldı. Altı oyuncu aracı yarış başında kilitlenen `runCar` kimliğine, dört trafik modeli kendi gövdesine göre kontrol edilir. Süpürülmüş çarpışma korunur; temas, tamamen geçme ve yakın geçiş aynı alanları ve 0,03 birim içe toleransı kullanır.
+- [x] Gerçek GLB/glTF dosyalarının POSITION sınırları ve sahne dönüşümleriyle on modelin alanını bağımsız doğrulayan testler; önde/arkada boşluk, yan geçiş, gerçek temas, yarış aracı/seçili araç ayrımı ve 30/60/144 FPS hızlandırılmış geçiş/çarpışma regresyonları.
+- [x] QA düzeneğinde dört sabit senaryo, eski/yeni karşılaştırması ve isteğe bağlı zemin sınırları. Fizik çalıştırılmaz ve kalıcı bakiye yazılmaz; gerçek yarış sahnesi çizilir. High gündüz öndeki/arkadaki kamyon ve yandaki SUV boşlukları CLEAR, gerçek örtüşme COLLISION verdi. Shader, sayfa ve WebGL bağlam hatası görülmedi. Görsel: [Kamyonla görünür boşluk](../artifacts/collision-truck-clearance.png).
+- [x] Performance gece yan geçişi de CLEAR verdi; sayfa, shader ve WebGL bağlam hatası yoktu. Son doğrulama: **111 test başarılı, 17 üretim adaptörü testi atlandı**; lint ve üretim derlemesi (649 modül) başarılı. Gerçek temasın oyunu bitirmesi ve geçişin devam etmesi mağaza/ödül kuralları değiştirilmeden simülasyon testlerinde doğrulandı.
+- [ ] Kullanıcının son yarışındaki kesin nesne/konum: o oturumun çarpışma kaydı yok; bulunan hata yeniden üretildi, geçmiş olayın tek nedeni olduğu kanıtlanamaz.
+
+Yerel düzeltmedir; bu çalışma kapsamında GitHub/Vercel yayını yapılmadı.
 
 ## 2026-10-17: GitHub birleştirme kapsamı
 

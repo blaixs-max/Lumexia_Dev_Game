@@ -9,13 +9,26 @@
   #route-panel select,#route-panel input{width:155px}#route-panel button{cursor:pointer}#route-panel .buttons{display:flex;gap:6px;flex-wrap:wrap}#route-panel button[aria-pressed=true]{background:#235b56;border-color:#79d7be}
   #route-metrics{font:11px/1.4 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere;margin:10px 0 0;color:#d8e9f2}
   #route-status{display:block;margin-top:6px;color:#90e4cc}#route-errors{color:#ffc2ac;white-space:pre-wrap;overflow-wrap:anywhere}
+  #route-collision{display:block;margin:8px 0;padding:8px;border:1px solid #a8ff7680;border-radius:5px;color:#b7ff94;background:#1e382480;font-weight:700}#route-collision[data-contact=true]{border-color:#ff9d85;color:#ffb59e;background:#48251f80}
   @media(max-width:600px){#route-panel{top:100px;max-height:calc(100svh - 120px);font-size:11px}#route-panel select,#route-panel input{width:145px}}
 </style></head><body><div id="root"></div>
 <details id="route-panel" open><summary>ROUTE + DAY CYCLE QA</summary><span id="route-status">Preparing scene…</span>
-<p>Real race scene. Physics and score submission are disabled in this separate fixture. Collapse this panel for screenshots.</p>
+<p>Real race scene. Player crashes, rewards and persistent writes are disabled in this separate fixture. Static layouts freeze physics; live traffic uses the production NPC update at 120 Hz. Collapse this panel for screenshots.</p>
 <label>Player vehicle<select id="route-car"><option value="default">LX SPORT</option></select></label>
 <label>Quality<select id="route-quality"><option value="high">High</option><option value="performance">Performance</option></select></label>
 <label>Pickup layout<select id="route-pickups"><option value="coins">Coins</option><option value="powerups">Magnet + rocket</option></select></label>
+<label>Traffic layout<select id="route-traffic"><option value="normal">Normal traffic</option><option value="suv-side-gap">SUV side clearance</option><option value="truck-front-gap">Truck front clearance</option><option value="truck-rear-gap">Truck rear clearance</option><option value="truck-contact">Truck actual contact</option></select></label>
+<label>Traffic simulation<select id="route-simulation"><option value="static">Static layout</option><option value="live">Live seeded traffic</option><option value="following">Following / braking</option><option value="lane-change">Lane-change case</option><option value="shadow-pass">Shadow approach pass</option></select></label>
+<label>Traffic level<select id="route-level"><option value="1">1 · Easy</option><option value="3">3</option><option value="5">5</option><option value="8">8 · Busy</option><option value="20">20</option><option value="80">80 · Density cap</option></select></label>
+<label>Traffic seed<input id="route-seed" type="number" min="0" max="4294967295" step="1" value="2026"></label>
+<div class="buttons"><button id="route-sim-play" type="button" aria-pressed="true">Pause traffic</button><button id="route-sim-restart" type="button">Restart traffic</button></div>
+<div class="buttons"><button id="route-sim-step-small" type="button">Step 0.1 s</button><button id="route-sim-step-one" type="button">Step 1 s</button></div>
+<output id="route-traffic-status" aria-live="polite">Static layout; live NPC simulation is off.</output>
+<p>Live cases pause in background tabs. Following starts two cars in one lane with decisions delayed for 30 s; the lane-change case uses a fixed first random decision, then the chosen seed. Level stays fixed for comparisons. Metrics use the production passing-corridor check and report NPC contacts; player contact never stops this fixture. Shadow pass starts a single SUV at z = −180; pause near and far for comparison.</p>
+<output id="route-collision" aria-live="polite">Waiting for collision diagnostics.</output>
+<p>Collision fixtures keep the player centered and traffic stationary. Select LX APEX for the reported false-hit cases. Positive gapX / gapZ in metrics means visible clearance; old bounds show the previous collision result.</p>
+<button id="route-footprints" type="button" aria-pressed="false">Show vehicle footprints</button>
+<p>Footprints: cyan = player; green = traffic. These outlines follow measured model bounds on the road and never participate in gameplay.</p>
 <label>Daylight preset<select id="route-phase"><option value="0">Day · 0 s</option><option value="322.5">Sunset · 322.5 s</option><option value="400">Night · 400 s</option><option value="547.5">Sunrise · 547.5 s</option><option value="570">Day again · 570 s</option></select></label>
 <label>Rendered station<select id="route-station"><option>0</option><option>350</option><option>590</option><option>650</option><option>720</option><option>795</option><option>850</option><option>1200</option><option>1799.9</option><option>1800.1</option></select></label>
 <label>Time (seconds)<input id="route-time-input" type="number" min="0" step="0.1" value="0"></label>

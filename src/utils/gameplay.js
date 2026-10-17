@@ -1,17 +1,18 @@
+import { getPlayerDimensions, VEHICLE_DIMENSIONS } from './vehicleDimensions.js';
+import { LANE_WIDTH, LANES, PLAYER_Z, updateTraffic } from './traffic.js';
+
+export { VEHICLE_DIMENSIONS } from './vehicleDimensions.js';
+export { LANE_WIDTH, LANES, PLAYER_Z, updateTraffic, isTrafficPlacementSafe } from './traffic.js';
+
 // Gameplay runs at a fixed tick so steering, traffic and pickups behave the
 // same on a 30 Hz phone and a 144 Hz display. Rendering can run independently.
 export const SIMULATION_STEP = 1 / 120;
-export const PLAYER_Z = -2;
-export const LANE_WIDTH = 4.5;
 export const ROAD_LIMIT = 5;
-export const LANES = [-1, 0, 1];
-export const VEHICLE_DIMENSIONS = {
-  player: { width: 1.8, length: 5.5 },
-  sedan: { width: 3, length: 6.75 },
-  truck: { width: 3.1, length: 8.3 },
-  sport: { width: 1.9, length: 4.2 },
-  suv: { width: 2.9, length: 7.6 },
-};
+
+// A small inward tolerance avoids counting a visible sliver of clearance as
+// a hit. Collision, passing clearance and near-miss checks share this value.
+const CONTACT_INSET = 0.03;
+const contactHalfExtent = (playerSize, trafficSize) => (playerSize + trafficSize) / 2 - CONTACT_INSET;
 
 export const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 export const damp = (from, to, rate, delta) => to + (from - to) * Math.exp(-rate * delta);
@@ -43,73 +44,14 @@ export function sweptOverlap(fromX, fromZ, toX, toZ, halfWidth, halfLength) {
   return true;
 }
 
-export function collisionWithPlayer(enemy, nextEnemy, playerX, nextPlayerX) {
+export function collisionWithPlayer(enemy, nextEnemy, playerX, nextPlayerX, playerDimensions = VEHICLE_DIMENSIONS.player) {
   const dimensions = VEHICLE_DIMENSIONS[enemy.type] || VEHICLE_DIMENSIONS.sedan;
   return sweptOverlap(
     enemy.x - playerX, enemy.z - PLAYER_Z,
     nextEnemy.x - nextPlayerX, nextEnemy.z - PLAYER_Z,
-    (VEHICLE_DIMENSIONS.player.width + dimensions.width) / 2 + 0.2,
-    (VEHICLE_DIMENSIONS.player.length + dimensions.length) / 2 + 0.2,
+    contactHalfExtent(playerDimensions.width, dimensions.width),
+    contactHalfExtent(playerDimensions.length, dimensions.length),
   );
-}
-
-const occupiedLanes = enemy => enemy.targetLane !== enemy.lane && (enemy.isChanging || enemy.indicator)
-  ? [enemy.lane, enemy.targetLane]
-  : [enemy.lane];
-
-// Distances use the HUD's metres (one tenth of world travel). The previous
-// 1.4 m reduction per level barely changed the visible traffic. Progression
-// now reaches a bounded busy-road setting at level eight; placement still
-// has to reserve the same passing gap at cruise, nitro and rocket speeds.
-const TRAFFIC_SPACING = [29, 22, 17, 13, 10.5, 9, 8, 7];
-const trafficSpacing = level => TRAFFIC_SPACING[clamp(Math.floor(level) - 1, 0, TRAFFIC_SPACING.length - 1)];
-
-// Reserve a passing gap both at cruise and under boost. Checking positions
-// alone misses walls formed when faster traffic catches slower vehicles.
-export function isTrafficPlacementSafe(candidate, enemies, playerSpeeds = [110, 200, 210]) {
-  const active = enemies.filter(enemy => enemy.z < PLAYER_Z + 12 && enemy.id !== candidate.id);
-  const candidateLanes = occupiedLanes(candidate);
-  if (active.some(enemy => occupiedLanes(enemy).some(lane => candidateLanes.includes(lane))
-    && Math.abs(enemy.z - candidate.z) < 65)) return false;
-
-  for (const speed of playerSpeeds) {
-    const arrival = (PLAYER_Z - candidate.z) / Math.max(20, speed - candidate.ownSpeed);
-    const blocked = new Set(candidateLanes);
-    for (const enemy of active) {
-      const otherArrival = (PLAYER_Z - enemy.z) / Math.max(20, speed - enemy.ownSpeed);
-      if (Math.abs(otherArrival - arrival) < 1.15) {
-        occupiedLanes(enemy).forEach(lane => blocked.add(lane));
-      }
-    }
-    if (blocked.size === LANES.length) return false;
-  }
-  return true;
-}
-
-function spawnTraffic(state, random) {
-  if (state.rocketActive || state.enemies.length >= 12) return false;
-  const types = ['sedan', 'sport', 'suv', 'truck'];
-  const type = types[Math.floor(random() * types.length)];
-  // A bounded speed keeps late levels playable; the old multiplier eventually
-  // made every NPC faster than the player and sent it backwards indefinitely.
-  const ownSpeed = (type === 'truck' ? 42 : type === 'sport' ? 64 : 51) + random() * 9;
-  const z = state.elapsedTime < 2 ? -210 : -300;
-  const offset = Math.floor(random() * LANES.length);
-  for (let i = 0; i < LANES.length; i++) {
-    const lane = LANES[(offset + i) % LANES.length];
-    const candidate = {
-      id: `traffic-${state.nextEntityId}`, x: lane * LANE_WIDTH, z, lane,
-      ownSpeed, type, speed: 1, passed: false, isChanging: false,
-      targetLane: lane, changeProgress: 0, indicator: 0, signalRemaining: 0,
-      laneDecisionRemaining: 0.5 + random() * 0.8,
-    };
-    if (isTrafficPlacementSafe(candidate, state.enemies, [state.runStats?.cruiseSpeed ?? 110, state.runStats?.boostSpeed ?? 200, state.rocketTargetSpeed])) {
-      state.enemies.push(candidate);
-      state.nextEntityId++;
-      return true;
-    }
-  }
-  return false;
 }
 
 function spawnPickup(state, random) {
@@ -234,41 +176,16 @@ export function stepGameplay(state, delta, random, effects) {
   })).slice(-70);
 
   const previousEnemies = state.rocketActive ? [] : state.enemies;
-  const movedEnemies = previousEnemies.map(enemy => {
-    const next = { ...enemy, z: enemy.z + travel - enemy.ownSpeed * delta };
-    next.laneDecisionRemaining = (enemy.laneDecisionRemaining ?? 5) - delta;
-    if (!enemy.isChanging && !enemy.indicator && next.laneDecisionRemaining <= 0) {
-      next.laneDecisionRemaining = 4 + random() * 4;
-      const safeDistance = Math.max(180, (state.speed - enemy.ownSpeed) * 2.5 + 45);
-      if (PLAYER_Z - enemy.z > safeDistance && state.currentLevel > 1 && random() < 0.35) {
-        const adjacent = LANES.filter(lane => Math.abs(lane - enemy.lane) === 1);
-        const targetLane = adjacent[Math.floor(random() * adjacent.length)];
-        const reserved = { ...next, targetLane, indicator: Math.sign(targetLane - enemy.lane) };
-        if (isTrafficPlacementSafe(reserved, previousEnemies, [tuning?.cruiseSpeed ?? 110, tuning?.boostSpeed ?? 200, state.rocketTargetSpeed])) {
-          Object.assign(next, reserved, { signalRemaining: 0.8, changeProgress: 0 });
-        }
-      }
-    }
-    if (enemy.indicator && !enemy.isChanging) {
-      next.signalRemaining = Math.max(0, enemy.signalRemaining - delta);
-      if (!next.signalRemaining) next.isChanging = true;
-    }
-    if (enemy.isChanging) {
-      next.changeProgress = Math.min(1, enemy.changeProgress + delta / 1.2);
-      const blend = next.changeProgress ** 2 * (3 - 2 * next.changeProgress);
-      next.x = (enemy.lane + (enemy.targetLane - enemy.lane) * blend) * LANE_WIDTH;
-      if (next.changeProgress >= 1) {
-        next.lane = enemy.targetLane;
-        next.isChanging = false;
-        next.indicator = 0;
-      }
-    }
-    return next;
-  });
+  const previousById = new Map(previousEnemies.map(enemy => [enemy.id, enemy]));
+  const movedEnemies = updateTraffic(state, delta, travel, random);
 
   // Resolve a crash before rewards; a collision can never grant pickups or
   // a near-miss bonus in the same tick, and is emitted once per run.
-  const crashIndex = previousEnemies.findIndex((enemy, index) => collisionWithPlayer(enemy, movedEnemies[index], oldX, state.currentX));
+  const playerDimensions = getPlayerDimensions(state.runCar);
+  const crashIndex = movedEnemies.findIndex(enemy => {
+    const previous = previousById.get(enemy.id);
+    return previous && collisionWithPlayer(previous, enemy, oldX, state.currentX, playerDimensions);
+  });
   if (crashIndex !== -1) {
     state.enemies = movedEnemies;
     state.gameState = 'gameover';
@@ -283,11 +200,12 @@ export function stepGameplay(state, delta, random, effects) {
     effects.push('crash');
     return;
   }
-  movedEnemies.forEach((enemy, index) => {
-    const previous = previousEnemies[index];
+  movedEnemies.forEach(enemy => {
+    const previous = previousById.get(enemy.id);
+    if (!previous) return;
     const dimensions = VEHICLE_DIMENSIONS[enemy.type] || VEHICLE_DIMENSIONS.sedan;
-    const clearanceZ = PLAYER_Z + (VEHICLE_DIMENSIONS.player.length + dimensions.length) / 2 + 0.2;
-    const crashWidth = (VEHICLE_DIMENSIONS.player.width + dimensions.width) / 2 + 0.2;
+    const clearanceZ = PLAYER_Z + contactHalfExtent(playerDimensions.length, dimensions.length);
+    const crashWidth = contactHalfExtent(playerDimensions.width, dimensions.width);
     const lateralDistance = Math.abs(enemy.x - state.currentX);
     if (!enemy.passed && previous.z <= clearanceZ && enemy.z > clearanceZ) {
       enemy.passed = true;
@@ -317,13 +235,6 @@ export function stepGameplay(state, delta, random, effects) {
     effects.push('coin');
   });
 
-  if (state.totalDistance >= state.nextTrafficDistance) {
-    const spawned = spawnTraffic(state, random);
-    // A temporarily occupied spawn point should not cancel an entire traffic
-    // interval. Retry after more road has passed, never bypassing safety.
-    state.nextTrafficDistance = state.totalDistance + (spawned ? trafficSpacing(state.currentLevel) : 1.5);
-    state.lastSpawnZ = -state.totalDistance;
-  }
   if (state.totalDistance >= state.nextPickupDistance) {
     spawnPickup(state, random);
     state.nextPickupDistance = state.totalDistance + 16;

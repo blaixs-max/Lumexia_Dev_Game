@@ -230,7 +230,7 @@ describe('level traffic progression', () => {
         speed: 110, elapsedTime: 3, currentLevel: 5,
         totalDistance: 4000, nextTrafficDistance: 4000,
       });
-      advance(store, 4, fps);
+      advance(store, 8, fps);
       return store.getState();
     });
     expect(runs[0].enemies.length).toBeGreaterThanOrEqual(4);
@@ -254,6 +254,66 @@ describe('level traffic progression', () => {
 });
 
 describe('collisions and rewards', () => {
+  it('does not sweep an exiting NPC into a different distant NPC after filtering', () => {
+    const store = makePlaying({ speed: 110, enemies: [enemy({ id: 'exiting', z: 44.99 }), enemy({ id: 'distant', z: -80 })] });
+    store.getState().updateGame(1 / 120);
+    expect(store.getState()).toMatchObject({ gameState: 'playing', gameOver: false });
+    expect(store.getState().enemies.map(car => car.id)).toEqual(['distant']);
+  });
+
+  it('matches cars by id when a passed NPC is removed before an approaching collision', () => {
+    const store = makePlaying({
+      speed: 200,
+      enemies: [enemy({ id: 'removed', x: 4.5, lane: 1, targetLane: 1, z: 44.9 }), enemy({ id: 'contact', z: -7.8 })],
+    });
+    store.getState().updateGame(1 / 30);
+    expect(store.getState()).toMatchObject({ gameState: 'gameover' });
+    expect(store.getState().enemies.map(car => car.id)).toEqual(['contact']);
+  });
+
+  it('uses the car locked into the race rather than a shared full-length player box', () => {
+    const approachingTruck = enemy({ type: 'truck', z: -7.1, ownSpeed: 110 });
+    const apex = makePlaying({ runCar: 'apex', selectedCar: 'default', speed: 110, enemies: [approachingTruck] });
+    const sport = makePlaying({ runCar: 'default', selectedCar: 'apex', speed: 110, enemies: [approachingTruck] });
+    apex.getState().updateGame(1 / 120);
+    sport.getState().updateGame(1 / 120);
+    expect(apex.getState().gameState).toBe('playing');
+    expect(sport.getState().gameState).toBe('gameover');
+  });
+
+  it('leaves visible side clearance safe throughout a boosted pass at every frame rate', () => {
+    for (const fps of [30, 60, 144]) {
+      const store = makePlaying({
+        runCar: 'apex', speed: 225, isNitroActive: true,
+        runStats: { cruiseSpeed: 128, boostSpeed: 225, acceleration: 2.5 },
+        enemies: [enemy({ type: 'suv', x: 2.5, z: -24, ownSpeed: 51 })],
+      });
+      advance(store, 0.5, fps);
+      expect(store.getState().gameState).toBe('playing');
+      expect(store.getState().enemies[0].z).toBeGreaterThan(4);
+    }
+    expect(audioSystem.playCrash).not.toHaveBeenCalled();
+  });
+
+  it('still catches a real boosted collision at the same instant at 30, 60 and 144 fps', () => {
+    const runs = [30, 60, 144].map(fps => {
+      const store = makePlaying({
+        runCar: 'apex', speed: 225, isNitroActive: true,
+        runStats: { cruiseSpeed: 128, boostSpeed: 225, acceleration: 2.5 },
+        enemies: [enemy({ type: 'truck', z: -24, ownSpeed: 42 })],
+      });
+      advance(store, 0.5, fps);
+      return store.getState();
+    });
+    for (const run of runs) {
+      expect(run.gameState).toBe('gameover');
+      expect(run.crashSpeed).toBeCloseTo(225, 10);
+      expect(run.elapsedTime).toBeCloseTo(runs[0].elapsedTime, 10);
+      expect(run.score).toBeCloseTo(runs[0].score, 10);
+    }
+    expect(audioSystem.playCrash).toHaveBeenCalledTimes(3);
+  });
+
   it('emits a single crash and never awards a simultaneous pickup', () => {
     const store = makePlaying({ speed: 200, enemies: [enemy({ z: -8 })], coins: [{ id: 'gold', x: 0, z: -2, kind: 'coin' }] });
     store.getState().updateGame(0.1);
@@ -267,7 +327,7 @@ describe('collisions and rewards', () => {
   });
 
   it('awards a close pass only once, after the whole car has cleared', () => {
-    const store = makePlaying({ speed: 110, enemies: [enemy({ x: 3.4, z: 2, ownSpeed: 50, lane: 1, targetLane: 1 })] });
+    const store = makePlaying({ speed: 110, enemies: [enemy({ x: 3.3, z: 2, ownSpeed: 50, lane: 1, targetLane: 1 })] });
     advance(store, 0.1);
     expect(store.getState()).toMatchObject({ nearMissCount: 1, combo: 2, gameState: 'playing' });
     advance(store, 0.5);
