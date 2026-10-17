@@ -7,6 +7,11 @@ const MOUNTS = {
   default: { engineY: 0.76, engineZ: 0.19, nitroY: 0.72, nitroZ: 0.34, axleZ: 0.31 },
   gt: { engineY: 0.68, engineZ: -0.28, nitroY: 0.72, nitroZ: 0.35, axleZ: 0.30 },
   apex: { engineY: 0.84, engineZ: 0.20, nitroY: 0.80, nitroZ: 0.35, axleZ: 0.30 },
+  // Measurements use the final, grounded front -Z bodies. Compact kits clear
+  // their rear windows and stock wings; BMW uses one transverse bottle.
+  rally: { engineY: .71, engineZ: -.285, engineScale: .72, nitroY: .78, nitroZ: .435, nitroScale: .58, axles: [-.261628, .297687], wheelY: .21049, wheelRadius: .15155, wheelX: .405 },
+  street: { engineY: .735, engineZ: -.285, engineScale: .72, nitroY: .745, nitroZ: .415, nitroScale: .65, nitroSingle: true, nitroYaw: Math.PI / 2, axles: [-.323043, .270972], wheelY: .230569, wheelRadius: .16601, wheelX: .425, frontWheelYaw: -.5 },
+  formula: { engineY: .81, engineZ: -.285, engineScale: .72, nitroY: .80, nitroZ: .425, nitroScale: .58, nitroTiltX: .28, axles: [-.298491, .313729], wheelY: .268219, wheelRadius: .19312, wheelX: .46 },
 };
 const STAGES = [0, 1, 2];
 const SIDES = [-1, 1];
@@ -20,8 +25,8 @@ const EquippedParts = memo(function EquippedParts({ carId = 'default', levels = 
   const mount = MOUNTS[carId] || MOUNTS.default;
   const resources = useMemo(() => ({
     box: new BoxGeometry(1, 1, 1),
-    cylinder: new CylinderGeometry(1, 1, 1, 10),
-    ring: new TorusGeometry(1, 0.09, 5, 12),
+    cylinder: new CylinderGeometry(1, 1, 1, 16),
+    ring: new TorusGeometry(1, 0.09, 8, 24),
     graphite: new MeshStandardMaterial({ color: '#18262c', metalness: 0.72, roughness: 0.35 }),
     metal: new MeshStandardMaterial({ color: '#a7bdc6', metalness: 0.85, roughness: 0.26 }),
     lime: new MeshStandardMaterial({ color: '#dfff72', emissive: '#b5df3d', emissiveIntensity: 0.15, metalness: 0.45, roughness: 0.35 }),
@@ -33,10 +38,12 @@ const EquippedParts = memo(function EquippedParts({ carId = 'default', levels = 
   const unit = width / 1.8;
   const bottleRadius = 0.09 * unit;
   const bottleLength = length * 0.14;
-  const wheelRadius = height * 0.18;
+  const wheelRadius = height * (mount.wheelRadius || .18);
+  const axles = mount.axles || SIDES.map(side => side * mount.axleZ);
+  const nitroScale = mount.nitroScale || 1;
 
   return <group name="installed-equipment" dispose={null}>
-    {engine > 0 ? <group name={`engine-stage-${engine}`} position={[0, height * mount.engineY, length * mount.engineZ]}>
+    {engine > 0 ? <group name={`engine-stage-${engine}`} scale={mount.engineScale || 1} position={[0, height * mount.engineY, length * mount.engineZ]}>
       <mesh geometry={resources.box} material={resources.graphite} position={[0, -height * 0.045, 0]} scale={[width * 0.39, height * 0.19, length * 0.12]} castShadow />
       <mesh geometry={resources.box} material={resources.metal} position={[0, 0.07 * unit, 0]} scale={[width * 0.31, 0.07 * unit, length * 0.09]} castShadow />
       <mesh geometry={resources.box} material={resources.graphite} position={[0, 0.105 * unit, -length * 0.035]} scale={[width * 0.24, 0.065 * unit, length * 0.035]} />
@@ -45,7 +52,7 @@ const EquippedParts = memo(function EquippedParts({ carId = 'default', levels = 
     </group> : null}
 
     {handling > 0 ? <group name={`handling-stage-${handling}`}>
-      {SIDES.flatMap(side => SIDES.map(axle => <group key={`${side}-${axle}`} position={[side * width * 0.46, height * 0.23, axle * length * mount.axleZ]}>
+      {SIDES.flatMap(side => axles.map(axle => <group key={`${side}-${axle}`} rotation={[0, axle < 0 ? mount.frontWheelYaw || 0 : 0, 0]} position={[side * width * (mount.wheelX || .46), height * (mount.wheelY || .23), axle * length]}>
         <mesh geometry={resources.ring} material={resources.metal} rotation={[0, Math.PI / 2, 0]} scale={wheelRadius} />
         <mesh geometry={resources.box} material={resources.cyan} position={[side * 0.007, wheelRadius * 0.3, wheelRadius * 0.7]} scale={[0.035 * unit, wheelRadius * (0.65 + handling * 0.12), wheelRadius * 0.38]} />
       </group>))}
@@ -55,9 +62,9 @@ const EquippedParts = memo(function EquippedParts({ carId = 'default', levels = 
       </group>) : null}
     </group> : null}
 
-    {nitro > 0 ? <group name={`nitro-stage-${nitro}`} position={[0, height * mount.nitroY + bottleRadius, length * mount.nitroZ]}>
-      <mesh geometry={resources.box} material={resources.graphite} position={[0, -bottleRadius * 0.95 - height * 0.04, 0]} scale={[width * 0.49, height * 0.15, bottleLength * 0.8]} castShadow />
-      {SIDES.map(side => <group key={side} position={[side * width * 0.15, 0, 0]} rotation={[Math.PI / 2, 0, 0]}>
+    {nitro > 0 ? <group name={`nitro-stage-${nitro}`} scale={nitroScale} rotation={[mount.nitroTiltX || 0, mount.nitroYaw || 0, 0]} position={[0, height * mount.nitroY + bottleRadius * nitroScale, length * mount.nitroZ]}>
+      <mesh geometry={resources.box} material={resources.graphite} position={[0, -bottleRadius * 0.95 - height * 0.04, 0]} scale={[width * (mount.nitroSingle ? .12 : .49), height * 0.15, bottleLength * 0.8]} castShadow />
+      {(mount.nitroSingle ? [0] : SIDES).map(side => <group key={side} position={[side * width * 0.15, 0, 0]} rotation={[Math.PI / 2, 0, 0]}>
         <mesh geometry={resources.cylinder} material={resources.cyan} scale={[bottleRadius, bottleLength, bottleRadius]} castShadow />
         {SIDES.map(end => <mesh key={end} geometry={resources.cylinder} material={resources.metal} position={[0, end * bottleLength * 0.4, 0]} scale={[bottleRadius * 1.07, 0.045 * unit, bottleRadius * 1.07]} />)}
         <mesh geometry={resources.cylinder} material={resources.graphite} position={[0, bottleLength * 0.57, 0]} scale={[bottleRadius * 0.38, bottleLength * 0.16, bottleRadius * 0.38]} />

@@ -2,7 +2,23 @@
 
 > Son güncelleme: 2026-10-17
 
+## Güncel arayüz akışı — 17 Ekim yarış modu penceresi
+
+Ana menüde **Yarışa başla** ve **Garaj** iki birincil eylemdir. Mod kartları yalnız başlangıç düğmesiyle açılan, ekran ortasındaki yerel HTML `dialog` penceresinde gösterilir. Classic Run / Double or Nothing simgeleri ve kuralları korunur. Kart seçimi geçicidir; pencere içindeki başlangıç onayı seçili modu yarışa gönderir. Geri dön, kapat, Esc ve dışarı tıklama önceki modu koruyarak menüye döner.
+
+Kabul edilenler: masaüstü, 320×700 ve 844×390 yerleşimi; yatay taşma olmadan ortalanma; iptal ve başlangıç düğmesine odak dönüşü; radyo seçeneklerinde yön tuşları, pencere içinde Tab dolaşımı, arka planın pasifleşmesi ve garaja giriş. 320×700 penceresi 286×516,4 px; 844×390 penceresi 660×347,3 px ve iç kaydırmasızdır. Double or Nothing onayı gerçek HUD'de 5. seviye hedefini açtı; menüye dönüşte son onaylanan seçim korundu. Ardından seçilen Classic Run gerçek yarış ve sonuç ekranına ulaştı. 85 test başarılı, 17 üretim adaptörü testi atlandı; son stil ve klavye düzenlemeleri sonrası lint ve üretim derlemesi başarılı. Fiziksel cihaz kabulü ayrı kalır.
+
+Önceki çalışma ve kabul kayıtları aşağıda korunur.
+
 ## Güncel odak — araçlar, garaj, ekipman ve HUD
+
+### 17 Ekim revizyonu — gerçekçi araç modelleri
+
+Oyuncak görünümü veren önceki Kenney gövdeleri gerçek otomobil oranlarına ve kaplamalarına sahip Subaru WRX STI (900), BMW M3 E30 (2.400) ve Nissan Z Proto (4.800 altın) modelleriyle değiştirildi. Garaj altı araç sunmaya devam eder. Önceki `rally`, `street`, `formula` kayıt kimlikleri, fiyatlar ve sürüş dengesi korunur; bu kimliklerle alınmış araçlar, takılı ekipman, aktif seçim ve altın sıfırlanmaz. Nissan'ın kayıt kimliği uyumluluk için `formula` kalır; görünen araç bir spor coupé'dir.
+
+Modeller garajda ve yarışta aynı yerel GLB dosyalarını kullanır. Üç model toplam 11.270.428 bayttır; Subaru 42.128, BMW 52.728, Nissan 24.387 üçgendir. CC BY 4.0 lisansları, sabit kaynak sürümü, değişiklikler ve hash kayıtları `public/models/realistic/` içinde tutulur; ana menü ve garajdaki **Model katkıları** bağlantısı görünür atıf sağlar. Ön üç çeyrek garaj açısı, tek karelik 64 px yansıma haritası ve yalnız araca temas gölgesi eklendi. Yerel farlar korunur; motor ve nitro yeni gövdelere göre yerleştirilir. Mevcut ortak çarpışma boyutları korunur.
+
+Kabul: çevrimdışı geometri/kaynak denetimi başarılı; üç model Khronos doğrulamasında sıfır hata ve sıfır uyarı verdi. 85 test başarılı, 17 üretim testi atlandı; lint ve üretim derlemesi başarılı. Tarayıcıda üç önizleme, eski satın alımın korunması ve yeni Subaru satın alma → motor yükseltme → yenileme → gerçek yarış → altın ödülü akışı doğrulandı. 320 px garajda altı kart iki sütunda, uzun adlar sarılır ve yatay taşma yoktur; katkılar sayfasındaki üç kaynak/yazar/lisans kaydı kontrol edildi. Ekran görüntüleri ve sayısal kayıtlar görev dosyasındadır. Gerçek telefon performansı, uzun sürüş dengesi ve her yükseltme seviyesinin görsel kabulü sonraki aşamadır.
 
 ### 17 Ekim arayüz revizyonu — anlaşılır metin ve ortak simgeler
 

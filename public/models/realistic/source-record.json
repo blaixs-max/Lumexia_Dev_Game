@@ -1,0 +1,351 @@
+{
+  "retrieved": "2026-10-17",
+  "license": "CC-BY-4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+  "mirrorRepository": "https://github.com/pedrosoandre/carros",
+  "mirrorCommit": "0a56de377f02f2574d781f6920fed08d6423ec2f",
+  "sourceCatalog": "https://raw.githubusercontent.com/pedrosoandre/carros/0a56de377f02f2574d781f6920fed08d6423ec2f/cars.json",
+  "sourceOrientation": "Y-up, front +Z",
+  "outputOrientation": "Y-up, front -Z",
+  "runtimeResources": "All geometry, materials and image textures are embedded in local GLB files. No external resource requests are needed.",
+  "reproduction": "node tools/import-realistic-cars.mjs [temporary-download-directory]; node tools/check-realistic-cars.mjs",
+  "models": [
+    {
+      "id": "rally",
+      "title": "Subaru Impreza WRX STi 2004 Custom",
+      "author": "MAC ULT ARTS",
+      "authorUrl": "https://sketchfab.com/MACULTARTS",
+      "sourceUrl": "https://sketchfab.com/3d-models/08296bc950364621b6174a3078bb19e0",
+      "sourceFile": "subaru-impreza.glb",
+      "sourceSha256": "de862ee6809ce35a1adadbf8350be239b89561e35f0f0f67b963bc5c3c236cab",
+      "license": "CC-BY-4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "mirrorUrl": "https://raw.githubusercontent.com/pedrosoandre/carros/0a56de377f02f2574d781f6920fed08d6423ec2f/assets/subaru-impreza.glb",
+      "mirrorCommit": "0a56de377f02f2574d781f6920fed08d6423ec2f",
+      "sourceBytes": 669040,
+      "file": "rally.glb",
+      "bytes": 669112,
+      "sha256": "642ea10af30a983e4c4bd2c454a4d15184d5124b48c6ecfa87c61ddf75a97bdb",
+      "modifications": "The carros mirror had already simplified/compressed the Sketchfab models before download. Lumexia added only a 180-degree Y scene parent to face game front -Z; the downloaded mirror geometry, vertex normals, materials, paint, embedded images and meshopt compression are unchanged.",
+      "sourceBounds": {
+        "min": [
+          -1.219568,
+          0.001691,
+          -2.527935
+        ],
+        "max": [
+          1.219568,
+          1.739233,
+          2.868228
+        ],
+        "size": [
+          2.439136,
+          1.737542,
+          5.396163
+        ]
+      },
+      "outputBounds": {
+        "min": [
+          -1.219568,
+          0.001691,
+          -2.868228
+        ],
+        "max": [
+          1.219568,
+          1.739233,
+          2.527935
+        ],
+        "size": [
+          2.439136,
+          1.737542,
+          5.396163
+        ]
+      },
+      "triangles": 42128,
+      "vertices": 60520,
+      "normals": 60520,
+      "materialPrimitives": 80,
+      "textureCount": 1,
+      "raceScale": 0.73796612,
+      "raceSize": [
+        1.8,
+        1.282247,
+        3.982186
+      ],
+      "textures": [
+        {
+          "type": "image/png",
+          "width": 1024,
+          "height": 1024,
+          "bytes": 149946
+        }
+      ],
+      "requiredExtensions": [
+        "EXT_meshopt_compression",
+        "KHR_mesh_quantization"
+      ]
+    },
+    {
+      "id": "street",
+      "title": "[FREE] BMW M3 E30",
+      "author": "Martin Trafas",
+      "authorUrl": "https://sketchfab.com/TinoD2",
+      "sourceUrl": "https://sketchfab.com/3d-models/free-bmw-m3-e30-ac3c7013434e403e8faff87948caf422",
+      "sourceFile": "bmw-m3-e30.glb",
+      "sourceSha256": "35cad98e89e6f1e54ccd238a3df049d29f20ecec3fc0aa2a85e0ad6c2663d330",
+      "license": "CC-BY-4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "mirrorUrl": "https://raw.githubusercontent.com/pedrosoandre/carros/0a56de377f02f2574d781f6920fed08d6423ec2f/assets/bmw-m3-e30.glb",
+      "mirrorCommit": "0a56de377f02f2574d781f6920fed08d6423ec2f",
+      "sourceBytes": 9952032,
+      "file": "street.glb",
+      "bytes": 9952100,
+      "sha256": "03febf32b44dcce0bcb5099b9b02984d01870f5a5f1d020382fe625a1b9ccfed",
+      "modifications": "The carros mirror had already simplified/compressed the Sketchfab models before download. Lumexia added only a 180-degree Y scene parent to face game front -Z; the downloaded mirror geometry, vertex normals, materials, paint, embedded images and meshopt compression are unchanged.",
+      "sourceBounds": {
+        "min": [
+          -0.934772,
+          -0.000913,
+          -2.239889
+        ],
+        "max": [
+          0.934772,
+          1.350537,
+          2.12214
+        ],
+        "size": [
+          1.869543,
+          1.35145,
+          4.362029
+        ]
+      },
+      "outputBounds": {
+        "min": [
+          -0.934772,
+          -0.000913,
+          -2.12214
+        ],
+        "max": [
+          0.934772,
+          1.350537,
+          2.239889
+        ],
+        "size": [
+          1.869543,
+          1.35145,
+          4.362029
+        ]
+      },
+      "triangles": 52728,
+      "vertices": 50180,
+      "normals": 50180,
+      "materialPrimitives": 30,
+      "textureCount": 18,
+      "raceScale": 0.96280205,
+      "raceSize": [
+        1.8,
+        1.301179,
+        4.19977
+      ],
+      "textures": [
+        {
+          "type": "image/png",
+          "width": 1024,
+          "height": 1024,
+          "bytes": 124112
+        },
+        {
+          "type": "image/png",
+          "width": 1024,
+          "height": 1024,
+          "bytes": 50348
+        },
+        {
+          "type": "image/png",
+          "width": 1024,
+          "height": 1024,
+          "bytes": 145358
+        },
+        {
+          "type": "image/png",
+          "width": 1024,
+          "height": 1024,
+          "bytes": 67064
+        },
+        {
+          "type": "image/png",
+          "width": 1024,
+          "height": 1024,
+          "bytes": 123224
+        },
+        {
+          "type": "image/png",
+          "width": 1024,
+          "height": 1024,
+          "bytes": 1184973
+        },
+        {
+          "type": "image/png",
+          "width": 1024,
+          "height": 1024,
+          "bytes": 371602
+        },
+        {
+          "type": "image/png",
+          "width": 1024,
+          "height": 1024,
+          "bytes": 549877
+        },
+        {
+          "type": "image/png",
+          "width": 1024,
+          "height": 1024,
+          "bytes": 590907
+        },
+        {
+          "type": "image/png",
+          "width": 1024,
+          "height": 1024,
+          "bytes": 205179
+        },
+        {
+          "type": "image/png",
+          "width": 1024,
+          "height": 1024,
+          "bytes": 979719
+        },
+        {
+          "type": "image/png",
+          "width": 1024,
+          "height": 1024,
+          "bytes": 1065255
+        },
+        {
+          "type": "image/png",
+          "width": 1024,
+          "height": 1024,
+          "bytes": 352995
+        },
+        {
+          "type": "image/png",
+          "width": 1024,
+          "height": 1024,
+          "bytes": 255695
+        },
+        {
+          "type": "image/png",
+          "width": 1024,
+          "height": 1024,
+          "bytes": 411021
+        },
+        {
+          "type": "image/png",
+          "width": 1024,
+          "height": 1024,
+          "bytes": 693529
+        },
+        {
+          "type": "image/png",
+          "width": 1024,
+          "height": 1024,
+          "bytes": 930441
+        },
+        {
+          "type": "image/png",
+          "width": 1024,
+          "height": 1024,
+          "bytes": 983119
+        }
+      ],
+      "requiredExtensions": [
+        "EXT_meshopt_compression",
+        "KHR_mesh_quantization"
+      ]
+    },
+    {
+      "id": "formula",
+      "title": "Nissan Z Proto",
+      "author": "Lexyc16",
+      "authorUrl": "https://sketchfab.com/Lexyc16",
+      "sourceUrl": "https://sketchfab.com/3d-models/nissan-z-proto-db9a5f7ae9d84a0fb01cac96afe3e69c",
+      "sourceFile": "nissan-proto.glb",
+      "sourceSha256": "4d93ca9750f4a50852f29628deeca691a5e7fed48dacaf7ddfa4b814642574f3",
+      "license": "CC-BY-4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "mirrorUrl": "https://raw.githubusercontent.com/pedrosoandre/carros/0a56de377f02f2574d781f6920fed08d6423ec2f/assets/nissan-proto.glb",
+      "mirrorCommit": "0a56de377f02f2574d781f6920fed08d6423ec2f",
+      "sourceBytes": 649144,
+      "file": "formula.glb",
+      "bytes": 649216,
+      "sha256": "d5114c554a562ba90058771560eb9d8de7e6635b1486f2c844c17a1a547bb1c8",
+      "modifications": "The carros mirror had already simplified/compressed the Sketchfab models before download. Lumexia added only a 180-degree Y scene parent to face game front -Z; the downloaded mirror geometry, vertex normals, materials, paint, embedded images and meshopt compression are unchanged.",
+      "sourceBounds": {
+        "min": [
+          -1.352893,
+          -1.14967,
+          -3.054055
+        ],
+        "max": [
+          1.468113,
+          0.791062,
+          3.070737
+        ],
+        "size": [
+          2.821005,
+          1.940732,
+          6.124792
+        ]
+      },
+      "outputBounds": {
+        "min": [
+          -1.468113,
+          -1.14967,
+          -3.070737
+        ],
+        "max": [
+          1.352893,
+          0.791062,
+          3.054055
+        ],
+        "size": [
+          2.821005,
+          1.940732,
+          6.124792
+        ]
+      },
+      "triangles": 24387,
+      "vertices": 24957,
+      "normals": 24957,
+      "materialPrimitives": 14,
+      "textureCount": 3,
+      "raceScale": 0.63807041,
+      "raceSize": [
+        1.8,
+        1.238324,
+        3.908048
+      ],
+      "textures": [
+        {
+          "type": "image/png",
+          "width": 256,
+          "height": 256,
+          "bytes": 5716
+        },
+        {
+          "type": "image/jpeg",
+          "bytes": 123721
+        },
+        {
+          "type": "image/png",
+          "width": 512,
+          "height": 512,
+          "bytes": 239066
+        }
+      ],
+      "requiredExtensions": [
+        "EXT_meshopt_compression",
+        "KHR_mesh_quantization"
+      ]
+    }
+  ]
+}

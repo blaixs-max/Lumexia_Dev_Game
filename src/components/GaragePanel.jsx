@@ -7,7 +7,6 @@ import './Garage.css';
 
 const formatNumber = value => value.toLocaleString('tr-TR', { maximumFractionDigits: 1 });
 const PART_LABELS = { engine: 'Motor', handling: 'Yol tutuşu', nitro: 'Nitro sistemi' };
-const CAR_CLASSES = { default: 'Dengeli', gt: 'Uzun yol', apex: 'Atak' };
 const STAT_ICONS = { cruise: 'speed', boost: 'rocket', handling: 'handling', nitro: 'nitro' };
 
 function StatRow({ id, label, value, unit, max }) {
@@ -66,7 +65,7 @@ export default function GaragePanel({ disabled = false, quality, onDone }) {
     </header>
     <div className="lx-bay-layout">
       <section className="lx-bay-vehicle" aria-labelledby="garage-car-name">
-        <div className="lx-bay-nameplate"><span>{CAR_CLASSES[car.id]}</span><h2 id="garage-car-name">{car.name}</h2><small>{carIndex + 1} / {CARS.length}</small></div>
+        <div className="lx-bay-nameplate"><span>{car.classLabel}</span><h2 id="garage-car-name">{car.name}</h2><small>{carIndex + 1} / {CARS.length}</small></div>
         <div className="lx-bay-scene">
           <VehicleShowroom carId={car.id} quality={quality} interactive variant="workshop" />
           <button type="button" className="lx-bay-arrow is-prev" onClick={() => cycleCar(-1)} disabled={disabled} aria-label="Önceki araç"><UIIcon name="arrowLeft" size={28} /></button>
@@ -84,6 +83,7 @@ export default function GaragePanel({ disabled = false, quality, onDone }) {
       </section>
       <aside className="lx-bay-specs" aria-labelledby="garage-specs-title">
         <header><h2 id="garage-specs-title">Performans</h2><span className={`lx-bay-ownership ${isSelected ? 'is-active' : ''}`}><UIIcon name={isSelected ? 'check' : isOwned ? 'car' : 'lock'} size={15} />{isSelected ? 'Yarış için seçili' : isOwned ? 'Satın alındı' : 'Satın alınabilir'}</span></header>
+        <p className="lx-bay-car-description">{car.description}</p>
         <StatRow id="cruise" label="Normal hız" value={stats.cruiseSpeed} max={140} />
         <StatRow id="boost" label="Nitro ile hız" value={stats.boostSpeed} max={230} />
         <StatRow id="handling" label="Direksiyon tepkisi" value={stats.steeringRate} max={20} />

@@ -8,7 +8,7 @@ Older production and deployment descriptions in the documentation are historical
 
 ## Play locally
 
-The Turkish main menu provides **Yarışa başla** (Start race) and **Garaj** (Garage). Mode names remain Classic Run and Double or Nothing, with their rules shown in Turkish on every screen size. The separate garage offers three playable vehicles using the existing Sport, sedan and Ferrari assets: LX Sport is the starter, LX GT costs 1,250 gold and LX Apex costs 3,000 gold. Inspecting a car previews it without changing the active vehicle; buy or select an owned car to use it for the next run.
+The Turkish main menu has two primary actions: **Yarışa başla** (Start race) and **Garaj** (Garage). Start race opens a centered mode dialog; Classic Run and Double or Nothing cards appear there with their existing symbols and Turkish rules. Selecting a card only changes the draft choice. Confirm with **Yarışa başla** inside the dialog to start that mode, or dismiss it with **Geri dön**, close, Escape or the backdrop to keep the previous choice. The garage offers six playable vehicles: starter LX Sport, LX GT (1,250 gold), LX Apex (3,000), Subaru WRX STI (900), BMW M3 E30 (2,400), and Nissan Z Proto (4,800). The three new cars use realistic proportions and textured models, replacing the earlier stylized Kenney bodies. Each has different arcade driving stats and its own upgrades; these stats are game tuning, not manufacturer specifications. Inspecting a car previews it without changing the active vehicle; buy or select an owned car to use it for the next run. Existing purchases, builds, selected car and gold are preserved under the original save IDs.
 
 The garage uses an industrial workshop scene with arrow navigation, performance bars and an equipment tray. Drag the vehicle to inspect it. **Ana menüye dön** returns to the main menu; purchases and selections save immediately. An expandable **Nasıl oynanır?** guide explains keyboard or touch controls on the main menu. Shared vector symbols and UI terminology are documented in [UI_GUIDE.md](docs/UI_GUIDE.md).
 
@@ -21,7 +21,7 @@ npm ci
 npm run dev       # http://localhost:5173
 ```
 
-Select a mode on the main menu, tune your car in the garage, then use **Yarışa başla** on the main menu. Graphics quality is available on both screens. Classic Run is endless. Double or Nothing awards twice the final score after reaching level 5; finishing earlier gives zero score. This rule does not affect earned workshop gold. Best scores are stored locally per mode.
+Tune your car in the garage, return to the main menu, then use **Yarışa başla** to choose and confirm a mode in the dialog. Graphics quality is available on both screens. Classic Run is endless. Double or Nothing awards twice the final score after reaching level 5; finishing earlier gives zero score. This rule does not affect earned workshop gold. Best scores are stored locally per mode.
 
 | Input | Action |
 |---|---|
@@ -45,7 +45,7 @@ Graphics options are Auto, Performance and High. Auto can reduce resolution and 
 - **App lifecycle:** `src/App.jsx` connects the screens, lazy-loads the race scene and handles audio and scene loading errors.
 - **Archived integration sources:** Supabase functions, migrations and production integration documentation remain in the repository. Enabling those services requires a separate validated integration effort.
 
-The Sport garage preview uses `sport_car_compact.glb`, while its race model uses `sport_car_runtime.glb`. GT uses `Car 3/scene.gltf`; Apex uses `ferrari_runtime.glb`. Decoders are bundled in `public/draco/`. Original assets are preserved; see `public/models/RUNTIME_MODELS.md` for model measurements. All player vehicles share the same normalized collision dimensions in this first garage release.
+The Sport garage preview uses `sport_car_compact.glb`, while its race model uses `sport_car_runtime.glb`. GT uses `Car 3/scene.gltf`; Apex uses `ferrari_runtime.glb`. The three replacement bodies use self-contained GLBs in `public/models/realistic/` for both the garage and race. Their model contributions are accessible through **Model katkıları** in both menu footers. Decoders are bundled in `public/draco/`. See `public/models/RUNTIME_MODELS.md` for model measurements. All player vehicles share the same normalized collision dimensions in this first garage release.
 
 ## Checks and build
 
@@ -54,9 +54,14 @@ npm test
 npm run lint
 npm run build       # output: dist/
 npm run preview     # preview the build
+node tools/check-realistic-cars.mjs
 ```
 
-Local verification on 17 October 2026: **80 tests passed, 17 skipped**; lint and production build passed. Garage tests cover ownership, one-time car purchases, insufficient gold, save migration, paid upgrades, separate builds, malformed/unavailable storage, locked race tuning, actual gameplay effects and once-only end-of-run gold. Browser checks covered main menu → garage → GT purchase → Handling upgrade → reload → race → main menu, plus locked-car preview with existing progress preserved. The skipped tests cover production wallet/price behavior while this repository uses mock adapters. They are not evidence that production services work.
+Local verification on 17 October 2026: **85 tests passed, 17 skipped**; lint and production build passed. Garage tests cover ownership, one-time car purchases, insufficient gold, save migration, paid upgrades, separate builds, malformed/unavailable storage, locked race tuning, actual gameplay effects and once-only end-of-run gold. A replacement regression covers all three original save IDs with pre-existing purchases and different equipped builds. All three final GLBs passed the custom offline geometry/resource checks and Khronos validation with zero errors and zero warnings.
+
+The new mode dialog passed desktop, 320×700 and 844×390 browser checks, including keyboard selection, Tab containment, cancel/Escape/backdrop dismissal, focus restoration and Garage navigation. Confirming Double or Nothing produced the level-5 target in the race HUD; reopening the dialog retained that committed mode. Switching to Classic Run started a real run that reached Classic Run results. Both compact dialog views fit without horizontal overflow; the landscape dialog needed no internal scrolling.
+
+Browser checks rendered all three replacements without errors, preserved an existing Subaru purchase/build/balance, and verified a fresh Subaru purchase → engine upgrade → reload → actual race → completed-run gold. At 320 px the six garage cards form two columns, long names wrap and the page has no horizontal overflow. The credits page and all three author/source/license entries were checked. See [garage preview](artifacts/realistic-nissan-garage.png), [race capture](artifacts/realistic-subaru-race.png), and [TASK.md](docs/TASK.md) for the acceptance record. Physical-device performance, long-run balance and every upgrade stage remain unverified. Production wallet/price tests remain skipped while this repository uses mock adapters; local checks do not validate production services.
 
 Node 24 was used for local verification. In the constrained Windows environment, the build and tests succeeded with Vite's native configuration loader. If your environment also restricts installation scripts or configuration-loader subprocesses, these were the commands used:
 
@@ -93,6 +98,10 @@ Real device sessions on Windows, Android and iPhone remain part of the acceptanc
 Open-source 3D assets used in the game:
 
 ### CC-BY (Attribution required)
+- **Subaru Impreza WRX STI 2004 Custom** by MAC ULT ARTS — Subaru WRX STI; CC BY 4.0.
+- **BMW M3 E30** by Martin Trafas — BMW M3 E30; CC BY 4.0.
+- **Nissan Z Proto** by Lexyc16 — Nissan Z Proto; CC BY 4.0.
+  [Model sources, licenses and modifications](public/models/realistic/credits.html). The same contributions page is linked from the main menu and garage.
 - **"Magnet"** by Poly by Google — [CC-BY 3.0](https://creativecommons.org/licenses/by/3.0/)
   ([source](https://poly.pizza/m/dD2RIIea6WR))
 - **"Rocketship"** by Poly by Google — [CC-BY 3.0](https://creativecommons.org/licenses/by/3.0/)

@@ -12,7 +12,7 @@
 .lx-bay-collection strong { color: #e2e8df; font-size: 21px; }
 .lx-bay-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(290px, .37fr); gap: 20px 22px; }
 .lx-bay-vehicle { position: relative; min-width: 0; border: 1px solid #bba28040; border-radius: 10px; background: #232724; overflow: hidden; }
-.lx-bay-nameplate { position: absolute; z-index: 2; top: 19px; left: 50%; transform: translateX(-50%); width: min(320px, 60%); text-align: center; padding: 9px 30px; border: 1px solid #bcae9347; border-radius: 5px; background: linear-gradient(125deg, #383b35e8, #242c2ae8); box-shadow: 0 4px 15px #0002; pointer-events: none; }
+.lx-bay-nameplate { position: relative; z-index: 2; margin: 16px auto 0; width: min(320px, 60%); text-align: center; padding: 9px 30px; border: 1px solid #bcae9347; border-radius: 5px; background: linear-gradient(125deg, #383b35e8, #242c2ae8); box-shadow: 0 4px 15px #0002; pointer-events: none; }
 .lx-bay-nameplate > span { display: block; color: #c7cdbe; font-size: 11px; }
 .lx-bay-nameplate h2 { font-size: clamp(19px, 2vw, 28px); letter-spacing: -.7px; line-height: 1.2; margin: 3px 0; }
 .lx-bay-nameplate small { position: absolute; right: 10px; bottom: 13px; font-size: 10px; color: #b8c0b1; }
@@ -26,7 +26,7 @@
 .lx-bay-drag { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 7px; font-size: 11px; white-space: nowrap; color: #d0d5c8; text-shadow: 0 1px 3px #000; pointer-events: none; }
 .lx-bay-vehicle-controls { position: relative; z-index: 2; padding: 14px 18px 16px; background: linear-gradient(180deg, #1c2321, #171e1c); border-top: 1px solid #bba28024; display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
 .lx-bay-car-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); flex: 1 1 100%; gap: 6px; min-width: 0; }
-.lx-bay-car-tabs button { text-align: left; display: grid; grid-template-columns: 15px minmax(0, 1fr); align-items: center; gap: 5px 7px; background: transparent; border: 1px solid #9aab8c28; border-radius: 4px; padding: 10px 8px; color: #b9c4ba; font-size: 12px !important; font-weight: 700 !important; }
+.lx-bay-car-tabs button { min-width: 0; min-height: 61px; text-align: left; display: grid; grid-template-columns: 15px minmax(0, 1fr); align-items: center; gap: 5px 7px; background: transparent; border: 1px solid #9aab8c28; border-radius: 4px; padding: 10px 8px; color: #b9c4ba; font-size: 12px !important; font-weight: 700 !important; }
 .lx-bay-car-tabs button[aria-pressed=true] { border-color: #d5c09590; background: #d5c0950f; color: #f0eddf; }
 .lx-bay-car-tabs button:hover:enabled { background: #d5c09513; }
 .lx-bay-car-tabs button > svg { color: #e8bd7c; }
@@ -43,6 +43,7 @@
 .lx-bay-specs h2 { font-size: 20px; font-weight: 700; margin: 0 0 10px; }
 .lx-bay-ownership { display: flex; align-items: center; gap: 7px; font-size: 12px; color: #d9be90; }
 .lx-bay-ownership.is-active { color: #d2e89d; }
+.lx-bay-car-description { color: #c0cbbd; font-size: 12px; line-height: 1.7; margin: 16px 0 0; }
 .lx-bay-stat { display: grid; grid-template-columns: 25px minmax(0, 1fr); align-items: center; gap: 11px; margin-top: 22px; }
 .lx-bay-stat > svg { color: #d3d8c9; }
 .lx-bay-stat-value { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
@@ -119,7 +120,7 @@
   .lx-bay-collection strong { font-size: 20px; }
   .lx-bay-layout { grid-template-columns: 1fr; gap: 16px; }
   .lx-bay-scene { height: clamp(280px, 58vw, 350px); }
-  .lx-bay-nameplate { top: 15px; padding: 8px 25px; }
+  .lx-bay-nameplate { padding: 8px 25px; }
   .lx-bay-nameplate h2 { font-size: 23px; }
   .lx-bay-arrow { height: 50px; width: 40px; }
   .lx-bay-arrow.is-prev { left: 12px; }
@@ -132,6 +133,7 @@
   .lx-bay-stat-value { display: block; }
   .lx-bay-stat-value > span { display: block; margin-bottom: 6px; font-size: 12px; }
   .lx-bay-spec-note { grid-column: 1 / -1; margin-top: 18px; }
+  .lx-bay-car-description { grid-column: 1 / -1; }
   .lx-bay-equipment { padding: 19px; }
   .lx-bay-part { grid-template-columns: 110px minmax(0, 1fr); }
   .lx-bay-part-image img { object-fit: contain; }
@@ -148,8 +150,8 @@
   .lx-bay-kicker { max-width: 190px; }
   .lx-bay-collection { max-width: 105px; }
   .lx-bay-nameplate { width: 66%; }
-  .lx-bay-car-tabs { gap: 4px; }
-  .lx-bay-car-tabs button { padding: 9px 5px; gap: 5px; font-size: 11px !important; }
+  .lx-bay-car-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  .lx-bay-car-tabs button { padding: 10px 8px; gap: 5px 7px; }
   .lx-bay-car-tabs button > span { font-size: 10px; }
   .lx-bay-select { width: 100%; gap: 13px; }
   .lx-bay-shortfall { width: 100%; text-align: center; }
