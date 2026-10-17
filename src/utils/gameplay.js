@@ -59,13 +59,13 @@ const occupiedLanes = enemy => enemy.targetLane !== enemy.lane && (enemy.isChang
 
 // Reserve a passing gap both at cruise and under boost. Checking positions
 // alone misses walls formed when faster traffic catches slower vehicles.
-export function isTrafficPlacementSafe(candidate, enemies) {
+export function isTrafficPlacementSafe(candidate, enemies, playerSpeeds = [110, 200, 210]) {
   const active = enemies.filter(enemy => enemy.z < PLAYER_Z + 12 && enemy.id !== candidate.id);
   const candidateLanes = occupiedLanes(candidate);
   if (active.some(enemy => occupiedLanes(enemy).some(lane => candidateLanes.includes(lane))
     && Math.abs(enemy.z - candidate.z) < 65)) return false;
 
-  for (const speed of [110, 200, 210]) {
+  for (const speed of playerSpeeds) {
     const arrival = (PLAYER_Z - candidate.z) / Math.max(20, speed - candidate.ownSpeed);
     const blocked = new Set(candidateLanes);
     for (const enemy of active) {
@@ -96,7 +96,7 @@ function spawnTraffic(state, random) {
       targetLane: lane, changeProgress: 0, indicator: 0, signalRemaining: 0,
       laneDecisionRemaining: 0.5 + random() * 0.8,
     };
-    if (isTrafficPlacementSafe(candidate, state.enemies)) {
+    if (isTrafficPlacementSafe(candidate, state.enemies, [state.runStats?.cruiseSpeed ?? 110, state.runStats?.boostSpeed ?? 200, state.rocketTargetSpeed])) {
       state.enemies.push(candidate);
       state.nextEntityId++;
       return;
@@ -142,20 +142,20 @@ export function applyPickup(state, pickup) {
   if (pickup.kind === 'magnet') {
     state.magnetActive = true;
     state.magnetRemaining = state.magnetDuration / 1000;
-    state.message = 'MAGNET · 10s';
+    state.message = 'MIKNATIS · 10 sn';
     state.messageRemaining = 1.5;
   } else if (pickup.kind === 'rocket') {
     state.rocketActive = true;
     state.rocketRemaining = state.rocketDuration / 1000;
     state.enemies = [];
-    state.message = 'ROCKET · 12s';
+    state.message = 'ROKET · 12 sn';
     state.messageRemaining = 1.5;
     state.isNitroActive = false;
   } else {
     // Preserve the established scoring rules.
     state.score += 100;
     state.coinsCollected++;
-    state.message = '+100 GOLD';
+    state.message = '+100 PUAN · 1 JETON';
     state.messageRemaining = 0.6;
   }
 }
@@ -165,7 +165,7 @@ export function awardNearMiss(state, position, random) {
   state.score += 500 * multiplier;
   state.combo = Math.min(multiplier + 1, 10);
   state.nearMissCount++;
-  state.message = `NEAR MISS! ${multiplier}x`;
+  state.message = `YAKIN GEÇİŞ · ×${multiplier}`;
   state.messageRemaining = 1;
   state.particles.push(...makeParticles(position.x, 1, position.z, 'spark', random));
 }
@@ -183,10 +183,12 @@ export function stepGameplay(state, delta, random, effects) {
   state.magnetActive = state.magnetRemaining > 0;
   state.rocketActive = state.rocketRemaining > 0;
 
-  let targetSpeed = 110;
+  const tuning = state.runStats;
+  const acceleration = tuning?.acceleration ?? 2;
+  let targetSpeed = tuning?.cruiseSpeed ?? 110;
   if (state.isNitroActive && state.nitro > 0 && !state.rocketActive) {
     state.nitro = Math.max(0, state.nitro - delta * 25);
-    targetSpeed = 200;
+    targetSpeed = tuning?.boostSpeed ?? 200;
     if (!state.nitro) state.isNitroActive = false;
   } else {
     state.nitro = Math.min(state.maxNitro, state.nitro + delta * state.nitroRegenRate);
@@ -194,14 +196,14 @@ export function stepGameplay(state, delta, random, effects) {
   if (state.rocketActive) targetSpeed = state.rocketTargetSpeed;
   const oldSpeed = state.speed;
   state.targetSpeed = targetSpeed;
-  state.speed = damp(oldSpeed, targetSpeed, 2, delta);
-  const travel = targetSpeed * delta + (oldSpeed - targetSpeed) * (1 - Math.exp(-2 * delta)) / 2;
+  state.speed = damp(oldSpeed, targetSpeed, acceleration, delta);
+  const travel = targetSpeed * delta + (oldSpeed - targetSpeed) * (1 - Math.exp(-acceleration * delta)) / acceleration;
   state.score += travel * 0.2;
   state.totalDistance += travel * 0.1;
 
   const oldX = state.currentX;
-  state.targetX = clamp(state.targetX + state.steeringInput * 15 * delta, -ROAD_LIMIT, ROAD_LIMIT);
-  state.currentX = damp(oldX, state.targetX, 12, delta);
+  state.targetX = clamp(state.targetX + state.steeringInput * (tuning?.steeringRate ?? 15) * delta, -ROAD_LIMIT, ROAD_LIMIT);
+  state.currentX = damp(oldX, state.targetX, tuning?.steeringResponse ?? 12, delta);
   state.steeringVelocity = (state.currentX - oldX) / delta;
   const nextLevel = Math.floor(state.totalDistance / 1000) + 1;
   if (nextLevel > state.currentLevel) {
@@ -213,7 +215,7 @@ export function stepGameplay(state, delta, random, effects) {
     state.rocketLevelTracker = nextLevel;
     state.reachedLevel5 ||= nextLevel >= 5;
     state.message = nextLevel === 5 && state.gameMode === 'doubleOrNothing'
-      ? 'LEVEL 5! 2X BONUS UNLOCKED!' : `LEVEL ${nextLevel}!`;
+      ? 'SEVİYE 5 · SKOR ÇARPANI 2×' : `SEVİYE ${nextLevel}`;
     state.messageRemaining = 1.5;
   }
 
@@ -234,7 +236,7 @@ export function stepGameplay(state, delta, random, effects) {
         const adjacent = LANES.filter(lane => Math.abs(lane - enemy.lane) === 1);
         const targetLane = adjacent[Math.floor(random() * adjacent.length)];
         const reserved = { ...next, targetLane, indicator: Math.sign(targetLane - enemy.lane) };
-        if (isTrafficPlacementSafe(reserved, previousEnemies)) {
+        if (isTrafficPlacementSafe(reserved, previousEnemies, [tuning?.cruiseSpeed ?? 110, tuning?.boostSpeed ?? 200, state.rocketTargetSpeed])) {
           Object.assign(next, reserved, { signalRemaining: 0.8, changeProgress: 0 });
         }
       }

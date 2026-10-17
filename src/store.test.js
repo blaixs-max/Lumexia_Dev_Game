@@ -97,6 +97,21 @@ describe('race lifecycle', () => {
     store.getState().startGame({ type: 'click' });
     expect(store.getState()).toMatchObject({ gameState: 'countdown', score: 0, currentX: 0, nitro: 100, magnetRemaining: 0, gameMode: 'doubleOrNothing', soundEnabled: false });
   });
+
+  it('opens the garage with a clean world and returns to the main menu while retaining the build', () => {
+    const store = makePlaying({ score: 1000, currentX: 4, coinsCollected: 10, magnetActive: true, magnetRemaining: 8, steeringInput: 1 });
+    const { garageGold, selectedCar, garageOwnedCars, garageUpgrades } = store.getState();
+    store.getState().openGarage();
+    expect(store.getState()).toMatchObject({ gameState: 'garage', score: 0, currentX: 0, steeringInput: 0, coinsCollected: 0, magnetActive: false, garageGold, selectedCar, garageOwnedCars, garageUpgrades });
+    advance(store, 10);
+    expect(store.getState().gameState).toBe('garage');
+    store.getState().quitGame();
+    expect(store.getState().gameState).toBe('launcher');
+    store.getState().quitGame('garage');
+    expect(store.getState().gameState).toBe('garage');
+    store.getState().quitGame({ type: 'click' });
+    expect(store.getState().gameState).toBe('launcher');
+  });
 });
 
 describe('fixed simulation', () => {
@@ -211,6 +226,6 @@ describe('collisions and rewards', () => {
     const store = makePlaying({ gameMode: 'doubleOrNothing', totalDistance: 3999.5, currentLevel: 4, speed: 110 });
     advance(store, 0.1);
     expect(store.getState()).toMatchObject({ currentLevel: 5, reachedLevel5: true });
-    expect(store.getState().message).toContain('2X BONUS');
+    expect(store.getState().message).toContain('2×');
   });
 });

@@ -96,7 +96,7 @@ async function runChecks() {
         check(`${side} ${height}: native hit target`, expectedTouch ? Boolean(hit?.closest(`.lx-steer-${side}`)) : !hit?.closest('.lx-touch-controls'), { point: { x, y }, hit: description(hit), expectedTouch }, 'layout');
       }
     }
-    for (const [selector, name] of [['.lx-touch-nitro', 'Nitro'], ['[aria-label="Mute audio"], [aria-label="Enable audio"]', 'Mute'], ['[aria-label="Pause race"]', 'Pause']]) {
+    for (const [selector, name] of [['.lx-touch-nitro', 'Nitro'], ['[data-action="audio"]', 'Mute'], ['[data-action="pause"]', 'Pause']]) {
       if (selector === '.lx-touch-nitro' && !expectedTouch) {
         tests.push({ name: 'Nitro native hit target', status: 'skip', category: 'layout', evidence: 'Touch control intentionally hidden at this fine-pointer desktop viewport.' });
         continue;
@@ -185,7 +185,7 @@ async function runChecks() {
       key('keydown', 'KeyA');
       key('keydown', 'Space');
     }
-    click(query('[aria-label="Pause race"]'));
+    click(query('[data-action="pause"]'));
     stateCheck('Real pause button clears steering and nitro', 0, false, 'paused');
     check('Paused touch controls unmount', !document.querySelector('.lx-touch-controls'), { controlsMounted: Boolean(document.querySelector('.lx-touch-controls')) });
     await nextPaint();
@@ -194,9 +194,9 @@ async function runChecks() {
     await nextPaint();
 
     phase = 'HUD audio toggle';
-    click(query('[aria-label="Enable audio"]'));
+    click(query('[data-action="audio"]'));
     check('Real audio button enables audio', useGameStore.getState().soundEnabled, snapshot());
-    click(query('[aria-label="Mute audio"]'));
+    click(query('[data-action="audio"]'));
     check('Real audio button mutes audio', !useGameStore.getState().soundEnabled, snapshot());
     await nextPaint();
 
@@ -208,7 +208,7 @@ async function runChecks() {
     key('keyup', 'KeyA');
     key('keyup', 'Space');
     stateCheck('Keyboard releases clear both inputs', 0, false);
-    key('keydown', 'Space', query('[aria-label="Pause race"]'));
+    key('keydown', 'Space', query('[data-action="pause"]'));
     stateCheck('Space on HUD button does not trigger boost', 0, false);
     key('keyup', 'Space');
     key('keydown', 'KeyP');

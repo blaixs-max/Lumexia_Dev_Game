@@ -8,12 +8,20 @@ Older production and deployment descriptions in the documentation are historical
 
 ## Play locally
 
+The Turkish main menu provides **Yarışa başla** (Start race) and **Garaj** (Garage). Mode names remain Classic Run and Double or Nothing, with their rules shown in Turkish on every screen size. The separate garage offers three playable vehicles using the existing Sport, sedan and Ferrari assets: LX Sport is the starter, LX GT costs 1,250 gold and LX Apex costs 3,000 gold. Inspecting a car previews it without changing the active vehicle; buy or select an owned car to use it for the next run.
+
+The garage uses an industrial workshop scene with arrow navigation, performance bars and an equipment tray. Drag the vehicle to inspect it. **Ana menüye dön** returns to the main menu; purchases and selections save immediately. An expandable **Nasıl oynanır?** guide explains keyboard or touch controls on the main menu. Shared vector symbols and UI terminology are documented in [UI_GUIDE.md](docs/UI_GUIDE.md).
+
+Each vehicle has different arcade tuning and a separate Engine / Handling / Nitro build (Stock through Stage 3). Upgrades cost local workshop gold and automatically install on the selected, owned vehicle. New saves start with 1,500 gold and only Sport owned; completed runs earn 25 gold per coin plus 1 per 10 metres. Purchases, ownership, builds and gold are saved on this device; real payments and online storage remain deferred. Save schema 3 preserves previously selected or tuned cars when migrating earlier garage saves.
+
+Equipment cards use three Higgsfield-generated 3D-style images in `public/equipment/`; provenance and prompts are recorded beside them. The visible intake, brake/rail details and nitro tanks mounted on cars are separate lightweight Three.js meshes. They appear in the garage and race; the Higgsfield card images are not 3D model files.
+
 ```bash
 npm ci
 npm run dev       # http://localhost:5173
 ```
 
-Select a mode and graphics quality in the garage, then start a run. Classic Run is endless. Double or Nothing awards twice the final score after reaching level 5; finishing earlier gives zero. Best scores are stored locally per mode.
+Select a mode on the main menu, tune your car in the garage, then use **Yarışa başla** on the main menu. Graphics quality is available on both screens. Classic Run is endless. Double or Nothing awards twice the final score after reaching level 5; finishing earlier gives zero score. This rule does not affect earned workshop gold. Best scores are stored locally per mode.
 
 | Input | Action |
 |---|---|
@@ -23,7 +31,7 @@ Select a mode and graphics quality in the garage, then start a run. Classic Run 
 | M | Toggle sound |
 | Touch controls | Hold a direction and nitro together |
 
-Switching away from the game pauses the run and releases held input. The pause menu includes resume, restart and return to garage. The arcade speed indicator uses `PACE`, not a physical km/h calibration.
+Switching away from the game pauses the run and releases held input. Pause and results screens provide separate Garage and Main Menu destinations. The arcade speed indicator is labeled **Oyun hızı / birim** (game speed / units), not calibrated km/h. Pickup notifications distinguish **puan** (score), **jeton** (collected coins) and **altın** (spendable garage balance).
 
 Graphics options are Auto, Performance and High. Auto can reduce resolution and scene detail when needed. Sound and graphics preferences are saved locally when browser storage is available.
 
@@ -32,11 +40,12 @@ Graphics options are Auto, Performance and High. Auto can reduce resolution and 
 - **Frontend:** Vite + React 19, Three.js, React Three Fiber and Drei.
 - **Simulation:** Zustand session state in `src/store.js`; fixed 120 Hz gameplay rules in `src/utils/gameplay.js`.
 - **Scene:** `src/components/RaceScene.jsx` handles the highway, vehicles, camera, lighting and scenery. Repeated scenery uses shared geometry and instancing.
-- **Interface:** `RealLauncherUI.jsx`, `RaceHUD.jsx`, `RaceControls.jsx` and `GameOverUI.jsx` separate the garage, telemetry, input and results.
+- **Interface:** `RealLauncherUI.jsx` provides the main menu; `GaragePage.jsx` and `GaragePanel.jsx` handle preview, ownership and upgrades. `VehicleShowroom.jsx` is shared between both screens. `RaceHUD.jsx`, `RaceControls.jsx` and `GameOverUI.jsx` handle telemetry, input and results.
+- **Symbols:** `UIIcon.jsx` is the shared code-native SVG control set; generated mode emblems remain in `public/modes/` and equipment artwork in `public/equipment/`.
 - **App lifecycle:** `src/App.jsx` connects the screens, lazy-loads the race scene and handles audio and scene loading errors.
 - **Archived integration sources:** Supabase functions, migrations and production integration documentation remain in the repository. Enabling those services requires a separate validated integration effort.
 
-The garage and race use `public/models/sport_car_compact.glb` with locally bundled decoders in `public/draco/`. The original `sport_car.glb` is preserved. Model download size is **30.39% smaller**, with the same 237,482 triangles. The texture memory estimate falls from 160 MiB to 48 MiB under an RGBA8 + full mip-chain assumption; this is not a measured device memory or FPS result.
+The Sport garage preview uses `sport_car_compact.glb`, while its race model uses `sport_car_runtime.glb`. GT uses `Car 3/scene.gltf`; Apex uses `ferrari_runtime.glb`. Decoders are bundled in `public/draco/`. Original assets are preserved; see `public/models/RUNTIME_MODELS.md` for model measurements. All player vehicles share the same normalized collision dimensions in this first garage release.
 
 ## Checks and build
 
@@ -47,13 +56,13 @@ npm run build       # output: dist/
 npm run preview     # preview the build
 ```
 
-Local verification on 7 September 2026: **33 tests passed, 17 skipped**. The skipped tests cover production wallet/price behavior while this repository uses mock adapters. They are not evidence that production services work.
+Local verification on 17 October 2026: **80 tests passed, 17 skipped**; lint and production build passed. Garage tests cover ownership, one-time car purchases, insufficient gold, save migration, paid upgrades, separate builds, malformed/unavailable storage, locked race tuning, actual gameplay effects and once-only end-of-run gold. Browser checks covered main menu → garage → GT purchase → Handling upgrade → reload → race → main menu, plus locked-car preview with existing progress preserved. The skipped tests cover production wallet/price behavior while this repository uses mock adapters. They are not evidence that production services work.
 
-Node 24 was used for local verification. In the constrained Windows environment, the build succeeded with Vite's native configuration loader and tests used the runner loader. If your environment also restricts installation scripts or configuration-loader subprocesses, these were the commands used:
+Node 24 was used for local verification. In the constrained Windows environment, the build and tests succeeded with Vite's native configuration loader. If your environment also restricts installation scripts or configuration-loader subprocesses, these were the commands used:
 
 ```bash
 npm ci --ignore-scripts
-npm test -- --configLoader runner
+npm test -- --configLoader native
 npm run build -- --configLoader native
 ```
 

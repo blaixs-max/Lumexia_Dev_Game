@@ -1,6 +1,47 @@
 # Lumexia Racing Game - Gelistirme Plani
 
-> Son güncelleme: 2026-09-08
+> Son güncelleme: 2026-10-17
+
+## Güncel odak — araçlar, garaj, ekipman ve HUD
+
+### 17 Ekim arayüz revizyonu — anlaşılır metin ve ortak simgeler
+
+Menü, garaj, yarış HUD'si, duraklatma, sonuç ve yükleme ekranları Türkçe kısa metinlerle yenilendi. Classic Run / Double or Nothing adları korunur; ikinci modun 5. seviyede ×2, aksi halde 0 skor kuralı mobilde de görünür. Skor, toplanan jeton ve harcanabilir altın ayrıldı; yanlış +100 GOLD toplama bildirimi +100 PUAN · 1 JETON oldu. Sürüş ve ekonomi kuralları değişmedi.
+
+Ortak kod tabanlı SVG simge seti, okunaklı etiketler, erişilebilir düğme adları ve menüde açılabilir kontrol yardımı eklendi. Garajın seçili/kilitli araç, parça seviyesi, artış ve maliyet bilgileri açıklandı. 320/390 px dar görünüm ve masaüstü incelendi; 320×700 ile 844×390 çerçevelerinde dokunma tanılaması 42/42 geçti. 80 test, lint ve üretim build başarılı. Terimler ve yöntem [UI_GUIDE.md](UI_GUIDE.md) içindedir.
+
+### 17 Ekim görsel düzenleme — yarış modu sembolleri
+
+Classic Run sonsuz otoyol, Double or Nothing çift ok/kırık halka ile temsil edilir. Kullanıcının alternatif araç onayıyla iki şeffaf PNG yerleşik OpenAI görüntü üretim aracıyla üretildi, `public/modes/` içine alındı ve ana menü kartlarına bağlandı. Masaüstünde 56 px, dar ekranda 44 px görseller; yükleme hatasında mevcut metin simgeleri korunur. Masaüstü/dar tarayıcı görünümü ve mod seçimi doğrulandı; lint/build başarılı. Üretim istemleri aynı klasördeki `generation-record.json` içindedir.
+
+### 17 Ekim görsel düzenleme — atölye garajı
+
+Referans oyun garajı düzeni uygulandı: solda sıcak ışıklı endüstriyel 3D atölye ve büyük araç önizlemesi, oklarla araç gezinme, sağda hız/direksiyon/nitro çubukları, altta kompakt ekipman kartları ve ana menüye dönen Done düğmesi. Dar ekranda alanlar dikey sıralanır. Mevcut yerel sahiplik, satın alma, bakiye ve seçili araca yükseltme kuralları korunur; Done yeni bir ödeme yapmaz, satın alma sırasında kaydedilen seçimle menüye döner.
+
+### 17 Ekim ek çalışması — ana menü ve araç sahipliği
+
+Ana menüde Start Game ve Garage girişleri ayrıldı. Garajda döndürülebilir araç önizlemesi, koleksiyon, satın alma/seçim ve seçili araca özel ekipman atölyesi bulunur. Araç incelemek aktif seçimi değiştirmez. Yarışın duraklatma ve sonuç ekranlarından garaja veya ana menüye dönülebilir.
+
+Yeni kayıtta yalnız LX Sport açıktır; LX GT 1.250, LX Apex 3.000 oyun altınıdır. Satın alma aracı bir kez açar ve seçer; seçili, sahip olunan araca yükseltme takılır. Aynı yerel anahtardaki schema 3 kaydı eski seçili/yükseltilmiş araçları ve bakiyeyi korur. Gerçek ödeme ve çevrimiçi kayıt hâlâ kapsam dışıdır.
+
+Kabul: 80 test başarılı, 17 üretim testi atlandı; lint ve üretim derlemesi başarılı. Masaüstü ve dar tarayıcıda menü/garaj incelendi. Ayrı yerel test kaydında GT satın alma 1.500 → 250, Handling yükseltme 250 → 0 altın verdi; yenileme ve yarış HUD'si GT / HND 1 seçimini korudu. Yarıştan ana menüye dönüş ve yetersiz bakiyeyle kilitli araç önizlemesi doğrulandı. Fiziksel telefon ve uzun sürüş dengesi sonraki kabuldür.
+
+### 17 Ekim ek çalışması — ekipman mağazası ve altın
+
+Ekipman artık altınla satın alınır; her satın alma sonraki seviyeyi seçili araca otomatik takar. Yeni/eski v1 kayıtta başlangıç 1.500 altın; mevcut eski seviyeler korunur. Tamamlanan yarışta `25 × coinsCollected + floor(totalDistance / 10)` altın tek sefer eklenir; yarıda bırakmada ödül yoktur. Kayıt cihazdadır, ödeme/DB sonraki aşamadadır.
+
+Üç Higgsfield görseli ekipman kartları içindir; motor, yol tutuşu ve nitronun araç üzerindeki görsel karşılıkları ayrı hafif Three.js parçalarıdır. Garajda anında, yarışta başlangıçta sabitlenen seviyeye göre görünürler. Fiyatlar motor 300/650/1.100, yol tutuşu 250/550/950, nitro 350/750/1.250 altındır.
+
+Aşağıdaki ücretsiz seviye seçimi açıklaması ilk garaj aşamasının tarihsel kaydıdır; mevcut mağaza satın alma düğmelerini kullanır. Kalan kabul: tüm araçlarda montaj konumlarının gerçek cihazda görsel incelemesi ve kazanç/fiyat dengesinin uzun sürüşte değerlendirilmesi.
+
+Ödeme, çevrimiçi skor saklama ve veritabanı entegrasyonu sonraki aşamaya bırakıldı. Aktif kapsam ücretsiz yerel antrenmandır.
+
+- Üç seçilebilir araç: LX Sport (mevcut oyuncu modeli), LX GT (mevcut sedan modeli), LX Apex (mevcut Ferrari modeli). Bunlar yeni dış varlıklar değil, depodaki modellerin oynanabilir araç seçenekleridir.
+- Araç başına motor, yol tutuşu ve nitro: Stock / Stage 1–3. Antrenmanda ücretsiz seçilir; para birimi, satın alma veya kilit açma sistemi yoktur.
+- Garaj seçimleri sürümlü yerel kayıtta tutulur. Yarış başında model ve istatistikler sabitlenir; yarış sırasında ekipman değiştirilemez.
+- HUD araç adını ve takılı parça seviyelerini gösterir; hız, yön tepkisi ve nitro kapasitesi simülasyona bağlıdır. Bütün oyuncu modelleri mevcut ortak çarpışma boyutlarına normalize edilir.
+- Sonraki kabul: gerçek telefonlarda üç araçla görsel/çoklu dokunma testi, denge ayarı ve modele özel far/egzoz yerleşimi. Ekipman görsel gövde parçaları eklemez; bu aşamada sürüş ayarıdır.
+
 
 ## Gündüz–gece döngüsü, virajlar ve tünel — 2026-09-08
 

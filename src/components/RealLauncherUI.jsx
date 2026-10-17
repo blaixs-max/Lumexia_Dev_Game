@@ -1,130 +1,52 @@
-import { Component, Suspense, useMemo, useRef, useState } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { ContactShadows, useGLTF } from '@react-three/drei';
-import { Box3, Vector3 } from 'three';
-import { usePageVisible } from '../hooks/usePageVisible';
+import { useState } from 'react';
+import { useGameStore } from '../store';
+import { getCar, getCarStats } from '../utils/garage';
+import VehicleShowroom from './VehicleShowroom';
+import { MenuHeader, MenuFooter } from './MenuChrome';
+import UIIcon from './UIIcon';
 import './RaceUI.css';
-
-useGLTF.setDecoderPath('/draco/');
+import './MenuUI.css';
 
 const MODES = [
-  { id: 'classic', number: '01', name: 'CLASSIC RUN', detail: 'Find your line. Go the distance.', tag: 'ENDLESS' },
-  { id: 'doubleOrNothing', number: '02', name: 'DOUBLE OR NOTHING', detail: 'Reach level 5 for a 2× score. Otherwise, zero.', tag: 'CHALLENGE' },
+  { id: 'classic', name: 'Classic Run', label: 'Sonsuz sürüş', detail: 'Trafiği aş, en yüksek skoruna ulaş.', icon: '/modes/classic-run.png', fallback: 'road' },
+  { id: 'doubleOrNothing', name: 'Double or Nothing', label: 'İki katı ya da sıfır', detail: '5. seviyeye ulaş: skor ×2. Ulaşamazsan: 0.', icon: '/modes/double-or-nothing.png', fallback: 'flag' },
 ];
+const CAR_CLASSES = { BALANCED: 'Dengeli', 'GRAND TOURER': 'Uzun yol', SPRINT: 'Atak' };
 
-class ShowroomBoundary extends Component {
-  state = { failed: false };
-  static getDerivedStateFromError() { return { failed: true }; }
-  render() {
-    return this.state.failed ? <div className="lx-showroom-fallback">L / X</div> : this.props.children;
-  }
-}
-
-function ShowroomCar() {
-  // The compact model uses the bundled Draco decoder; no third-party CDN is needed.
-  const { scene } = useGLTF('/models/sport_car_compact.glb');
-  const group = useRef();
-  const reducedMotion = useMemo(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches, []);
-  const { model, scale, position } = useMemo(() => {
-    const model = scene.clone(true);
-    const bounds = new Box3().setFromObject(model);
-    const size = bounds.getSize(new Vector3());
-    const center = bounds.getCenter(new Vector3());
-    const scale = 5.2 / Math.max(size.x, size.z, 1);
-    return { model, scale, position: [-center.x * scale, -bounds.min.y * scale, -center.z * scale] };
-  }, [scene]);
-  useFrame(({ clock }) => {
-    if (group.current && !reducedMotion) group.current.rotation.y = -0.4 + Math.sin(clock.elapsedTime * 0.18) * 0.12;
-  });
-  return <group ref={group} rotation={[0, -0.4, 0]}><primitive object={model} scale={scale} position={position} dispose={null} /></group>;
-}
-
-function Showroom({ quality }) {
-  const pageVisible = usePageVisible();
-  return (
-    <div className="lx-showroom" aria-label="Your sports car in the garage" role="img">
-      <div className="lx-showroom-grid" aria-hidden="true" />
-      <div className="lx-showroom-word" aria-hidden="true">L / X</div>
-      <ShowroomBoundary>
-        <Canvas frameloop={pageVisible ? 'always' : 'never'} camera={{ position: [6, 3, 7], fov: 34 }} dpr={quality === 'performance' ? 1 : [1, 1.5]} gl={{ alpha: true, antialias: true }}>
-          <ambientLight intensity={1.7} />
-          <directionalLight position={[4, 7, 5]} intensity={4} color="#fff1d3" />
-          <directionalLight position={[-4, 3, -4]} intensity={3} color="#a6d3dd" />
-          <pointLight position={[0, 2, -3]} intensity={18} color="#e3ff6e" />
-          <Suspense fallback={null}>
-            <ShowroomCar />
-            {quality !== 'performance' ? <ContactShadows position={[0, -0.015, 0]} opacity={0.65} scale={8} blur={2.6} far={4} resolution={256} frames={1} color="#000000" /> : null}
-          </Suspense>
-          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.04, 0]}><circleGeometry args={[3.35, 64]} /><meshStandardMaterial color="#1a2023" metalness={0.6} roughness={0.45} /></mesh>
-          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.025, 0]}><ringGeometry args={[3.25, 3.28, 64]} /><meshBasicMaterial color="#dfff72" transparent opacity={0.5} /></mesh>
-        </Canvas>
-      </ShowroomBoundary>
-      <div className="lx-car-caption"><span><i /> READY TO ROLL</span><span>SPORT / NITRO EQUIPPED</span></div>
-    </div>
-  );
-}
-
-function readBest(mode) {
-  try {
-    const value = Number(localStorage.getItem(`lumexia.best.v1.${mode}`));
-    return Number.isFinite(value) && value > 0 ? Math.floor(value) : 0;
-  } catch { return 0; }
+function ModeSymbol({ mode }) {
+  const [status, setStatus] = useState('loading');
+  return <span className="lx-format-mark" aria-hidden="true">
+    {status !== 'loaded' ? <span className="lx-format-fallback"><UIIcon name={mode.fallback} size={30} /></span> : null}
+    {status !== 'error' ? <img src={mode.icon} width="56" height="56" alt="" decoding="async" className={status === 'loaded' ? 'is-loaded' : ''} onLoad={() => setStatus('loaded')} onError={() => setStatus('error')} /> : null}
+  </span>;
 }
 
 export default function RealLauncherUI({ onStartGame, quality = 'auto', onQualityChange }) {
-  const [gameMode, setGameMode] = useState('classic');
-  const [starting, setStarting] = useState(false);
-  const [startError, setStartError] = useState('');
-  const [bestScores] = useState(() => ({ classic: readBest('classic'), doubleOrNothing: readBest('doubleOrNothing') }));
-
-  const handleStart = async () => {
+  const selectedCar = useGameStore(s => s.selectedCar);
+  const upgrades = useGameStore(s => s.garageUpgrades);
+  const gameMode = useGameStore(s => s.gameMode);
+  const setGameMode = useGameStore(s => s.setGameMode);
+  const openGarage = useGameStore(s => s.openGarage);
+  const [starting, setStarting] = useState(false), [error, setError] = useState('');
+  const car = getCar(selectedCar), stats = getCarStats(selectedCar, upgrades[selectedCar]);
+  const start = async () => {
     if (starting) return;
-    setStarting(true);
-    setStartError('');
-    try { await onStartGame({ gameMode, isPractice: true, sessionType: 'practice' }); }
-    catch {
-      setStartError('The race could not start. Please try again.');
-      setStarting(false);
-    }
+    setStarting(true); setError('');
+    try { await onStartGame({ gameMode }); }
+    catch { setStarting(false); setError('Yarış başlatılamadı. Lütfen tekrar dene.'); }
   };
-
-  return (
-    <main className="lx-ui lx-launcher">
-      <div className="lx-shell">
-        <header className="lx-header">
-          <div className="lx-brand"><span className="lx-brand-mark" aria-hidden="true">L<span>↗</span></span><span>LUMEXIA<small>HIGHWAY DIVISION</small></span></div>
-          <div className="lx-header-right"><span className="lx-status"><i /> FREE PRACTICE</span><span className="lx-edition">VOL. 01 / NIGHT HIGHWAY</span></div>
-        </header>
-        <section className="lx-hero" aria-labelledby="lx-hero-title">
-          <div className="lx-hero-copy">
-            <p className="lx-eyebrow"><span /> THE ROAD IS YOURS.</p>
-            <h1 id="lx-hero-title">FIND YOUR<br /><em>LIMIT.</em></h1>
-            <p className="lx-intro">Chase the perfect run from daylight to starlight.<br />Winding roads. Mountain tunnels. No finish line.</p>
-            <div className="lx-hero-stats"><div><strong>03</strong><span>LANES TO MASTER</span></div><div><strong>∞</strong><span>ROOM TO IMPROVE</span></div><div><strong>2×</strong><span>THE CHALLENGE</span></div></div>
-          </div>
-          <Showroom quality={quality} />
-        </section>
-        <div className="lx-launch-grid">
-          <section className="lx-race-panel" aria-labelledby="lx-mode-title">
-            <div className="lx-section-heading"><h2 id="lx-mode-title"><span>01 /</span> CHOOSE YOUR RUN</h2><span>NO WALLET REQUIRED</span></div>
-            <div className="lx-mode-list" role="group" aria-label="Race mode">
-              {MODES.map(mode => <button key={mode.id} type="button" className={`lx-mode ${gameMode === mode.id ? 'is-selected' : ''}`} aria-pressed={gameMode === mode.id} onClick={() => setGameMode(mode.id)} disabled={starting}><span className="lx-mode-number">{mode.number}</span><span className="lx-mode-copy"><strong>{mode.name}</strong><span>{mode.detail}</span></span><span className="lx-mode-tag">{mode.tag}</span><span className="lx-radio" aria-hidden="true" /></button>)}
-            </div>
-            <div className="lx-launch-actions"><button type="button" className="lx-button lx-button-primary lx-start" onClick={handleStart} disabled={starting}><span>{starting ? 'PREPARING YOUR RUN' : 'START YOUR ENGINE'}</span><span aria-hidden="true">↗</span></button><div className="lx-personal-best"><span>YOUR LOCAL BEST</span><strong>{bestScores[gameMode] > 0 ? bestScores[gameMode].toLocaleString() : '—'}<small> PTS</small></strong></div></div>
-            {startError ? <p className="lx-error" role="alert">{startError}</p> : null}
-            <p className="lx-practice-note">Unlimited practice. Your best stays on this device.</p>
-          </section>
-          <section className="lx-controls-panel" aria-labelledby="lx-controls-title">
-            <div className="lx-section-heading"><h2 id="lx-controls-title"><span>02 /</span> KNOW YOUR CONTROLS</h2><span>DRIVER BRIEFING</span></div>
-            <div className="lx-controls-row"><span><kbd>←</kbd><kbd>→</kbd><small> / </small><kbd>A</kbd><kbd>D</kbd></span><strong>HOLD TO STEER</strong></div>
-            <div className="lx-controls-row"><span><kbd className="lx-key-wide">SPACE</kbd></span><strong>HOLD FOR NITRO</strong></div>
-            <div className="lx-controls-row"><span><kbd>ESC</kbd><small> / </small><kbd>P</kbd></span><strong>PAUSE YOUR RUN</strong></div>
-            <p className="lx-driving-tip"><span aria-hidden="true">↗</span><span>Close passes earn bonus points. Collect coins, magnets and rockets. Keep an open lane ahead.</span></p>
-            <p className="lx-touch-hint">On a touch screen? Hold anywhere on the left or right side to steer. Use a second finger for nitro.</p>
-          </section>
-        </div>
-        <footer className="lx-footer"><span>PRECISION BEATS PURE SPEED.</span>{onQualityChange ? <label className="lx-quality">GRAPHICS<select value={quality} onChange={event => onQualityChange(event.target.value)} aria-label="Graphics quality"><option value="auto">Auto</option><option value="performance">Performance</option><option value="high">High</option></select></label> : null}<span>LOCAL PRACTICE / NO ONLINE SCORE SUBMISSION</span></footer>
-      </div>
-    </main>
-  );
+  const modeName = MODES.find(mode => mode.id === gameMode)?.name || MODES[0].name;
+  return <main className="lx-ui lx-menu-page" aria-label="Lumexia ana menü"><div className="lx-menu-shell">
+    <MenuHeader />
+    <div className="lx-menu-hero">
+      <section className="lx-menu-intro" aria-labelledby="main-menu-title"><p className="lx-eyebrow">SONSUZ OTOYOL. YENİ BİR REKOR.</p><h1 id="main-menu-title">YOLA<br /><em>ÇIK.</em></h1><p className="lx-menu-description">Trafiği aş. Altın kazan.<br />Aracını geliştir, rekorunu yükselt.</p>
+        <div className="lx-menu-actions"><button type="button" className="lx-menu-play" disabled={starting} onClick={start}><span><strong>{starting ? 'Hazırlanıyor…' : 'Yarışa başla'}</strong><small>{modeName}</small></span><UIIcon name="play" size={28} /></button><button type="button" className="lx-menu-garage" disabled={starting} onClick={openGarage}><span><strong>Garaj</strong><small>Araç seç ve geliştir</small></span><UIIcon name="garage" size={28} /></button></div>
+        {error ? <p role="alert" className="lx-error">{error}</p> : null}
+      </section>
+      <section className="lx-menu-showcase" aria-label="Seçili araç"><div className="lx-preview-topline"><span><UIIcon name="car" size={16} /> Seçili araç</span><span><UIIcon name="check" size={14} /> Yarışa hazır</span></div><VehicleShowroom carId={selectedCar} quality={quality} /><div className="lx-active-car"><div><small>{CAR_CLASSES[car.className] || car.className}</small><h2>{car.name}</h2></div><dl><div><dt><UIIcon name="speed" size={15} /> Normal hız</dt><dd>{stats.cruiseSpeed}<small>oyun hızı</small></dd></div><div><dt><UIIcon name="nitro" size={15} /> Nitro kapasitesi</dt><dd>{stats.maxNitro}<small>birim</small></dd></div></dl></div></section>
+    </div>
+    <section className="lx-menu-modes" aria-labelledby="menu-mode-title"><div className="lx-menu-modes-label"><span>OYUN MODU</span><h2 id="menu-mode-title">Nasıl yarışacaksın?</h2></div><div className="lx-menu-mode-options" role="group" aria-label="Oyun modu">{MODES.map(mode => <button type="button" key={mode.id} disabled={starting} aria-pressed={mode.id === gameMode} onClick={() => setGameMode(mode.id)} className={mode.id === gameMode ? 'is-selected' : ''}><ModeSymbol mode={mode} /><span className="lx-format-copy"><strong>{mode.name}</strong><span>{mode.label}</span><small>{mode.detail}</small></span><span className="lx-format-selection" aria-hidden="true">{mode.id === gameMode ? <UIIcon name="check" size={13} /> : null}</span></button>)}</div></section>
+    <details className="lx-menu-controls"><summary><UIIcon name="handling" size={18} /> Nasıl oynanır?</summary><div className="lx-control-tips"><p><UIIcon name="handling" size={20} /><span><strong>Yön ver</strong><span className="lx-tip-keyboard">← → veya A / D tuşlarını basılı tut.</span><span className="lx-tip-touch">Ekranın solunu veya sağını basılı tut.</span></span></p><p><UIIcon name="nitro" size={20} /><span><strong>Nitro kullan</strong><span className="lx-tip-keyboard">Boşluk tuşunu basılı tut. Nitro zamanla dolar.</span><span className="lx-tip-touch">Nitro düğmesini basılı tut. İki parmakla yön ve nitro birlikte kullanılır.</span></span></p><p><UIIcon name="pause" size={20} /><span><strong>Ara ver</strong><span className="lx-tip-keyboard">Esc veya P ile duraklat, M ile sesi aç / kapat.</span><span className="lx-tip-touch">Sağ üstteki duraklatma ve ses düğmelerini kullan.</span></span></p></div></details>
+    <MenuFooter quality={quality} onQualityChange={onQualityChange} />
+  </div></main>;
 }

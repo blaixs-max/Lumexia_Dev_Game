@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useGameStore } from '../store';
 import { getSteeringSide } from '../utils/touchSteering';
+import UIIcon from './UIIcon';
 
 const DRIVING_KEYS = new Set(['ArrowLeft', 'ArrowRight', 'KeyA', 'KeyD', 'Space']);
 const isEditing = target => target?.isContentEditable
@@ -134,10 +135,10 @@ export default function RaceControls({ touchVisible = false }) {
 
   if (!touchVisible || gameState !== 'playing') return null;
   return (
-    <div ref={surfaceRef} className="lx-touch-controls lx-ui" role="group" aria-label="Driving controls">
-      <button type="button" className="lx-steer-zone lx-steer-left" aria-label="Steer left" aria-pressed={steeringInput < 0} {...handlers('left')} />
-      <button type="button" className="lx-steer-zone lx-steer-right" aria-label="Steer right" aria-pressed={steeringInput > 0} {...handlers('right')} />
-      <button type="button" className="lx-touch-nitro" aria-label="Hold for nitro boost" aria-pressed={boosting} {...handlers('nitro')}><span aria-hidden="true">↯</span>NITRO</button>
+    <div ref={surfaceRef} className="lx-touch-controls lx-ui" role="group" aria-label="Sürüş kontrolleri">
+      <button type="button" className="lx-steer-zone lx-steer-left" aria-label="Sola yönel" aria-pressed={steeringInput < 0} {...handlers('left')} />
+      <button type="button" className="lx-steer-zone lx-steer-right" aria-label="Sağa yönel" aria-pressed={steeringInput > 0} {...handlers('right')} />
+      <button type="button" className="lx-touch-nitro" aria-label="Nitro için basılı tut" aria-pressed={boosting} {...handlers('nitro')}><UIIcon name="nitro" size={24} />NİTRO</button>
     </div>
   );
 }

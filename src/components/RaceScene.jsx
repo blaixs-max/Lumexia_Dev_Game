@@ -12,9 +12,10 @@ import RoadTunnels from './RoadTunnels';
 import { placeOnRoad, sampleRoadFrame } from '../environment/road-path';
 import { PlayerHeadlights, TrafficHeadlights } from './VehicleLighting';
 import { createTrafficBeamMaterial } from '../environment/vehicle-lighting';
+import { getCar } from '../utils/garage';
+import EquippedParts from './EquippedParts';
 
 useGLTF.setDecoderPath('/draco/');
-const PLAYER_MODEL = '/models/sport_car_runtime.glb';
 const TRAFFIC_MODELS = {
   sport: { path: '/models/ferrari_runtime.glb', rotation: 0 },
   sedan: { path: '/models/Car 3/scene.gltf', rotation: Math.PI },
@@ -22,9 +23,9 @@ const TRAFFIC_MODELS = {
   truck: { path: '/models/truck.glb', rotation: Math.PI },
 };
 
-function VehicleModel({ path, type = 'player', rotation = 0 }) {
+function VehicleModel({ path, type = 'player', rotation = 0, carId, equipmentLevels }) {
   const { scene } = useGLTF(path);
-  const { model, scale, offset } = useMemo(() => {
+  const { model, scale, offset, fittedDimensions } = useMemo(() => {
     const model = scene.clone(true);
     model.traverse(child => { if (child.isMesh) { child.castShadow = true; child.receiveShadow = true; } });
     const box = new THREE.Box3().setFromObject(model);
@@ -33,9 +34,9 @@ function VehicleModel({ path, type = 'player', rotation = 0 }) {
     const dimensions = VEHICLE_DIMENSIONS[type];
     // Rendered vehicles fit their collision bounds, including their origin.
     const scale = Math.min(dimensions.width / size.x, dimensions.length / size.z);
-    return { model, scale, offset: [-center.x * scale, -box.min.y * scale, -center.z * scale] };
+    return { model, scale, offset: [-center.x * scale, -box.min.y * scale, -center.z * scale], fittedDimensions: { width: size.x * scale, length: size.z * scale, height: size.y * scale } };
   }, [scene, type]);
-  return <group rotation={[0, rotation, 0]}><primitive object={model} scale={scale} position={offset} dispose={null} /></group>;
+  return <><group rotation={[0, rotation, 0]}><primitive object={model} scale={scale} position={offset} dispose={null} /></group>{equipmentLevels ? <EquippedParts carId={carId} levels={equipmentLevels} {...fittedDimensions} /> : null}</>;
 }
 
 function ContactPatch({ width, length }) {
@@ -45,6 +46,8 @@ function ContactPatch({ width, length }) {
 }
 
 function PlayerCar() {
+  const car = getCar(useGameStore(s => s.runCar));
+  const equipmentLevels = useGameStore(s => s.runStats);
   const group = useRef();
   const frame = useRef({});
   const playerPosition = useMemo(() => [0, 0.1, -2], []);
@@ -68,7 +71,7 @@ function PlayerCar() {
   return <>
     <group ref={group} position={[0, 0.09, -2]}>
       <ContactPatch width={1.8} length={5.5} />
-      <VehicleModel path={PLAYER_MODEL} />
+      <VehicleModel path={car.model} rotation={car.rotation} carId={car.id} equipmentLevels={equipmentLevels} />
       <PlayerHeadlights />
       <mesh position={[0, 0.12, 0]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[1.6, 4]} /><meshBasicMaterial color={rocket ? '#ff894c' : '#9eeff2'} transparent opacity={boosting || rocket ? 0.32 : 0.1} depthWrite={false} /></mesh>
     </group>
@@ -238,9 +241,10 @@ function FeedbackParticles() {
 }
 
 export default function RaceScene({ low, adaptive, onReady, onReduceQuality }) {
+  const car = getCar(useGameStore(s => s.runCar));
   // Load every traffic type before the countdown; prepare its material with the
   // actual race lighting so its first appearance doesn't compile new shaders.
-  const loaded = useGLTF([PLAYER_MODEL, ...Object.values(TRAFFIC_MODELS).map(model => model.path)]);
+  const loaded = useGLTF([car.model, ...Object.values(TRAFFIC_MODELS).map(model => model.path)]);
   const beamWarmup = useMemo(() => new THREE.Mesh(new THREE.PlaneGeometry(1, 1), createTrafficBeamMaterial()), []);
   useEffect(() => () => { beamWarmup.geometry.dispose(); beamWarmup.material.dispose(); }, [beamWarmup]);
   const warmupScene = useMemo(() => {
