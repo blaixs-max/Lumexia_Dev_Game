@@ -1,6 +1,67 @@
 # Lumexia Racing Game - Gorev Takip
 
-> Son güncelleme: 2026-09-08
+> Son güncelleme: 2026-10-17
+
+## 2026-10-17: Yerel garaj, araç seçimi, ekipman ve HUD
+
+### Ek çalışma: anlaşılır Türkçe arayüz ve simge sistemi
+
+- [x] Menü, garaj, HUD, duraklatma, sonuç, yükleme ve hata metinleri Türkçe; mod adları korunarak kurallar açıklandı.
+- [x] Ortak `UIIcon` SVG seti, görünür etiketler ve erişilebilir düğme adları; mevcut mod/ekipman görselleri korundu.
+- [x] Skor, jeton ve altın ayrımı; +100 GOLD yerine +100 PUAN · 1 JETON bildirimi; hız/nitro birimleri açıklandı.
+- [x] Garajda sahiplik, aktif seçim, seviye, kazanım ve altın maliyeti; daha okunaklı yazılar ve dar ekran sarılması.
+- [x] Açılabilir kontrol yardımı; kısa ekranda kaydırılabilen duraklatma penceresi; güncel Türkçe etiketlerden bağımsız tanılama seçicileri.
+- [x] 320/390 px dar arayüz kontrolü; 320×700 ve 844×390 çerçevelerinde gerçek HUD/kontrol bileşenleriyle 42 başarılı sentetik kontrol, sıfır hata. Fiziksel telefon testi değildir.
+- [x] 80 test başarılı, 17 üretim testi atlandı; lint ve üretim derlemesi başarılı. Terim ve simge rehberi: `docs/UI_GUIDE.md`.
+
+### Tamamlandı: yarış modu sembolleri
+
+- [x] Classic Run için sonsuz otoyol; Double or Nothing için çift ok ve kırık halka sembol tasarımları hazırlandı.
+- [x] Kullanıcının alternatif araç onayıyla yerleşik OpenAI görüntü üretimi kullanıldı; iki şeffaf PNG `public/modes/` içine kaydedildi. İstemler ve kaynak bilgisi `generation-record.json` içindedir.
+- [x] Ana menü kartlarında `/modes/classic-run.png` ve `/modes/double-or-nothing.png` gösterilir; yükleme başarısızsa mevcut ∞ / 2× simgeleri korunur.
+- [x] 1280 px görünümde 56 px, 668 px dar görünümde 44 px boyutta iki görsel de yüklendi. Classic / Double or Nothing seçimi doğrulandı; yatay taşma yok. ESLint ve üretim build başarılı. Ekran görüntüsü: `artifacts/main-menu-mode-symbols.png`.
+
+### Ek çalışma: referans düzeninde atölye garajı
+
+- [x] Büyük araç önizlemesi, oklarla dönen araç listesi ve araç adı plakası.
+- [x] Garaj için sıcak ışıklı endüstriyel 3D oda, kepenk, zemin, kolonlar ve atölye detayları; ana menü vitrini ayrı görünümünü korur.
+- [x] Sağda açıklamalı sürüş hızı, boost, direksiyon ve nitro kapasitesi çubukları; altta kompakt ekipman görselleri/seviyeleri/altın düğmeleri.
+- [x] İncelenen araç, sahiplik ve aktif seçim ayrımı; kilitli araçta satın alma ve yükseltme koşulları; Done ile ana menüye dönüş.
+- [x] Masaüstü ve dar ekran yerleşimi, oklarla listenin başına dönüş, araç seçimi ve yetersiz bakiye durumu tarayıcıda kontrol edildi.
+- [x] 80 test başarılı, 17 üretim testi atlandı; ESLint ve üretim build başarılı. Fiziksel telefon testi yapılmadı.
+
+### Ek çalışma: ana menü, ayrı garaj ve ücretli araçlar
+
+- [x] Start Game ve Garage düğmeleri, seçili araç vitrini ve yarış modu seçimiyle ayrı ana menü; ortak bakiye, ses ve grafik ayarları.
+- [x] Döndürülebilir araç önizlemesi ve koleksiyon/atölye alanlarıyla ayrı, dar ekrana uyarlanan garaj.
+- [x] Başlangıçta Sport sahipliği; GT 1.250 ve Apex 3.000 oyun altını. Tek sefer satın alma, otomatik seçim, yetersiz bakiye ve sahip olunan araç seçimi.
+- [x] İncelenen araçla aktif aracın ayrılması; yükseltmeleri yalnız seçili ve sahip olunan araca uygulama.
+- [x] Schema 3 sahiplik kaydı; önceki seçili/yükseltilmiş araçları, seviyeleri ve bakiyeyi koruyan geçiş.
+- [x] Duraklatma ve sonuç ekranlarında Garage / Main Menu hedefleri.
+- [x] 80 test geçti, 17 üretim testi atlandı; lint ve üretim build başarılı.
+- [x] Masaüstü ve dar tarayıcı görünümü incelendi. Ayrı localhost kaydında GT satın almayla 1.500 → 250, Handling satın almayla 250 → 0 altın; yenilemede kayıt ve yarış HUD'sinde GT / ENG 0 / HND 1 / NOS 0 doğrulandı. Duraklatmadan ana menüye dönüldü, tarayıcı hata kaydı boştu. Kullanıcının mevcut Apex / 158 altın kaydı korundu; GT önizlemesinde satın alma ve yükseltme engeli doğrulandı. Görseller: `artifacts/main-menu.png`, `artifacts/garage-menu.png`.
+
+### Ek çalışma: Higgsfield ekipman kartları, takılı parçalar ve altın
+
+- [x] Higgsfield `gpt_image_2_5` ile üç 1024×1024 ekipman görseli; yerel `public/equipment/` dosyaları ve generation-record.json üretim kaydı.
+- [x] Serbest seviye menüleri yerine sonraki seviyeyi altınla satın alan Upgrade düğmeleri, takılı seviye, kazanç önizlemesi, maksimum seviye ve yetersiz bakiye durumu.
+- [x] 1.500 başlangıç altını, araç başına kademeli fiyatlar, eski v1 seviyelerini koruyan sürümlü kayıt, otomatik takma.
+- [x] Yarış bitişinde coin başına 25 + her 10 metreye 1 altın; tekrarlanan callback/render ödülü çoğaltmaz. Sonuç ekranı kazancı ve toplam bakiyeyi gösterir.
+- [x] Garajda ve yarışta seviyeye bağlı hafif intake, fren/jant/yan parça ve nitro tankı geometrisi. Kart resimleri gerçek 3D mesh değildir.
+- [x] 73 test geçti, 17 üretim testi atlandı; ESLint ve üretim build başarılı. Testler bakiye düşümü, yetersiz altın, tavan seviye, kayıt geçişi ve tek seferlik yarış ödülünü kapsar.
+- [x] Dar tarayıcı görünümünde üç yerel PNG yüklendi (naturalWidth 1024); Handling satın almada 1.500 → 1.250, Engine satın almada 1.250 → 150 altın ve maksimum/yetersiz bakiye düğmeleri doğrulandı. Yenileme seviyeyi/bakiyeyi korudu. Gerçek yarış 88 m/0 coin sonunda +8 altın, 158 toplam gösterdi; garaja aynı bakiye döndü. Apex arka güvertesindeki parçalar görsel kontrol sonrası yükseltildi. Fiziksel telefon kabulü yapılmadı.
+
+Önceki ücretsiz seviye seçimi maddeleri aşağıda ilk garaj aşamasının kaydı olarak korunur.
+
+- [x] Üç mevcut modeli oynanabilir araç seçeneği olarak bağla; garaj ve yarış aynı seçimi kullanır.
+- [x] Araç başına Stock–Stage 3 motor, yol tutuşu ve nitro ayarı; build sheet üzerinde güncel değerler.
+- [x] Seçimi ve parça seviyelerini `lumexia.garage.v1` yerel kaydında sakla; bozuk/engelli depolamayı güvenle ele al.
+- [x] Yarış başında sabit build; yükseltmeleri hızlanma, direksiyon, nitro kapasitesi/yenilenmesi ve trafik boşluğu hesabına bağla.
+- [x] HUD ve sonuç ekranına araç kimliği, HUD'ye parça seviyeleri ekle.
+- [x] 66 test geçti, 17 eski üretim testi atlandı; ESLint ve üretim derlemesi başarılı. Büyük vendor paketi uyarısı sürüyor.
+- [x] 600×668 dar tarayıcı görünümünde Apex yükseltmeleri, sayfa yenilemede kayıt, yarış/sonuç/garaja dönüş ve GT sürüşü kontrol edildi. GT 105, yükseltilmiş Apex 124 PACE gösterdi. Yeni HUD araç/parça bilgisi hız panelinin üzerine taşındı; garajda yatay taşma yok. Kontrol anında tarayıcı hata kaydı boştu. Fiziksel telefon testi değildir.
+- [ ] Fiziksel telefonlarda uzun sürüş ve üç aracın denge/görsel kabulü.
+
 
 ## 2026-09-08: Zaman döngüsü ve değişken yol
 

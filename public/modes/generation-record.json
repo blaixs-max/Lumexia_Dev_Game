@@ -1,0 +1,18 @@
+{
+  "provider": "OpenAI built-in image generation",
+  "date": "2026-10-17",
+  "background": "transparent",
+  "usage": "Racing mode emblems for the main menu",
+  "assets": [
+    {
+      "file": "classic-run.png",
+      "concept": "Endless driving: infinity-shaped highway",
+      "prompt": "Use case: stylized-concept. Asset type: a single premium 3D racing-game mode emblem for a dark graphite UI button, readable at 56 pixels. One centered coherent object, fills 84 percent of square image with clean padding. Slight isometric angle, bold beveled geometry, brushed titanium edges and matte graphite body, soft realistic studio light. Fully transparent background with crisp alpha edges. No pedestal, no enclosing rectangular tile, no surrounding scene, no words, no watermark, no surrounding particles. Restrained sophisticated style, not cartoonish. Subject: CLASSIC RUN represented by an endless highway sculpted into a very clear infinity-loop silhouette. The road itself is the whole infinity sign: substantial dark asphalt ribbon with silver beveled shoulders, short pale-lime dashed center markings that follow BOTH loops. Pale-lime (#defb7b) accents and silver highlights. Slight raised crossing in center. Immediately communicates endless driving and continuous progress. Keep the outline thick, simple and legible, no other objects."
+    },
+    {
+      "file": "double-or-nothing.png",
+      "concept": "Double reward and all-or-nothing risk: double chevrons with a broken outcome ring",
+      "prompt": "Use case: stylized-concept. Asset type: a single premium 3D racing-game mode emblem for a dark graphite UI button, readable at 56 pixels. One centered coherent object, fills 84 percent of square image with clean padding. Slight isometric angle, bold beveled geometry, brushed titanium edges and matte graphite body, soft realistic studio light. Fully transparent background with crisp alpha edges. No pedestal, no enclosing rectangular tile, no surrounding scene, no words, no watermark, no surrounding particles. Restrained sophisticated style, not cartoonish. Subject: DOUBLE OR NOTHING represented by a dominant pair of upward-forward gold racing chevrons, arranged like a powerful double arrow. Around the two arrows, a thick ring is split into two clear outcomes: an intact rising amber-gold arc and an opposite graphite arc with one deliberate clean gap/broken segment. Brushed gold (#e8bd7c) and restrained pale lime (#defb7b) highlights. The paired arrows communicate doubled reward; the split broken ring communicates all-or-nothing risk. A simple angular motorsport badge with a readable silhouette, no coins, no money, no casino objects, no literal numbers or letters. Match a refined dark highway-racing UI icon collection."
+    }
+  ]
+}

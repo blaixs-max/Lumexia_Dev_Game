@@ -8,6 +8,8 @@ export default defineConfig({
     host: true
   },
   optimizeDeps: {
+    // Diagnostic HTML entries have their own aliases and build configs.
+    entries: ['index.html'],
     include: ['three', '@react-three/fiber', '@react-three/drei'],
     esbuildOptions: {
       target: 'esnext'

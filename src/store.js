@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { MOCK_WALLET_ADDRESS, MOCK_CREDITS } from './devMode';
+import { CARS, EQUIPMENT, MAX_GOLD, calculateRunGold, getCarStats, getUpgradeCost, readGarage, saveGarage } from './utils/garage';
 import {
   SIMULATION_STEP, ROAD_LIMIT, clamp, applyPickup,
   awardNearMiss, makeParticles, stepGameplay,
@@ -93,6 +94,7 @@ const initialRun = () => ({
   elapsedTime: 0,
   nearMissCount: 0,
   coinsCollected: 0,
+  lastRunGold: 0,
   startTime: 0,
   currentLevel: 1,
   lastLevelUpDistance: 0,
@@ -125,9 +127,63 @@ const initialRun = () => ({
 // one store; no game action imports a wallet, payment or score submission API.
 export function createGameStore({ random = Math.random, now = Date.now } = {}) {
   let accumulator = 0;
+  const garage = readGarage();
+  // Apply this to the final simulation snapshot before publishing it, so a
+  // frame cannot overwrite the earnings with its earlier garage balance.
+  const awardRunGold = state => {
+    const earned = calculateRunGold(state);
+    const garageGold = Math.min(MAX_GOLD, state.garageGold + earned);
+    return {
+      garageGold,
+      lastRunGold: garageGold - state.garageGold,
+      garageSaved: saveGarage({ schemaVersion: 3, selectedCar: state.selectedCar, ownedCars: state.garageOwnedCars, upgrades: state.garageUpgrades, gold: garageGold }),
+    };
+  };
   return create((set, get) => ({
     ...initialRun(),
-    selectedCar: 'default',
+    selectedCar: garage.selectedCar,
+    garageOwnedCars: garage.ownedCars,
+    garageUpgrades: garage.upgrades,
+    garageGold: garage.gold,
+    garageSaved: true,
+    runCar: garage.selectedCar,
+    runStats: getCarStats(garage.selectedCar, garage.upgrades[garage.selectedCar]),
+    selectCar: selectedCar => {
+      const state = get();
+      if (state.gameState !== 'garage' || !CARS.some(car => car.id === selectedCar) || !state.garageOwnedCars.includes(selectedCar)) return;
+      const garageSaved = saveGarage({ schemaVersion: 3, selectedCar, ownedCars: state.garageOwnedCars, upgrades: state.garageUpgrades, gold: state.garageGold });
+      set({ selectedCar, garageSaved });
+    },
+    purchaseCar: carId => {
+      const state = get();
+      if (state.gameState !== 'garage') return { success: false, reason: 'not-in-garage' };
+      const car = CARS.find(entry => entry.id === carId);
+      if (!car) return { success: false, reason: 'invalid-car' };
+      if (state.garageOwnedCars.includes(car.id)) return { success: false, reason: 'already-owned' };
+      if (state.garageGold < car.price) return { success: false, reason: 'insufficient-gold', cost: car.price };
+      const garageGold = state.garageGold - car.price;
+      const garageOwnedCars = [...state.garageOwnedCars, car.id];
+      const garageSaved = saveGarage({ schemaVersion: 3, selectedCar: car.id, ownedCars: garageOwnedCars, upgrades: state.garageUpgrades, gold: garageGold });
+      set({ selectedCar: car.id, garageOwnedCars, garageGold, garageSaved });
+      return { success: true, cost: car.price };
+    },
+    purchaseUpgrade: part => {
+      const state = get();
+      if (state.gameState !== 'garage') return { success: false, reason: 'not-in-garage' };
+      if (!EQUIPMENT.some(entry => entry.id === part)) return { success: false, reason: 'invalid-part' };
+      if (!CARS.some(car => car.id === state.selectedCar)) return { success: false, reason: 'invalid-car' };
+      if (!state.garageOwnedCars.includes(state.selectedCar)) return { success: false, reason: 'car-not-owned' };
+      const currentLevel = state.garageUpgrades[state.selectedCar][part];
+      const cost = getUpgradeCost(part, currentLevel);
+      if (cost === null) return { success: false, reason: 'max-level' };
+      if (state.garageGold < cost) return { success: false, reason: 'insufficient-gold', cost };
+      const nextLevel = currentLevel + 1;
+      const garageGold = state.garageGold - cost;
+      const garageUpgrades = { ...state.garageUpgrades, [state.selectedCar]: { ...state.garageUpgrades[state.selectedCar], [part]: nextLevel } };
+      const garageSaved = saveGarage({ schemaVersion: 3, selectedCar: state.selectedCar, ownedCars: state.garageOwnedCars, upgrades: garageUpgrades, gold: garageGold });
+      set({ garageUpgrades, garageGold, garageSaved });
+      return { success: true, cost, level: nextLevel };
+    },
     walletAddress: MOCK_WALLET_ADDRESS,
     credits: MOCK_CREDITS,
     gameMode: 'classic',
@@ -135,6 +191,7 @@ export function createGameStore({ random = Math.random, now = Date.now } = {}) {
 
     setGameState: gameState => {
       if (gameState === 'launcher') { get().quitGame(); return; }
+      if (gameState === 'garage') { get().openGarage(); return; }
       if (gameState === 'paused') { get().pauseGame(); return; }
       if (gameState === 'playing' && get().gameState === 'paused') { get().resumeGame(); return; }
       if (gameState === 'loading') set({ gameState });
@@ -159,12 +216,23 @@ export function createGameStore({ random = Math.random, now = Date.now } = {}) {
       const gameMode = ['classic', 'doubleOrNothing'].includes(options?.gameMode)
         ? options.gameMode : get().gameMode;
       audioSystem.setEnabled(get().soundEnabled);
-      set({ ...initialRun(), gameMode, gameState: 'countdown' });
+      const state = get();
+      const runCar = CARS.some(car => car.id === state.selectedCar) && state.garageOwnedCars.includes(state.selectedCar)
+        ? state.selectedCar : 'default';
+      const runStats = getCarStats(runCar, get().garageUpgrades[runCar]);
+      set({ ...initialRun(), gameMode, gameState: 'countdown', selectedCar: runCar, runCar, runStats,
+        nitro: runStats.maxNitro, maxNitro: runStats.maxNitro, nitroRegenRate: runStats.nitroRegenRate,
+        rocketTargetSpeed: runStats.rocketSpeed });
     },
 
-    quitGame: () => {
+    openGarage: () => {
       accumulator = 0;
-      set({ ...initialRun(), gameState: 'launcher' });
+      set({ ...initialRun(), gameState: 'garage' });
+    },
+
+    quitGame: (destination = 'launcher') => {
+      accumulator = 0;
+      set({ ...initialRun(), gameState: destination === 'garage' ? 'garage' : 'launcher' });
     },
 
     cleanupTimer: () => {
@@ -277,6 +345,7 @@ export function createGameStore({ random = Math.random, now = Date.now } = {}) {
       }
       next.magnetEndTime = next.magnetActive ? now() + next.magnetRemaining * 1000 : 0;
       next.rocketEndTime = next.rocketActive ? now() + next.rocketRemaining * 1000 : 0;
+      if (next.gameOver && !state.gameOver) Object.assign(next, awardRunGold(next));
       set(next);
       // Multiple pickups in one rendered frame need only one sound.
       new Set(effects).forEach(effect => {
@@ -291,6 +360,7 @@ export function createGameStore({ random = Math.random, now = Date.now } = {}) {
       if (state.gameState !== 'playing' || state.gameOver) return;
       accumulator = 0;
       set({
+        ...awardRunGold(state),
         gameOver: true, gameState: 'gameover', crashSpeed: state.speed,
         speed: 0, targetSpeed: 0, cameraShake: 3,
         steeringInput: 0, isNitroActive: false,

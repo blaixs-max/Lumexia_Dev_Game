@@ -2,9 +2,11 @@ import { Component, Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { ACESFilmicToneMapping } from 'three';
 import RealLauncherUI from './components/RealLauncherUI';
+import GaragePage from './components/GaragePage';
 import GameOverUI from './components/GameOverUI';
 import RaceHUD from './components/RaceHUD';
 import RaceControls from './components/RaceControls';
+import UIIcon from './components/UIIcon';
 import { audioSystem, useGameStore } from './store';
 import { usePageVisible } from './hooks/usePageVisible';
 import './App.css';
@@ -17,10 +19,10 @@ class GameBoundary extends Component {
   componentDidCatch(error) { console.error('Unable to load race scene:', error); }
   render() {
     if (this.state.failed) return <div className="lx-ui lx-load-error" role="alert">
-      <p className="lx-eyebrow">PIT STOP</p><h1>LET’S TRY THAT AGAIN.</h1>
-      <p>The 3D scene could not load. Check your connection or try Performance graphics.</p>
-      <button className="lx-button lx-button-primary" onClick={this.props.onBack}>BACK TO GARAGE</button>
-      <button className="lx-button lx-button-secondary" onClick={() => window.location.reload()}>RELOAD GAME</button>
+      <UIIcon name="info" size={36} /><p className="lx-eyebrow">YÜKLEME SORUNU</p><h1>Yarış yüklenemedi.</h1>
+      <p>Bağlantını kontrol et veya grafik ayarını Performans olarak değiştirip yeniden dene.</p>
+      <button className="lx-button lx-button-primary" onClick={this.props.onBack}><UIIcon name="arrowLeft" /> Ana menü</button>
+      <button className="lx-button lx-button-secondary" onClick={() => window.location.reload()}><UIIcon name="restart" /> Yeniden yükle</button>
     </div>;
     return this.props.children;
   }
@@ -79,7 +81,8 @@ function Race({ quality }) {
     : Math.min(window.devicePixelRatio, 1, Math.sqrt(2304000 / (window.innerWidth * window.innerHeight))));
   const pageVisible = usePageVisible();
   const quitGame = useGameStore(s => s.quitGame);
-  return <main className="lx-race" aria-label="Lumexia highway race">
+  const openGarage = useGameStore(s => s.openGarage);
+  return <main className="lx-race" aria-label="Lumexia otoyol yarışı">
     <GameBoundary onBack={quitGame}>
       <Canvas dpr={renderDpr} shadows={!low} frameloop={!pageVisible ? 'never' : ready && gameState === 'paused' ? 'demand' : 'always'} camera={{ position: [0, 5.2, 11.5], fov: 54, near: 0.5, far: 750 }}
         gl={{ antialias: true, alpha: false, powerPreference: 'high-performance', toneMapping: ACESFilmicToneMapping }}>
@@ -88,7 +91,7 @@ function Race({ quality }) {
           <RaceScene low={low} adaptive={quality === 'auto'} onReady={() => setReady(true)} onReduceQuality={() => setRenderDpr(value => Math.max(Math.min(value, 0.65), value * 0.85))} />
         </Suspense>
       </Canvas>
-      {ready ? <RaceHUD onMainMenu={quitGame} /> : <div className="lx-ui lx-track-loading" role="status"><span className="lx-loading-spinner" /><p>PREPARING YOUR RUN</p><small>Preparing the highway and your car…</small><button className="lx-button lx-button-secondary" onClick={quitGame}>BACK TO GARAGE</button></div>}
+      {ready ? <RaceHUD onMainMenu={quitGame} onGarage={openGarage} /> : <div className="lx-ui lx-track-loading" role="status"><span className="lx-loading-spinner" aria-hidden="true" /><p>Yarış hazırlanıyor</p><small>Yol ve aracın yükleniyor…</small><button className="lx-button lx-button-secondary" onClick={quitGame}><UIIcon name="arrowLeft" /> Ana menüye dön</button></div>}
       <RaceControls touchVisible={ready && gameState === 'playing'} />
       <RaceAudio ready={ready} />
     </GameBoundary>
@@ -115,7 +118,8 @@ export default function App() {
   };
   return <>
     {['loading', 'launcher'].includes(gameState) ? <RealLauncherUI quality={quality} onQualityChange={changeQuality} onStartGame={options => useGameStore.getState().startGame(options)} /> : null}
+    {gameState === 'garage' ? <GaragePage quality={quality} onQualityChange={changeQuality} /> : null}
     {['countdown', 'playing', 'paused'].includes(gameState) ? <Race quality={quality} /> : null}
-    {gameState === 'gameover' ? <GameOverUI score={useGameStore.getState().score} totalDistance={useGameStore.getState().totalDistance} nearMissCount={useGameStore.getState().nearMissCount} coinsCollected={useGameStore.getState().coinsCollected} onRestart={() => useGameStore.getState().startGame()} onMainMenu={() => useGameStore.getState().quitGame()} /> : null}
+    {gameState === 'gameover' ? <GameOverUI score={useGameStore.getState().score} totalDistance={useGameStore.getState().totalDistance} nearMissCount={useGameStore.getState().nearMissCount} coinsCollected={useGameStore.getState().coinsCollected} onRestart={() => useGameStore.getState().startGame()} onGarage={() => useGameStore.getState().openGarage()} onMainMenu={() => useGameStore.getState().quitGame()} /> : null}
   </>;
 }

@@ -1,0 +1,23 @@
+{
+  "provider": "Higgsfield",
+  "model": "gpt_image_2_5",
+  "date": "2026-10-17",
+  "usage": "3D-style equipment card images; separate in-game meshes built in Three.js",
+  "assets": [
+    {
+      "file": "engine.png",
+      "jobId": "4bbad27b-338a-4c7f-b689-0d83fa917990",
+      "prompt": "A premium stylized low-poly 3D game inventory product render of a compact twin-turbo automotive engine upgrade assembly, aluminum engine block with graphite casing, turbine compressor, small lime-green cable accents, clean beveled polygonal shapes and believable mechanical details. Single object centered, isometric three-quarter camera, soft studio key light and restrained cyan rim light, dark charcoal seamless background #10191d, subtle contact shadow, fills 75 percent of square frame. No car, no lettering, no text, no logo, no UI, no pedestal. Designed for a dark racing game garage equipment card. Crisp readable silhouette."
+    },
+    {
+      "file": "handling.png",
+      "jobId": "cebe6242-fc5c-4cf2-a305-7f847176917d",
+      "prompt": "A premium stylized low-poly 3D game inventory product render of a sports car handling upgrade kit: two compact coilover shock absorbers with lime-green springs and brushed graphite dampers, a ventilated brake disc and small charcoal caliper neatly arranged as one centered mechanical kit. Clean beveled polygonal shapes, isometric three-quarter camera, soft studio key light and restrained cyan rim light, dark charcoal seamless background #10191d, subtle contact shadow, fills 75 percent of square frame. No car, no lettering, no text, no logo, no UI, no pedestal. Designed for the same cohesive dark racing game garage equipment collection as a compact engine and nitro tanks. Crisp readable silhouette."
+    },
+    {
+      "file": "nitro.png",
+      "jobId": "d704e901-c785-4e7d-a63a-e3115d7e74b4",
+      "prompt": "A premium stylized low-poly 3D game inventory product render of a twin nitrous oxide booster tank upgrade for a sports car: two short graphite metal cylinders, satin cyan tank panels, polished pressure regulators, compact braided silver hoses, lime-green mounting straps. Clean beveled polygonal shapes and believable mechanical details. Single paired assembly centered, isometric three-quarter camera, soft studio key light and restrained cyan rim light, dark charcoal seamless background #10191d, subtle contact shadow, fills 75 percent of square frame. No car, no lettering, no text, no logo, no UI, no pedestal. Designed for a dark racing game garage equipment card. Crisp readable silhouette."
+    }
+  ]
+}
