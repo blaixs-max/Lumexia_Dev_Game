@@ -57,6 +57,13 @@ const occupiedLanes = enemy => enemy.targetLane !== enemy.lane && (enemy.isChang
   ? [enemy.lane, enemy.targetLane]
   : [enemy.lane];
 
+// Distances use the HUD's metres (one tenth of world travel). The previous
+// 1.4 m reduction per level barely changed the visible traffic. Progression
+// now reaches a bounded busy-road setting at level eight; placement still
+// has to reserve the same passing gap at cruise, nitro and rocket speeds.
+const TRAFFIC_SPACING = [29, 22, 17, 13, 10.5, 9, 8, 7];
+const trafficSpacing = level => TRAFFIC_SPACING[clamp(Math.floor(level) - 1, 0, TRAFFIC_SPACING.length - 1)];
+
 // Reserve a passing gap both at cruise and under boost. Checking positions
 // alone misses walls formed when faster traffic catches slower vehicles.
 export function isTrafficPlacementSafe(candidate, enemies, playerSpeeds = [110, 200, 210]) {
@@ -80,7 +87,7 @@ export function isTrafficPlacementSafe(candidate, enemies, playerSpeeds = [110, 
 }
 
 function spawnTraffic(state, random) {
-  if (state.rocketActive || state.enemies.length >= 12) return;
+  if (state.rocketActive || state.enemies.length >= 12) return false;
   const types = ['sedan', 'sport', 'suv', 'truck'];
   const type = types[Math.floor(random() * types.length)];
   // A bounded speed keeps late levels playable; the old multiplier eventually
@@ -99,9 +106,10 @@ function spawnTraffic(state, random) {
     if (isTrafficPlacementSafe(candidate, state.enemies, [state.runStats?.cruiseSpeed ?? 110, state.runStats?.boostSpeed ?? 200, state.rocketTargetSpeed])) {
       state.enemies.push(candidate);
       state.nextEntityId++;
-      return;
+      return true;
     }
   }
+  return false;
 }
 
 function spawnPickup(state, random) {
@@ -310,8 +318,10 @@ export function stepGameplay(state, delta, random, effects) {
   });
 
   if (state.totalDistance >= state.nextTrafficDistance) {
-    spawnTraffic(state, random);
-    state.nextTrafficDistance = state.totalDistance + Math.max(17, 29 - (state.currentLevel - 1) * 1.4);
+    const spawned = spawnTraffic(state, random);
+    // A temporarily occupied spawn point should not cancel an entire traffic
+    // interval. Retry after more road has passed, never bypassing safety.
+    state.nextTrafficDistance = state.totalDistance + (spawned ? trafficSpacing(state.currentLevel) : 1.5);
     state.lastSpawnZ = -state.totalDistance;
   }
   if (state.totalDistance >= state.nextPickupDistance) {

@@ -2,6 +2,37 @@
 
 > Son güncelleme: 2026-10-17
 
+## 2026-10-17: GitHub birleştirme kapsamı
+
+Kullanıcının GitHub birleştirme isteği, araç biçimine uygun gölgeyi, seviyeye göre trafik artışını ve yeni mıknatıs/roket modellerini birlikte kapsar. Yerel kabul 89 başarılı test, 17 atlanan üretim adaptörü testi, lint ve 648 modüllük üretim derlemesidir. Birleştirme öncesi GitHub CI test, lint ve derlemeyi tekrar doğrular; mevcut Vercel bağlantısı `main` değişikliğinde yayın oluşturur. Aşağıdaki yerel uygulama notları önceki aşamaların kabul kayıtlarıdır.
+
+## 2026-10-17: Üç boyutlu mıknatıs ve roket
+
+- [x] Ortak para biçimli rozet ve koni yerine iki ayrı, özgün Three.js modeli: pahlanmış kırmızı/mavi at nalı mıknatıs, gümüş kutup uçları ve bağlantı vidaları; inci gövdeli, turuncu burun/kanatlı roket, bakır detaylar, camgöbeği pencere, motor ağzı ve hacimli egzoz.
+- [x] Modeller kodla oluşturulur; yeni dış varlık, görsel üretimi veya harici lisans eklenmedi. Önceki Google Poly mıknatıs/roket dosyalarının atıfları korunur ve README'de tarihsel varlık olarak ayrılır.
+- [x] Yarışın gerçek toplanabilir nesne çiziminde kullanılır. Hafif yön salınımı görünür yüzü korur; düşey salınım nesneye uygulanır, zemin işaretçisi yolda sabit kalır. Azaltılmış hareket tercihi salınımları kapatır. Ek gerçek ışık yoktur; oluşum, çarpışma, toplama ve etki süreleri değişmedi.
+- [x] Ayrı QA düzeneğine **Pickup layout → Magnet + rocket** seçeneği eklendi. Yakın mıknatıs/roket x = −4,5/+4,5, z = −12; uzak çift z = −45; ortada jeton z = −25. Araç/kalite/ışık kontrolleri ve önceki gölge tanılaması korunur; nesne tür/adet/konumları görünür ölçümlerdedir. Kalıcı bakiye yazılmaz.
+- [x] Son koşuda **89 test başarılı, 17 üretim adaptörü testi atlandı**; lint ve üretim derlemesi (648 modül) başarılı.
+- [x] High ve Performance seçeneklerinde gündüz ve gece gerçek yarış bileşenleriyle 2 mıknatıs / 2 roket / 1 jeton gösterildi; shader, sayfa veya WebGL bağlam hatası yoktu. High gündüz/gece 31 shader programıyla kaldı; Performance 512×512 gölge haritası gözlendi. Görseller: [Performance gündüz](../artifacts/powerups-day.png), [High gece](../artifacts/powerups-night.png).
+- [x] Geometri denetimi: mıknatıs 1.456 üçgen / 6 model çizimi; roket 3.680 üçgen / 9 model çizimi. Konumlar ve normaller sonlu; gölge geçişleri/zemin halkaları çizim sayılarına dahil değildir. Kaynaklar örnek başına önbelleğe alınır ve kaldırılırken serbest bırakılır.
+- [ ] Fiziksel telefonlarda görünürlük ve uzun sürüş performansı.
+
+Bu revizyon yereldir; bu çalışma kapsamında yayın yapılmadı. Önceki gölge/trafik değişiklikleri korunur; aşağıdaki test ve kabul sayıları ilgili önceki revizyonun tarihsel kaydıdır.
+
+## 2026-10-17: Araç biçimine uygun yarış gölgesi ve seviye trafiği
+
+- [x] Yarışta oyuncu ve trafik altındaki yuvarlak `ContactPatch` düzlemleri ve boşta alt aydınlatma kaldırıldı. Gölge, araç geometrisinden mevcut tek yönlü güneş/ay ışığıyla üretilir; ışık açısı ve oyuncunun şerit konumunu izler.
+- [x] Bütün grafik seçeneklerinde PCF yumuşak gölge; Performance 512×512, High 1024×1024 harita. Oyuncuyu izleyen dar ortografik hacim ±8, near/far 1/80; model tabanı −0,025, asfalt −0,03 konumundadır. Ek yönlü ışık eklenmedi.
+- [x] Önceki 29 m aralığından seviye başına yalnız 1,4 m azalan trafik oluşumu daha belirgin ilerlemeye dönüştürüldü. 1–8. seviye hedef aralıkları **29 / 22 / 17 / 13 / 10,5 / 9 / 8 / 7 m**; 8. seviyeden sonra sabit.
+- [x] Güvenli yer bulunamazsa bütün oluşma aralığını atlamak yerine 1,5 m sonra yeniden denenir. Mevcut normal/nitro/roket hızlarında kaçış şeridi rezervasyonu, aynı şeritte en az 65 dünya birimi ayrım, sınırlı NPC hızları ve toplam 12 araç üst sınırı korunur.
+- [x] Dört farklı başlangıç değeriyle 60 saniyelik deterministik simülasyon: seviye 1 **23**, seviye 3 **39**, seviye 5 **61–63** araç oluşumu; ortalama yaklaşan araç sayısı yaklaşık **2,0 / 3,6 / 5,5**. Seviye 8 **82–85** oluşum / yaklaşık **7,4** yaklaşan araç; seviye 80 yoğunluk sınırını korur. Ölçüm çarpışmayla bitmesin diye z > −20 bölgesine gelen araçlar çıkarılır ve toplanabilir nesneler kapatılır; bunlar gerçek sürüş FPS/bellek ölçümü değildir.
+- [x] Dört yeni test: seviyeler arasında ölçülen artış ve her oluşumun güvenli yerleşimi, geç seviye yoğunluk sınırı, 30/60/144 FPS eşitliği, engel kalktıktan sonra yeniden oluşma. Toplam **89 test başarılı, 17 üretim adaptörü testi atlandı**; lint ve üretim derlemesi (646 modül) başarılı.
+- [x] Tarayıcıdaki QA düzeneğinde gerçek yarış bileşenleri: Apex Performance gündüz (512 harita), Apex High gece/gün batımı (1024 harita), ışık yönü/gölge uzaması ve sol şeridi izleme kontrol edildi. Subaru High gündüzde virajın render istasyonu 350 / HUD 70 m konumunda, 80 oyuncu gölge üreten mesh ve 1024 haritayla gösterildi. Shader, sayfa ve WebGL bağlam hatası görülmedi. Görsel: [Performance gölgesi](../artifacts/physical-shadow-performance.png). Bu düzenek ayrı bir ana uygulama başlangıç testi değildir.
+- [ ] Fiziksel telefonlarda gölge maliyeti, uzun sürüş dengesi, FPS ve bellek kabulü.
+- [x] Normal ana uygulamada Performans → Yarışa başla → Classic Run onayı → Subaru ile gerçek sürüş → sonuç akışı tamamlandı (99 m, 1 jeton). Bu kontrol QA düzeneğinden ayrıdır. Performans karşılaştırma aracı da üretimle aynı yumuşak gölge seçeneğini kullanır.
+
+Bu revizyon yereldir; bu çalışma kapsamında yayın yapılmadı. Önceki 85 testlik menü/model kabulü ve diğer kayıtlar aşağıda tarihsel kapsamlarıyla korunur.
+
 ## 2026-10-17: Sade ana menü ve yarış modu penceresi
 
 - [x] Ana menüde iki birincil eylem: **Yarışa başla** ve **Garaj**; ana ekrandaki mod kartları kaldırıldı.

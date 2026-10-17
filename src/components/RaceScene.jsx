@@ -14,6 +14,8 @@ import { PlayerHeadlights, TrafficHeadlights } from './VehicleLighting';
 import { createTrafficBeamMaterial } from '../environment/vehicle-lighting';
 import { getCar } from '../utils/garage';
 import EquippedParts from './EquippedParts';
+import MagnetPickup from './MagnetPickup';
+import RocketPickup from './RocketPickup';
 
 useGLTF.setDecoderPath('/draco/');
 const TRAFFIC_MODELS = {
@@ -39,12 +41,6 @@ function VehicleModel({ path, type = 'player', rotation = 0, carId, equipmentLev
   return <><group rotation={[0, rotation, 0]}><primitive object={model} scale={scale} position={offset} dispose={null} /></group>{equipmentLevels ? <EquippedParts carId={carId} levels={equipmentLevels} {...fittedDimensions} /> : null}</>;
 }
 
-function ContactPatch({ width, length }) {
-  return <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.035, 0]} scale={[width * 0.62, length * 0.48, 1]}>
-    <circleGeometry args={[1, 24]} /><meshBasicMaterial color="#06101b" transparent opacity={0.38} depthWrite={false} />
-  </mesh>;
-}
-
 function PlayerCar() {
   const car = getCar(useGameStore(s => s.runCar));
   const equipmentLevels = useGameStore(s => s.runStats);
@@ -58,10 +54,13 @@ function PlayerCar() {
     const state = useGameStore.getState();
     if (!group.current || state.gameState === 'paused') return;
     const road = sampleRoadFrame(state.totalDistance * 5, -2, frame.current);
-    group.current.position.set(road.x + state.currentX * Math.cos(road.yaw), 0.09, road.z - state.currentX * Math.sin(road.yaw));
     const tilt = reducedMotion ? 0 : -state.steeringVelocity * 0.008;
     group.current.rotation.z = damp(group.current.rotation.z, tilt, 8, Math.min(delta, 0.1));
     group.current.rotation.y = damp(group.current.rotation.y, road.yaw - state.steeringVelocity * 0.012, 8, Math.min(delta, 0.1));
+    // The source model is grounded at local Y=0; asphalt is at -0.03.
+    // Keep tyre contact during the small steering lean instead of hovering.
+    const groundY = -0.025 + Math.abs(Math.sin(group.current.rotation.z)) * VEHICLE_DIMENSIONS.player.width * 0.5;
+    group.current.position.set(road.x + state.currentX * Math.cos(road.yaw), groundY, road.z - state.currentX * Math.sin(road.yaw));
     // Stable transient array shared with instanced particles, not React state.
     /* eslint-disable react-hooks/immutability */
     playerPosition[0] = group.current.position.x;
@@ -69,11 +68,10 @@ function PlayerCar() {
     /* eslint-enable react-hooks/immutability */
   });
   return <>
-    <group ref={group} position={[0, 0.09, -2]}>
-      <ContactPatch width={1.8} length={5.5} />
+    <group ref={group} name="player-car" position={[0, -0.025, -2]}>
       <VehicleModel path={car.model} rotation={car.rotation} carId={car.id} equipmentLevels={equipmentLevels} />
       <PlayerHeadlights carId={car.id} />
-      <mesh position={[0, 0.12, 0]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[1.6, 4]} /><meshBasicMaterial color={rocket ? '#ff894c' : '#9eeff2'} transparent opacity={boosting || rocket ? 0.32 : 0.1} depthWrite={false} /></mesh>
+      <mesh visible={boosting || rocket} position={[0, 0.12, 0]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[1.6, 4]} /><meshBasicMaterial color={rocket ? '#ff894c' : '#9eeff2'} transparent opacity={0.32} depthWrite={false} /></mesh>
     </group>
     <NitroBoostParticles position={playerPosition} isActive={boosting && !reducedMotion} />
     <RocketTrailParticles position={playerPosition} isActive={rocket && !reducedMotion} />
@@ -117,15 +115,14 @@ const TrafficCar = memo(function TrafficCar({ id, type }) {
     const enemy = state.enemies.find(item => item.id === id);
     if (!group.current || !enemy) return;
     const road = sampleRoadFrame(state.totalDistance * 5, enemy.z, roadFrame.current);
-    group.current.position.set(road.x + enemy.x * Math.cos(road.yaw), 0, road.z - enemy.x * Math.sin(road.yaw));
+    group.current.position.set(road.x + enemy.x * Math.cos(road.yaw), -0.025, road.z - enemy.x * Math.sin(road.yaw));
     group.current.rotation.y = road.yaw + (enemy.isChanging ? enemy.indicator * -0.09 : 0);
     if (signals.current) {
       signals.current.visible = Boolean(enemy.indicator) && Math.sin(state.elapsedTime * 14) > 0;
       signals.current.position.x = enemy.indicator * dimensions.width * 0.4;
     }
   });
-  return <group ref={group} position={[0, 0, -350]}>
-    <ContactPatch width={dimensions.width} length={dimensions.length} />
+  return <group ref={group} position={[0, -0.025, -350]}>
     <Suspense fallback={<mesh position={[0, 0.8, 0]}><boxGeometry args={[dimensions.width, 1.6, dimensions.length]} /><meshStandardMaterial color="#acbac5" /></mesh>}>
       <VehicleModel path={model.path} type={type} rotation={model.rotation} />
     </Suspense>
@@ -148,20 +145,30 @@ const Pickup = memo(function Pickup({ id, kind }) {
   const token = useRef();
   const roadFrame = useRef({});
   const color = kind === 'rocket' ? '#ff9065' : kind === 'magnet' ? '#90e4f2' : '#fbd775';
+  const powerup = kind === 'magnet' || kind === 'rocket';
+  const reducedMotion = useMemo(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches, []);
   useFrame(() => {
     const state = useGameStore.getState();
     const pickup = state.coins.find(coin => coin.id === id);
     if (!group.current || !pickup) return;
     const road = sampleRoadFrame(state.totalDistance * 5, pickup.z, roadFrame.current);
-    group.current.position.set(road.x + pickup.x * Math.cos(road.yaw), 1.2 + Math.sin(state.elapsedTime * 3 + pickup.z * 0.1) * 0.12, road.z - pickup.x * Math.sin(road.yaw));
+    group.current.position.set(road.x + pickup.x * Math.cos(road.yaw), 0.035, road.z - pickup.x * Math.sin(road.yaw));
     group.current.rotation.y = road.yaw;
-    token.current.rotation.y = state.elapsedTime * 2.5;
+    const bob = reducedMotion ? 0 : Math.sin(state.elapsedTime * (powerup ? 2 : 3) + pickup.z * 0.1) * (powerup ? 0.1 : 0.12);
+    token.current.position.y = (powerup ? 1.4 : 1.165) + bob;
+    // Keep the recognizable face visible; fast 360-degree spins used to turn
+    // the old symbols edge-on just as the player approached them.
+    const powerupYaw = 0.18 + (reducedMotion ? 0 : Math.sin(state.elapsedTime * 0.85) * 0.24);
+    token.current.rotation.y = powerup ? powerupYaw : reducedMotion ? 0 : state.elapsedTime * 2.5;
+    token.current.rotation.z = kind === 'rocket' ? -0.16 : 0;
   });
-  return <group ref={group} position={[0, 1.2, -300]}>
-    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.05, 0]}><ringGeometry args={[0.4, 0.7, 24]} /><meshBasicMaterial color={color} transparent opacity={0.55} depthWrite={false} /></mesh>
-    <group ref={token}>
-      <mesh rotation={[Math.PI / 2, 0, 0]}><cylinderGeometry args={[0.5, 0.5, 0.14, 24]} /><meshStandardMaterial color={color} metalness={0.65} roughness={0.23} emissive={color} emissiveIntensity={0.25} /></mesh>
-      {kind === 'coin' ? <mesh position={[0, 0, 0.082]}><torusGeometry args={[0.35, 0.024, 6, 20]} /><meshStandardMaterial color="#fff0b8" metalness={0.8} roughness={0.2} /></mesh> : <mesh position={[0, 0.05, 0.13]} rotation={[0, 0, kind === 'rocket' ? 0 : Math.PI]}><coneGeometry args={[0.2, 0.62, 3]} /><meshBasicMaterial color="#0b2535" /></mesh>}
+  return <group ref={group} name={`pickup-${kind}`} position={[0, 0.035, -300]}>
+    <mesh rotation={[-Math.PI / 2, 0, 0]}><ringGeometry args={powerup ? [0.7, 0.77, 40] : [0.4, 0.7, 24]} /><meshBasicMaterial color={color} transparent opacity={0.55} depthWrite={false} /></mesh>
+    <group ref={token} position={[0, powerup ? 1.4 : 1.165, 0]}>
+      {kind === 'magnet' ? <MagnetPickup /> : kind === 'rocket' ? <RocketPickup /> : <>
+        <mesh rotation={[Math.PI / 2, 0, 0]}><cylinderGeometry args={[0.5, 0.5, 0.14, 24]} /><meshStandardMaterial color={color} metalness={0.65} roughness={0.23} emissive={color} emissiveIntensity={0.25} /></mesh>
+        <mesh position={[0, 0, 0.082]}><torusGeometry args={[0.35, 0.024, 6, 20]} /><meshStandardMaterial color="#fff0b8" metalness={0.8} roughness={0.2} /></mesh>
+      </>}
     </group>
   </group>;
 });
