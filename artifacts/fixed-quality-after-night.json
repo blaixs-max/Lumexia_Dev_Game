@@ -1,0 +1,218 @@
+{
+  "completed": true,
+  "phase": "complete",
+  "elapsedSeconds": 11.012,
+  "scenario": {
+    "name": "curve-night",
+    "car": "rally",
+    "traffic": 12,
+    "time": 400,
+    "station": 350,
+    "width": 1280,
+    "height": 720,
+    "dpr": 1,
+    "quality": "high",
+    "warmupSeconds": 3,
+    "sampleSeconds": 8
+  },
+  "scenarioKey": "{\"name\":\"curve-night\",\"car\":\"rally\",\"traffic\":12,\"time\":400,\"station\":350,\"width\":1280,\"height\":720,\"dpr\":1,\"quality\":\"high\",\"warmupSeconds\":3,\"sampleSeconds\":8}",
+  "physicsFrozen": true,
+  "persistentWrites": false,
+  "adaptiveResolution": false,
+  "viewport": [
+    1280,
+    720
+  ],
+  "dpr": 1,
+  "drawingBuffer": [
+    1280,
+    720
+  ],
+  "camera": {
+    "position": [
+      0,
+      5.2,
+      11.5
+    ],
+    "quaternion": [
+      -0.04718938341533121,
+      0.009131046917281626,
+      0.0004313871005190077,
+      0.9988441319746765
+    ],
+    "fov": 57.857142857142854,
+    "aspect": 1.7777777777777777
+  },
+  "frames": 157,
+  "fps": 19.525,
+  "meanMs": 51.215,
+  "medianMs": 50.3,
+  "p95Ms": 153.5,
+  "p99Ms": 160.2,
+  "cpuSubmissionMedianMs": 6.4,
+  "cpuSubmissionP95Ms": 7.4,
+  "over25ms": 141,
+  "over50ms": 86,
+  "longTasks": 8,
+  "maxLongTaskMs": 160,
+  "averageTotalDrawCalls": 981,
+  "averageTotalTriangles": 4213478,
+  "averageShadowDrawCalls": 371,
+  "averageShadowTriangles": 1896326,
+  "averageMainPassDrawCalls": 610,
+  "averageMainPassTriangles": 2317152,
+  "counterDefinition": "One real scene render: total includes CSM shadows; mainPass = total − shadows, including any transmission pass. autoReset=false; manual reset once per measured render.",
+  "lastFrame": {
+    "totalCalls": 981,
+    "totalTriangles": 4213478,
+    "shadowCalls": 371,
+    "shadowTriangles": 1896326,
+    "mainPassCalls": 610,
+    "mainPassTriangles": 2317152,
+    "cpuSubmissionMs": 6.299999997019768
+  },
+  "geometryCount": 331,
+  "textureCount": 35,
+  "sceneResources": {
+    "meshes": 416,
+    "instanceCount": 1584,
+    "uniqueGeometries": 331,
+    "uniqueMaterials": 194,
+    "uniqueTextures": 26,
+    "shadows": [
+      {
+        "name": "race-sun-cascade-1",
+        "mapSize": [
+          1536,
+          1536
+        ],
+        "shadowProfile": "high",
+        "cascade": 1,
+        "cascadeNear": 0.5,
+        "cascadeFar": 32,
+        "cascadeFade": true,
+        "cascadeBlendDistance": 8,
+        "sunShadowMaxFar": 360,
+        "shadowMapSize": 1536
+      },
+      {
+        "name": "race-sun-cascade-2",
+        "mapSize": [
+          1536,
+          1536
+        ],
+        "shadowProfile": "high",
+        "cascade": 2,
+        "cascadeNear": 32,
+        "cascadeFar": 110.00000000000001,
+        "cascadeFade": true,
+        "cascadeBlendDistance": 8,
+        "sunShadowMaxFar": 360,
+        "shadowMapSize": 1536
+      },
+      {
+        "name": "race-sun-cascade-3",
+        "mapSize": [
+          1536,
+          1536
+        ],
+        "shadowProfile": "high",
+        "cascade": 3,
+        "cascadeNear": 110.00000000000001,
+        "cascadeFar": 360,
+        "cascadeFade": true,
+        "cascadeBlendDistance": 8,
+        "sunShadowMaxFar": 360,
+        "shadowMapSize": 1536
+      }
+    ]
+  },
+  "programsAtSampleStart": 118,
+  "programsAtSampleEnd": 118,
+  "maxProgramsDuringSample": 118,
+  "programCountGrowth": 0,
+  "lightCountsAtSampleStart": {
+    "mounted": {
+      "AmbientLight": 1,
+      "HemisphereLight": 1,
+      "SpotLight": 2,
+      "DirectionalLight": 3
+    },
+    "visible": {
+      "AmbientLight": 1,
+      "HemisphereLight": 1,
+      "SpotLight": 2,
+      "DirectionalLight": 3
+    },
+    "shadowCasting": 3
+  },
+  "lightCountsAtSampleEnd": {
+    "mounted": {
+      "AmbientLight": 1,
+      "HemisphereLight": 1,
+      "SpotLight": 2,
+      "DirectionalLight": 3
+    },
+    "visible": {
+      "AmbientLight": 1,
+      "HemisphereLight": 1,
+      "SpotLight": 2,
+      "DirectionalLight": 3
+    },
+    "shadowCasting": 3
+  },
+  "lightCountsStable": true,
+  "readinessGated": true,
+  "renderer": "ANGLE (Intel, Intel(R) UHD Graphics (0x0000A78B) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+  "browserObservation": {
+    "observedMs": 8040.899999991059,
+    "hiddenMs": 0,
+    "unfocusedMs": 0,
+    "visibleFocusedMs": 8040.899999991059,
+    "frames": {
+      "visibleFocused": 157,
+      "visibleUnfocused": 0,
+      "hidden": 0
+    },
+    "finalVisibility": "visible",
+    "finalFocus": true,
+    "transitions": [
+      {
+        "atMs": 1568.3999999910593,
+        "visibility": "visible",
+        "focused": true,
+        "source": "sample-reset"
+      }
+    ],
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36"
+  },
+  "gpuTiming": {
+    "supported": true,
+    "status": "asynchronous elapsed GPU queries",
+    "samples": 153,
+    "issued": 157,
+    "pending": 4,
+    "skippedWhenPoolFull": 0,
+    "disjointFrames": 0,
+    "discarded": 0,
+    "meanMs": 45.59166827450979,
+    "medianMs": 45.950364,
+    "p95Ms": 46.478697
+  },
+  "webglDiagnostics": {
+    "contextLostEvents": 0,
+    "contextRestoredEvents": 0,
+    "contextCurrentlyLost": false,
+    "drawingBuffer": [
+      1280,
+      720
+    ],
+    "shaderErrors": [],
+    "pageErrors": [],
+    "programLogs": []
+  },
+  "measurementValidity": {
+    "warnings": [],
+    "limitation": "rAF measures delivered callbacks, not isolated GPU time. Visible/focused does not certify lack of OS occlusion, throttling, thermal limits, or competing GPU work. GPU queries time this fixture render and may still include driver scheduling effects."
+  }
+}

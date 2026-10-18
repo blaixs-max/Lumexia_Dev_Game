@@ -11,6 +11,7 @@ import NightSky from './NightSky';
 export default function RaceLighting({ low = false, shadowAssets }) {
   const ambient = useRef(), hemisphere = useRef(), fog = useRef(), sunShadows = useRef();
   const cycle = useRef({});
+  const previousWeights = useRef({ night: NaN, twilight: NaN, tunnel: NaN, intensity: 2.65, environmentIntensity: 1 });
   const scene = useThree(state => state.scene);
   const camera = useThree(state => state.camera);
   const sun = useMemo(() => ({ direction: new THREE.Vector3(), color: new THREE.Color() }), []);
@@ -31,6 +32,7 @@ export default function RaceLighting({ low = false, shadowAssets }) {
   useEffect(() => {
     const shadows = createRaceSunShadows({ scene, camera, low, assets: shadowAssets });
     sunShadows.current = shadows;
+    previousWeights.current = { night: NaN, twilight: NaN, tunnel: NaN, intensity: 2.65, environmentIntensity: 1 };
     return () => { sunShadows.current = null; shadows.dispose(); };
   }, [scene, camera, low, shadowAssets]);
 
@@ -39,21 +41,30 @@ export default function RaceLighting({ low = false, shadowAssets }) {
     const state = useGameStore.getState();
     const { night, twilight } = sampleDayCycle(state.elapsedTime, cycle.current);
     const tunnel = sampleTunnelAmount(state.totalDistance * 5, -2);
-    ambient.current.color.copy(palette.ambient[0]).lerp(palette.ambient[1], night).lerp(palette.ambient[2], twilight * 0.45);
-    ambient.current.intensity = THREE.MathUtils.lerp(0.22, 0.09, night) * (1 - tunnel * 0.55) + tunnel * 0.08;
-    hemisphere.current.color.copy(palette.upper[0]).lerp(palette.upper[1], night).lerp(palette.upper[2], twilight * 0.65);
-    hemisphere.current.groundColor.copy(palette.lower[0]).lerp(palette.lower[1], night).lerp(palette.lower[2], twilight * 0.65);
-    hemisphere.current.intensity = THREE.MathUtils.lerp(0.85, 0.42, night) * (1 - tunnel * 0.72) + tunnel * 0.18;
-    sun.color.copy(palette.directional[0]).lerp(palette.directional[1], night).lerp(palette.directional[2], twilight * 0.9);
-    sun.direction.lerpVectors(palette.positions[0], palette.positions[1], night).lerp(palette.positions[2], twilight).normalize().negate();
-    // All cascades represent this same sun. Overlapping distance ranges keep
-    // real vehicle silhouettes continuous from distant traffic to the player.
-    sunShadows.current.update(sun.direction, sun.color,
-      THREE.MathUtils.lerp(2.65, 0.72, night) * (1 - twilight * 0.38) * (1 - tunnel * 0.82));
-    fog.current.color.copy(palette.horizon[0]).lerp(palette.horizon[1], night).lerp(palette.horizon[2], twilight * 0.8);
-    fog.current.near = THREE.MathUtils.lerp(260, 160, night);
-    fog.current.far = THREE.MathUtils.lerp(600, 590, night);
-    renderScene.environmentIntensity = THREE.MathUtils.lerp(1, 0.16, night) * (1 - twilight * 0.3) * (1 - tunnel * 0.7) + tunnel * 0.08;
+    const previous = previousWeights.current;
+    if (night !== previous.night || twilight !== previous.twilight || tunnel !== previous.tunnel) {
+      ambient.current.color.copy(palette.ambient[0]).lerp(palette.ambient[1], night).lerp(palette.ambient[2], twilight * 0.45);
+      ambient.current.intensity = THREE.MathUtils.lerp(0.22, 0.09, night) * (1 - tunnel * 0.55) + tunnel * 0.08;
+      hemisphere.current.color.copy(palette.upper[0]).lerp(palette.upper[1], night).lerp(palette.upper[2], twilight * 0.65);
+      hemisphere.current.groundColor.copy(palette.lower[0]).lerp(palette.lower[1], night).lerp(palette.lower[2], twilight * 0.65);
+      hemisphere.current.intensity = THREE.MathUtils.lerp(0.85, 0.42, night) * (1 - tunnel * 0.72) + tunnel * 0.18;
+      sun.color.copy(palette.directional[0]).lerp(palette.directional[1], night).lerp(palette.directional[2], twilight * 0.9);
+      sun.direction.lerpVectors(palette.positions[0], palette.positions[1], night).lerp(palette.positions[2], twilight).normalize().negate();
+      // All cascades represent this same sun. Overlapping distance ranges keep
+      // real vehicle silhouettes continuous from distant traffic to the player.
+      previous.intensity = THREE.MathUtils.lerp(2.65, 0.72, night) * (1 - twilight * 0.38) * (1 - tunnel * 0.82);
+
+      fog.current.color.copy(palette.horizon[0]).lerp(palette.horizon[1], night).lerp(palette.horizon[2], twilight * 0.8);
+      fog.current.near = THREE.MathUtils.lerp(260, 160, night);
+      fog.current.far = THREE.MathUtils.lerp(600, 590, night);
+      previous.environmentIntensity = THREE.MathUtils.lerp(1, 0.16, night) * (1 - twilight * 0.3) * (1 - tunnel * 0.7) + tunnel * 0.08;
+      previous.night = night; previous.twilight = twilight; previous.tunnel = tunnel;
+    }
+    // Drei can reapply its default after a portal/ready rerender. Preserve
+    // the sampled lighting even when the day-cycle weights stay unchanged.
+    if (renderScene.environmentIntensity !== previous.environmentIntensity) renderScene.environmentIntensity = previous.environmentIntensity;
+    // Camera-dependent shadow placement still updates on every actual change.
+    sunShadows.current.update(sun.direction, sun.color, previous.intensity);
   }, -0.6);
 
   // Every light and shader variant stays mounted across the whole cycle.

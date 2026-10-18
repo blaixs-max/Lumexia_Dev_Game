@@ -1,6 +1,18 @@
 # Lumexia Racing Game - Gelistirme Plani
 
-> Son güncelleme: 2026-10-18
+> Son güncelleme: 2026-10-19
+
+## Yayın akışı — 19 Ekim sabit kalite
+
+Kullanıcı sabit kalite ve kayıpsız çizim optimizasyonunun yayımlanmasını onayladı. GitHub test/lint/derleme kontrolleri sonrası `main` birleştirmesi mevcut Vercel Git bağlantısını tetikler. Hedef `lumexia-dev-game` / `lumexia-dev-game.vercel.app`; üretim commit eşleşmesi, READY durumu ve gerçek menü/yarış akışı doğrulanır. Aşağıdaki yerel kabul sonuçları yayın öncesi ölçümler olarak korunur.
+
+## Güncel çalışma — 18 Ekim sabit kalite ve FPS maliyeti
+
+Kullanıcının isteğiyle çalışma sırasında çözünürlük düşürme tamamen kaldırıldı. Standart, Performans ve Yüksek başlangıçta seçilen profili yarış boyunca korur; eski `auto` tercihi Standart'a karşılık gelir. Seviye artışı veya düşük FPS artık DPR, doku, model veya gölge kalitesini değiştirmez.
+
+Optimizasyon aynı görüntüyü daha az tekrar işleyerek sağlar: NPC kaynak geometrileri ve malzemeleri paylaşılan toplu çizim kullanır; her kamera için önceki tekil mesh görünürlük hesabı korunur. Araç gövdesi ve kişisel far/fren/sinyal aynı yol pozunu izler. Gölge kurulumu olay tabanlı malzeme hazırlığı yapar; sabit ışık/kamera değerleri tekrar hesaplanmaz, her gerçek değişim tam uygulanır. Harita çözünürlüğü, kademe sayısı/mesafesi, ışık ve trafik yoğunluğu azaltılmaz.
+
+Kabul tamamlandı: dondurulmuş önceki üretim paketiyle aynı 12 NPC/kamera/ışık/1280×720/DPR 1 düzeninde gündüz/gece karşılaştırması; toplam gündüz çizimi 1268 → 977, üçgen 4.650.642 → aynı, GPU medyanı 50,03 → 48,52 ms. Bu cihazda FPS 18,07 → 18,13 olduğundan belirgin FPS artışı veya 60 FPS kabulü yoktur. Ana indeksler ve uygun opak gölge konumları kayıpsız önbellek düzeni kullanır; kaynak nitelikleri korunur, bir defalık hazırlık yüklemede yaklaşık 169 ms'dir. Normal yarışta 25 saniye sabit çözünürlük ve garaja dönüş, final gece düzeneğinde 20 saniye / 12 NPC / 9 geçiş / 0 temas / 0 shader hatası doğrulandı. **169 test, lint ve 659 modüllük üretim derlemesi başarılı; 17 üretim adaptörü testi atlandı.** Ayrıntılar [performans kaydında](PERFORMANCE_REVIEW.md). Fiziksel telefon FPS garantisi bu yerel ölçümden çıkarılmaz. Yayın bu çalışma kapsamında henüz yapılmadı.
 
 ## Yayın akışı — 18 Ekim
 

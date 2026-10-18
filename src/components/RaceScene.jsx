@@ -1,18 +1,19 @@
-import { memo, Suspense, useEffect, useMemo, useRef } from 'react';
+import { memo, useEffect, useMemo, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import { useGameStore } from '../store';
 import { VEHICLE_DIMENSIONS, damp } from '../utils/gameplay';
 import { TRAFFIC_MODELS, VEHICLE_RENDER_LIMITS } from '../utils/vehicleDimensions';
-import { LANE_CHANGE_DURATION, LANE_WIDTH, WORLD_SPEED_SCALE } from '../utils/traffic';
 import { NitroBoostParticles, RocketTrailParticles } from './AdvancedParticles';
 import RoadsideWorld from './RoadsideWorld';
 import RaceLighting from './RaceLighting';
 import CurvedRoadMesh from './CurvedRoadMesh';
 import RoadTunnels from './RoadTunnels';
 import { placeOnRoad, sampleRoadFrame } from '../environment/road-path';
-import { PlayerHeadlights, TrafficHeadlights } from './VehicleLighting';
+import { PlayerHeadlights } from './VehicleLighting';
+import TrafficVehicles from './TrafficVehicles';
+import { createTrafficWarmup, prepareTrafficModel } from '../environment/traffic-render';
 import { createTrafficBeamMaterial } from '../environment/vehicle-lighting';
 import { getCar } from '../utils/garage';
 import EquippedParts from './EquippedParts';
@@ -98,52 +99,6 @@ function ChaseCamera() {
     }
   }, -0.75);
   return null;
-}
-
-const TrafficCar = memo(function TrafficCar({ id, type }) {
-  const group = useRef();
-  const roadFrame = useRef({});
-  const signals = useRef();
-  const turn = useRef(0);
-  const rearMaterial = useMemo(() => new THREE.MeshBasicMaterial({ color: '#ad3530', toneMapped: false }), []);
-  useEffect(() => () => rearMaterial.dispose(), [rearMaterial]);
-  const model = TRAFFIC_MODELS[type] || TRAFFIC_MODELS.sedan;
-  const dimensions = VEHICLE_DIMENSIONS[type] || VEHICLE_DIMENSIONS.sedan;
-  useFrame((_, delta) => {
-    const state = useGameStore.getState();
-    const enemy = state.enemies.find(item => item.id === id);
-    if (!group.current || !enemy) return;
-    const road = sampleRoadFrame(state.totalDistance * 5, enemy.z, roadFrame.current);
-    group.current.position.set(road.x + enemy.x * Math.cos(road.yaw), -0.025, road.z - enemy.x * Math.sin(road.yaw));
-    const progress = THREE.MathUtils.clamp(enemy.changeProgress ?? 0, 0, 1);
-    const lateralSpeed = enemy.isChanging ? 6 * progress * (1 - progress) * (enemy.targetLane - enemy.lane) * LANE_WIDTH / LANE_CHANGE_DURATION : 0;
-    const forwardSpeed = (enemy.actualSpeed ?? enemy.ownSpeed ?? 55) * WORLD_SPEED_SCALE;
-    const targetTurn = THREE.MathUtils.clamp(-Math.atan2(lateralSpeed, Math.max(1, forwardSpeed)), -0.18, 0.18);
-    if (state.gameState !== 'paused') turn.current = damp(turn.current, targetTurn, 10, Math.min(delta, 0.1));
-    group.current.rotation.y = road.yaw + turn.current;
-    const braking = Number.isFinite(enemy.actualSpeed) && enemy.actualSpeed < enemy.ownSpeed - 6;
-    rearMaterial.color.setHex(braking ? 0xff7461 : 0xad3530);
-    if (signals.current) {
-      signals.current.visible = Boolean(enemy.indicator) && Math.sin(state.elapsedTime * 14) > 0;
-      signals.current.position.x = enemy.indicator * dimensions.width * 0.4;
-    }
-  });
-  return <group ref={group} name={`traffic-car-${id}`} position={[0, -0.025, -350]}>
-    <Suspense fallback={<mesh position={[0, 0.8, 0]}><boxGeometry args={[dimensions.width, 1.6, dimensions.length]} /><meshStandardMaterial color="#acbac5" /></mesh>}>
-      <VehicleModel path={model.path} type={type} rotation={model.rotation} />
-    </Suspense>
-    <TrafficHeadlights id={id} width={dimensions.width} length={dimensions.length} />
-    <group position={[0, 0.72, dimensions.length * 0.48]}>
-      {[-1, 1].map(side => <mesh key={side} position={[side * dimensions.width * 0.32, 0, 0]} material={rearMaterial}><boxGeometry args={[0.28, 0.12, 0.06]} /></mesh>)}
-      <mesh ref={signals}><boxGeometry args={[0.25, 0.17, 0.1]} /><meshBasicMaterial color="#ffd15b" toneMapped={false} /></mesh>
-    </group>
-  </group>;
-});
-
-function Traffic() {
-  const signature = useGameStore(s => s.enemies.map(e => `${e.id}:${e.type}`).join('|'));
-  const entities = useMemo(() => signature ? signature.split('|').map(item => { const [id, type] = item.split(':'); return { id, type }; }) : [], [signature]);
-  return <>{entities.map(enemy => <TrafficCar key={enemy.id} {...enemy} />)}</>;
 }
 
 const Pickup = memo(function Pickup({ id, kind }) {
@@ -253,26 +208,26 @@ function FeedbackParticles() {
   return <instancedMesh ref={mesh} args={[undefined, undefined, 70]} frustumCulled={false}><boxGeometry args={[0.15, 0.15, 0.4]} /><meshBasicMaterial toneMapped={false} /></instancedMesh>;
 }
 
-export default function RaceScene({ low, adaptive, onReady, onReduceQuality }) {
+export default function RaceScene({ low, onReady }) {
   const car = getCar(useGameStore(s => s.runCar));
   // Load every traffic type before the countdown; prepare its material with the
   // actual race lighting so its first appearance doesn't compile new shaders.
   const loaded = useGLTF([car.model, ...Object.values(TRAFFIC_MODELS).map(model => model.path)]);
+  const trafficModels = useMemo(() => Object.fromEntries(Object.entries(TRAFFIC_MODELS).map(([type, model], index) =>
+    [type, prepareTrafficModel(loaded[index + 1].scene, type, model.rotation)])), [loaded]);
   const beamWarmup = useMemo(() => new THREE.Mesh(new THREE.PlaneGeometry(1, 1), createTrafficBeamMaterial()), []);
   useEffect(() => () => { beamWarmup.geometry.dispose(); beamWarmup.material.dispose(); }, [beamWarmup]);
   const warmupScene = useMemo(() => {
     const group = new THREE.Group();
-    for (const asset of loaded) {
-      const clone = asset.scene.clone(true);
-      clone.traverse(node => { if (node.isMesh) { node.castShadow = true; node.receiveShadow = true; } });
-      group.add(clone);
-    }
+    const player = loaded[0].scene.clone(true);
+    player.traverse(node => { if (node.isMesh) { node.castShadow = true; node.receiveShadow = true; } });
+    group.add(player, createTrafficWarmup(trafficModels));
     group.add(beamWarmup);
     return group;
-  }, [loaded, beamWarmup]);
+  }, [loaded, beamWarmup, trafficModels]);
+  useEffect(() => () => warmupScene.traverse(node => { if (node.isInstancedMesh) node.dispose(); }), [warmupScene]);
   const ready = useRef(false);
   const warmup = useRef({ frames: 0, started: false, complete: false });
-  const samples = useRef({ time: 0, frames: 0, warmup: 3 });
   useFrame(({ gl, scene, camera }, delta) => {
     if (!warmup.current.complete) {
       // Let the one-frame reflection environment finish before compiling.
@@ -291,17 +246,9 @@ export default function RaceScene({ low, adaptive, onReady, onReduceQuality }) {
     }
     if (!ready.current) { ready.current = true; onReady(); }
     useGameStore.getState().updateGame(delta);
-    if (adaptive && useGameStore.getState().gameState === 'playing') {
-      if (samples.current.warmup > 0) { samples.current.warmup -= delta; return; }
-      samples.current.time += delta; samples.current.frames++;
-      if (samples.current.time >= 5) {
-        if (samples.current.frames / samples.current.time < 52) onReduceQuality();
-        samples.current.time = 0; samples.current.frames = 0;
-      }
-    }
   }, -1);
   return <>
     <RaceLighting low={low} shadowAssets={loaded} /><ChaseCamera /><Road /><RoadsideWorld low={low} /><RoadTunnels />
-    <PlayerCar /><Traffic /><Pickups /><FeedbackParticles />
+    <PlayerCar /><TrafficVehicles models={trafficModels} /><Pickups /><FeedbackParticles />
   </>;
 }

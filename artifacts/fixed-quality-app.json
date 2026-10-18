@@ -1,0 +1,33 @@
+{
+  "start": {
+    "at": 1792356013192,
+    "canvas": {
+      "cssHeight": 720,
+      "cssWidth": 1280,
+      "height": 720,
+      "width": 1280
+    }
+  },
+  "intermediate": {
+    "at": 1792356022163,
+    "canvas": {
+      "cssHeight": 720,
+      "cssWidth": 1280,
+      "height": 720,
+      "width": 1280
+    }
+  },
+  "final": {
+    "at": 1792356042605,
+    "canvas": {
+      "cssHeight": 720,
+      "cssWidth": 1280,
+      "height": 720,
+      "width": 1280
+    }
+  },
+  "wallSeconds": 29.413,
+  "pausedRaceTime": "00:25",
+  "graphics": "Standart",
+  "unchanged": true
+}

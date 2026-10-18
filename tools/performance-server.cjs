@@ -10,9 +10,12 @@ http.createServer((req, res) => {
   let url;
   try { url = decodeURIComponent(new URL(req.url, 'http://localhost').pathname); } catch { res.writeHead(400); res.end(); return; }
   if (url === '/') url = '/tools/performance-benchmark.html';
-  const root = /^\/(models|textures|draco|audio)\//.test(url) ? publicRoot : bundle;
+  const split = url.match(/^\/(before|after)(\/.*)$/);
+  if (split) url = split[2];
+  const selectedBundle = split ? path.resolve(__dirname, '../../performance-' + split[1]) : bundle;
+  const root = /^\/(models|textures|draco|audio)\//.test(url) ? publicRoot : selectedBundle;
   const target = path.resolve(root, '.' + url);
   if (!target.startsWith(root + path.sep) || !fs.existsSync(target) || !fs.statSync(target).isFile()) { res.writeHead(404); res.end(); return; }
   res.writeHead(200, { 'Content-Type': mime[path.extname(target)] || 'application/octet-stream', 'Cache-Control': 'no-store' });
   fs.createReadStream(target).pipe(res);
-}).listen(port, '127.0.0.1', () => console.log(`Render benchmark (${variant}): http://127.0.0.1:${port}`));
+}).listen(port, '0.0.0.0', () => console.log(`Render benchmark: http://127.0.0.2:${port}/before/tools/performance-benchmark.html and /after/tools/performance-benchmark.html`));

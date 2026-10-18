@@ -74,9 +74,9 @@ function RaceAudio({ ready }) {
 function Race({ quality }) {
   const gameState = useGameStore(s => s.gameState);
   const [ready, setReady] = useState(false);
-  // Auto changes only resolution: keep the world and lighting stable at speed.
+  // Choose once at race start; FPS and level changes never reduce visual quality.
   const [low] = useState(() => quality === 'performance' || (quality === 'auto' && Math.min(window.innerWidth, window.innerHeight) < 768));
-  const [renderDpr, setRenderDpr] = useState(() => quality === 'high'
+  const [renderDpr] = useState(() => quality === 'high'
     ? Math.min(window.devicePixelRatio, 1.5)
     : Math.min(window.devicePixelRatio, 1, Math.sqrt(2304000 / (window.innerWidth * window.innerHeight))));
   const pageVisible = usePageVisible();
@@ -88,7 +88,7 @@ function Race({ quality }) {
         gl={{ antialias: true, alpha: false, powerPreference: 'high-performance', toneMapping: ACESFilmicToneMapping }}>
         <color attach="background" args={['#070e20']} />
         <Suspense fallback={null}>
-          <RaceScene low={low} adaptive={quality === 'auto'} onReady={() => setReady(true)} onReduceQuality={() => setRenderDpr(value => Math.max(Math.min(value, 0.65), value * 0.85))} />
+          <RaceScene low={low} onReady={() => setReady(true)} />
         </Suspense>
       </Canvas>
       {ready ? <RaceHUD onMainMenu={quitGame} onGarage={openGarage} /> : <div className="lx-ui lx-track-loading" role="status"><span className="lx-loading-spinner" aria-hidden="true" /><p>Yarış hazırlanıyor</p><small>Yol ve aracın yükleniyor…</small><button className="lx-button lx-button-secondary" onClick={quitGame}><UIIcon name="arrowLeft" /> Ana menüye dön</button></div>}

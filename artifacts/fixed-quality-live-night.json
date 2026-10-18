@@ -1,0 +1,718 @@
+{
+  "ready": true,
+  "phase": {
+    "night": 1,
+    "day": 0,
+    "twilight": 0,
+    "phase": "night",
+    "progress": 0.4166666666665656,
+    "timeInCycle": 419.9999999999818
+  },
+  "elapsedTime": 420,
+  "station": 1080,
+  "routeStation": 1080,
+  "tunnelFrontZ": -1370,
+  "tunnelAmount": 0,
+  "playerRoadFrame": {
+    "x": -0.000628149882550999,
+    "z": -2.026981627327445,
+    "yaw": 0.0006193548685988204
+  },
+  "replay": false,
+  "cycle": false,
+  "viewport": [
+    1280,
+    720
+  ],
+  "dpr": 1,
+  "quality": "high",
+  "player": {
+    "id": "rally",
+    "name": "SUBARU WRX STI",
+    "model": "/models/realistic/rally.glb",
+    "stats": {
+      "cruiseSpeed": 108,
+      "boostSpeed": 190,
+      "rocketSpeed": 210,
+      "acceleration": 2.2,
+      "steeringRate": 16.5,
+      "steeringResponse": 13,
+      "maxNitro": 95,
+      "nitroRegenRate": 5,
+      "engine": 0,
+      "handling": 0,
+      "nitro": 0
+    }
+  },
+  "pickups": {
+    "layout": "coins",
+    "count": 8,
+    "byKind": {
+      "coin": 8
+    },
+    "positions": [
+      {
+        "kind": "coin",
+        "x": -4.5,
+        "z": -28
+      },
+      {
+        "kind": "coin",
+        "x": 0,
+        "z": -66
+      },
+      {
+        "kind": "coin",
+        "x": 4.5,
+        "z": -104
+      },
+      {
+        "kind": "coin",
+        "x": -4.5,
+        "z": -142
+      },
+      {
+        "kind": "coin",
+        "x": 0,
+        "z": -180
+      },
+      {
+        "kind": "coin",
+        "x": 4.5,
+        "z": -218
+      },
+      {
+        "kind": "coin",
+        "x": -4.5,
+        "z": -256
+      },
+      {
+        "kind": "coin",
+        "x": 0,
+        "z": -294
+      }
+    ]
+  },
+  "collision": {
+    "layout": "normal",
+    "label": "Normal traffic",
+    "player": {
+      "car": "rally",
+      "x": 0,
+      "z": -2,
+      "footprint": {
+        "width": 1.8,
+        "length": 3.982186
+      }
+    },
+    "footprintsVisible": false,
+    "gapUnits": "world units; positive = visible AABB clearance on that axis",
+    "vehicles": [
+      {
+        "id": "traffic-6",
+        "type": "sport",
+        "x": 0,
+        "z": -19.860285217532734,
+        "footprint": {
+          "width": 1.9,
+          "length": 3.816281
+        },
+        "gapX": -1.85,
+        "gapZ": 13.961052,
+        "collision": false,
+        "legacyCollision": false
+      },
+      {
+        "id": "traffic-7",
+        "type": "sport",
+        "x": 0,
+        "z": -27.881361789818236,
+        "footprint": {
+          "width": 1.9,
+          "length": 3.816281
+        },
+        "gapX": -1.85,
+        "gapZ": 21.982128,
+        "collision": false,
+        "legacyCollision": false
+      },
+      {
+        "id": "traffic-8",
+        "type": "sport",
+        "x": -4.5,
+        "z": -35.76217674919817,
+        "footprint": {
+          "width": 1.9,
+          "length": 3.816281
+        },
+        "gapX": 2.65,
+        "gapZ": 29.862943,
+        "collision": false,
+        "legacyCollision": false
+      },
+      {
+        "id": "traffic-9",
+        "type": "suv",
+        "x": 0,
+        "z": -39.45886774967353,
+        "footprint": {
+          "width": 2.354468,
+          "length": 7.6
+        },
+        "gapX": -2.077234,
+        "gapZ": 31.667775,
+        "collision": false,
+        "legacyCollision": false
+      },
+      {
+        "id": "traffic-10",
+        "type": "sedan",
+        "x": -4.5,
+        "z": -49.001203435473144,
+        "footprint": {
+          "width": 2.633297,
+          "length": 6.75
+        },
+        "gapX": 2.283351,
+        "gapZ": 41.63511,
+        "collision": false,
+        "legacyCollision": false
+      },
+      {
+        "id": "traffic-11",
+        "type": "sport",
+        "x": -0.6568358481938616,
+        "z": -109.21784322252074,
+        "footprint": {
+          "width": 1.9,
+          "length": 3.816281
+        },
+        "gapX": -1.193164,
+        "gapZ": 103.31861,
+        "collision": false,
+        "legacyCollision": false
+      },
+      {
+        "id": "traffic-12",
+        "type": "sport",
+        "x": -2.746342021033374,
+        "z": -118.48239108683507,
+        "footprint": {
+          "width": 1.9,
+          "length": 3.816281
+        },
+        "gapX": 0.896342,
+        "gapZ": 112.583158,
+        "collision": false,
+        "legacyCollision": false
+      },
+      {
+        "id": "traffic-13",
+        "type": "truck",
+        "x": -4.497959321919084,
+        "z": -127.52745596184286,
+        "footprint": {
+          "width": 3.1,
+          "length": 5.406025
+        },
+        "gapX": 2.047959,
+        "gapZ": 120.83335,
+        "collision": false,
+        "legacyCollision": false
+      },
+      {
+        "id": "traffic-14",
+        "type": "sedan",
+        "x": -4.5,
+        "z": -181.09638148524675,
+        "footprint": {
+          "width": 2.633297,
+          "length": 6.75
+        },
+        "gapX": 2.283351,
+        "gapZ": 173.730288,
+        "collision": false,
+        "legacyCollision": false
+      },
+      {
+        "id": "traffic-15",
+        "type": "sedan",
+        "x": 0,
+        "z": -213.18150429156225,
+        "footprint": {
+          "width": 2.633297,
+          "length": 6.75
+        },
+        "gapX": -2.216649,
+        "gapZ": 205.815411,
+        "collision": false,
+        "legacyCollision": false
+      },
+      {
+        "id": "traffic-16",
+        "type": "sedan",
+        "x": -4.5,
+        "z": -234.5847063121625,
+        "footprint": {
+          "width": 2.633297,
+          "length": 6.75
+        },
+        "gapX": 2.283351,
+        "gapZ": 227.218613,
+        "collision": false,
+        "legacyCollision": false
+      },
+      {
+        "id": "traffic-17",
+        "type": "sport",
+        "x": -4.5,
+        "z": -278.38381930147875,
+        "footprint": {
+          "width": 1.9,
+          "length": 3.816281
+        },
+        "gapX": 2.65,
+        "gapZ": 272.484586,
+        "collision": false,
+        "legacyCollision": false
+      }
+    ]
+  },
+  "trafficMotion": {
+    "enabled": true,
+    "label": "Live seeded traffic",
+    "running": false,
+    "seed": 2026,
+    "randomPrefix": "none",
+    "level": 8,
+    "fixedStepSeconds": 0.008333333333333333,
+    "simulatedSeconds": 20,
+    "ticks": 2400,
+    "playerCollisionsDisabled": true,
+    "persistentWrites": false,
+    "spawned": 17,
+    "removed": 7,
+    "active": 12,
+    "peak": 12,
+    "signalsStarted": 12,
+    "laneChangesStarted": 12,
+    "laneChangesCompleted": 9,
+    "maxSpeedReduction": 15.9036,
+    "minimumPairGap": 4.2048,
+    "minimumPairGapObserved": 4.2048,
+    "npcContacts": [],
+    "overlapTicks": 0,
+    "passingCorridor": {
+      "open": true,
+      "reservedDistance": 106.5,
+      "definition": "Production spatial passing corridor; both lanes reserved during signals/changes",
+      "playerSpeeds": [
+        108,
+        190,
+        210
+      ],
+      "worldSpeedScale": 0.5
+    },
+    "vehicles": [
+      {
+        "id": "traffic-6",
+        "type": "sport",
+        "lane": 0,
+        "targetLane": 0,
+        "planned": false,
+        "reservedLanes": [
+          0
+        ],
+        "x": 0,
+        "z": -19.8603,
+        "desiredSpeed": 69.22496121982113,
+        "actualSpeed": 61.0337,
+        "forwardWorldSpeed": 30.5168,
+        "relativeWorldSpeed": 23.4832,
+        "isChanging": false,
+        "indicator": 0,
+        "changeProgress": 1
+      },
+      {
+        "id": "traffic-7",
+        "type": "sport",
+        "lane": 0,
+        "targetLane": 0,
+        "planned": false,
+        "reservedLanes": [
+          0
+        ],
+        "x": 0,
+        "z": -27.8814,
+        "desiredSpeed": 66.74060291377828,
+        "actualSpeed": 61.0145,
+        "forwardWorldSpeed": 30.5073,
+        "relativeWorldSpeed": 23.4927,
+        "isChanging": false,
+        "indicator": 0,
+        "changeProgress": 1
+      },
+      {
+        "id": "traffic-8",
+        "type": "sport",
+        "lane": -1,
+        "targetLane": -1,
+        "planned": false,
+        "reservedLanes": [
+          -1
+        ],
+        "x": -4.5,
+        "z": -35.7622,
+        "desiredSpeed": 66.54458754416555,
+        "actualSpeed": 62.9047,
+        "forwardWorldSpeed": 31.4523,
+        "relativeWorldSpeed": 22.5477,
+        "isChanging": false,
+        "indicator": 0,
+        "changeProgress": 1
+      },
+      {
+        "id": "traffic-9",
+        "type": "suv",
+        "lane": 0,
+        "targetLane": 0,
+        "planned": false,
+        "reservedLanes": [
+          0
+        ],
+        "x": 0,
+        "z": -39.4589,
+        "desiredSpeed": 57.49115408118814,
+        "actualSpeed": 57.4912,
+        "forwardWorldSpeed": 28.7456,
+        "relativeWorldSpeed": 25.2544,
+        "isChanging": false,
+        "indicator": 0,
+        "changeProgress": 1
+      },
+      {
+        "id": "traffic-10",
+        "type": "sedan",
+        "lane": -1,
+        "targetLane": -1,
+        "planned": false,
+        "reservedLanes": [
+          -1
+        ],
+        "x": -4.5,
+        "z": -49.0012,
+        "desiredSpeed": 54.97208523284644,
+        "actualSpeed": 54.9721,
+        "forwardWorldSpeed": 27.486,
+        "relativeWorldSpeed": 26.514,
+        "isChanging": false,
+        "indicator": 0,
+        "changeProgress": 1
+      },
+      {
+        "id": "traffic-11",
+        "type": "sport",
+        "lane": -1,
+        "targetLane": 0,
+        "planned": false,
+        "reservedLanes": [
+          -1,
+          0
+        ],
+        "x": -0.6568,
+        "z": -109.2178,
+        "desiredSpeed": 65.74269728199579,
+        "actualSpeed": 51.6486,
+        "forwardWorldSpeed": 25.8243,
+        "relativeWorldSpeed": 28.1757,
+        "isChanging": true,
+        "indicator": 1,
+        "changeProgress": 0.7593
+      },
+      {
+        "id": "traffic-12",
+        "type": "sport",
+        "lane": -1,
+        "targetLane": 0,
+        "planned": false,
+        "reservedLanes": [
+          -1,
+          0
+        ],
+        "x": -2.7463,
+        "z": -118.4824,
+        "desiredSpeed": 64.99753602338023,
+        "actualSpeed": 49.0939,
+        "forwardWorldSpeed": 24.5469,
+        "relativeWorldSpeed": 29.4531,
+        "isChanging": true,
+        "indicator": 1,
+        "changeProgress": 0.4259
+      },
+      {
+        "id": "traffic-13",
+        "type": "truck",
+        "lane": -1,
+        "targetLane": 0,
+        "planned": false,
+        "reservedLanes": [
+          -1,
+          0
+        ],
+        "x": -4.498,
+        "z": -127.5275,
+        "desiredSpeed": 48.69711952842772,
+        "actualSpeed": 48.6971,
+        "forwardWorldSpeed": 24.3486,
+        "relativeWorldSpeed": 29.6514,
+        "isChanging": true,
+        "indicator": 1,
+        "changeProgress": 0.0123
+      },
+      {
+        "id": "traffic-14",
+        "type": "sedan",
+        "lane": -1,
+        "targetLane": 0,
+        "planned": true,
+        "reservedLanes": [
+          -1,
+          0
+        ],
+        "x": -4.5,
+        "z": -181.0964,
+        "desiredSpeed": 52.90952037926763,
+        "actualSpeed": 52.9095,
+        "forwardWorldSpeed": 26.4548,
+        "relativeWorldSpeed": 27.5452,
+        "isChanging": false,
+        "indicator": 0,
+        "changeProgress": 0
+      },
+      {
+        "id": "traffic-15",
+        "type": "sedan",
+        "lane": 0,
+        "targetLane": -1,
+        "planned": true,
+        "reservedLanes": [
+          0,
+          -1
+        ],
+        "x": 0,
+        "z": -213.1815,
+        "desiredSpeed": 54.43588953721337,
+        "actualSpeed": 54.4359,
+        "forwardWorldSpeed": 27.2179,
+        "relativeWorldSpeed": 26.7821,
+        "isChanging": false,
+        "indicator": 0,
+        "changeProgress": 0
+      },
+      {
+        "id": "traffic-16",
+        "type": "sedan",
+        "lane": -1,
+        "targetLane": 0,
+        "planned": true,
+        "reservedLanes": [
+          -1,
+          0
+        ],
+        "x": -4.5,
+        "z": -234.5847,
+        "desiredSpeed": 57.51874442095868,
+        "actualSpeed": 57.5187,
+        "forwardWorldSpeed": 28.7594,
+        "relativeWorldSpeed": 25.2406,
+        "isChanging": false,
+        "indicator": 0,
+        "changeProgress": 0
+      },
+      {
+        "id": "traffic-17",
+        "type": "sport",
+        "lane": -1,
+        "targetLane": 0,
+        "planned": true,
+        "reservedLanes": [
+          -1,
+          0
+        ],
+        "x": -4.5,
+        "z": -278.3838,
+        "desiredSpeed": 68.39783688820899,
+        "actualSpeed": 68.3978,
+        "forwardWorldSpeed": 34.1989,
+        "relativeWorldSpeed": 19.8011,
+        "isChanging": false,
+        "indicator": 0,
+        "changeProgress": 0
+      }
+    ]
+  },
+  "shadows": {
+    "enabled": true,
+    "type": "PCFSoftShadowMap",
+    "autoUpdate": true,
+    "castingMeshes": 167,
+    "receivingMeshes": 283,
+    "playerCastingMeshes": 80,
+    "lights": [
+      {
+        "name": "race-sun-cascade-1",
+        "type": "DirectionalLight",
+        "intensity": 0.72,
+        "visible": true,
+        "position": [
+          29.351040344728293,
+          32.63173395805529,
+          -185.9048524119409
+        ],
+        "target": [
+          29.178379683641406,
+          32.45275644351401,
+          -184.93626821559985
+        ],
+        "metadata": {
+          "shadowProfile": "high",
+          "cascade": 1,
+          "cascadeNear": 0.5,
+          "cascadeFar": 32,
+          "cascadeFade": true,
+          "cascadeBlendDistance": 8,
+          "sunShadowMaxFar": 360,
+          "shadowMapSize": 1536
+        },
+        "mapSize": [
+          1536,
+          1536
+        ],
+        "bias": -0.00001,
+        "normalBias": 0.015,
+        "radius": 2,
+        "camera": {
+          "near": 1,
+          "far": 850,
+          "left": -44.75668961653889,
+          "right": 44.75668961653889,
+          "top": 44.75668961653889,
+          "bottom": -44.75668961653889
+        }
+      },
+      {
+        "name": "race-sun-cascade-2",
+        "type": "DirectionalLight",
+        "intensity": 0.72,
+        "visible": true,
+        "position": [
+          33.34010636449768,
+          29.829391159149758,
+          -287.7486122353584
+        ],
+        "target": [
+          33.16744570341079,
+          29.650413644608474,
+          -286.78002803901734
+        ],
+        "metadata": {
+          "shadowProfile": "high",
+          "cascade": 2,
+          "cascadeNear": 32,
+          "cascadeFar": 110.00000000000001,
+          "cascadeFade": true,
+          "cascadeBlendDistance": 8,
+          "sunShadowMaxFar": 360,
+          "shadowMapSize": 1536
+        },
+        "mapSize": [
+          1536,
+          1536
+        ],
+        "bias": -0.00001,
+        "normalBias": 0.025,
+        "radius": 2,
+        "camera": {
+          "near": 1,
+          "far": 850,
+          "left": -134.4043343164671,
+          "right": 134.4043343164671,
+          "top": 134.4043343164671,
+          "bottom": -134.4043343164671
+        }
+      },
+      {
+        "name": "race-sun-cascade-3",
+        "type": "DirectionalLight",
+        "intensity": 0.72,
+        "visible": true,
+        "position": [
+          46.7119371783078,
+          20.43972635164917,
+          -614.1417475868117
+        ],
+        "target": [
+          46.53927651722091,
+          20.260748837107887,
+          -613.1731633904706
+        ],
+        "metadata": {
+          "shadowProfile": "high",
+          "cascade": 3,
+          "cascadeNear": 110.00000000000001,
+          "cascadeFar": 360,
+          "cascadeFade": true,
+          "cascadeBlendDistance": 8,
+          "sunShadowMaxFar": 360,
+          "shadowMapSize": 1536
+        },
+        "mapSize": [
+          1536,
+          1536
+        ],
+        "bias": -0.00001,
+        "normalBias": 0.035,
+        "radius": 2,
+        "camera": {
+          "near": 1,
+          "far": 850,
+          "left": -435.3743508156902,
+          "right": 435.3743508156902,
+          "top": 435.3743508156902,
+          "bottom": -435.3743508156902
+        }
+      }
+    ]
+  },
+  "environmentIntensity": 0.16,
+  "programs": 106,
+  "programsInitial": 101,
+  "programsMax": 106,
+  "lights": {
+    "mounted": {
+      "AmbientLight": 1,
+      "HemisphereLight": 1,
+      "SpotLight": 2,
+      "DirectionalLight": 3
+    },
+    "visible": {
+      "AmbientLight": 1,
+      "HemisphereLight": 1,
+      "SpotLight": 2,
+      "DirectionalLight": 3
+    },
+    "shadowCasting": 3
+  },
+  "mainPassDrawCalls": 564,
+  "mainPassTriangles": 3839704,
+  "geometryCount": 325,
+  "textureCount": 35,
+  "lastFrameMs": 60,
+  "shaderErrorCount": 0,
+  "pageErrorCount": 0,
+  "contextLost": 0,
+  "contextRestored": 0,
+  "visibility": "visible",
+  "focused": true,
+  "renderer": "ANGLE (Intel, Intel(R) UHD Graphics (0x0000A78B) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+}

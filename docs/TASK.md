@@ -1,6 +1,24 @@
 # Lumexia Racing Game - Gorev Takip
 
-> Son güncelleme: 2026-10-18
+> Son güncelleme: 2026-10-19
+
+## 2026-10-19: Sabit kalite sürümünün yayını
+
+Kullanıcı bu sürümün yayımlanmasını istedi. Hedef mevcut `blaixs-max/Lumexia_Dev_Game` deposunun `main` dalı ve Vercel `lumexia-dev-game` projesindeki [canlı oyun](https://lumexia-dev-game.vercel.app/). Yerel 169 test / 17 atlanan üretim adaptörü testi, lint ve 659 modüllük derleme kabulü korunur. GitHub PR test/lint/derleme kontrollerinden sonra birleştirme, mevcut Vercel Git bağlantısını tetikler; yayın commit'i ve READY durumu ile canlı menü/yarış ayrıca doğrulanır.
+
+## 2026-10-18–19: Sabit görüntü kalitesi ve kayıpsız çizim optimizasyonu
+
+- [x] FPS örneklemesi ve yarış sırasında DPR düşürme bağlantısı kaldırıldı. Çözünürlük ve ayrıntı profili yarış başında seçilir, seviye/FPS değişiminden etkilenmez.
+- [x] Grafik menüsünde eski Otomatik seçeneği Standart olarak gösterilir; kayıtlı `auto` tercihi korunur. Performans/Yüksek elle seçilebilir ve yarış boyunca sabittir.
+- [x] Gölge malzemeleri bütün sahneyi her karede taramak yerine yeni nesne/malzeme eklenirken hazırlanır. Gerçek kamera/güneş değişimleri tam olarak uygulanır; harita boyutları, kademe kapsamı ve geçişleri korunur.
+- [x] NPC gövdeleri aynı geometri, malzeme, doku ve dönüşümlerle toplu çizilir. Ana görünüm ve her gölge kamerası kendi görünür örneklerini kullanır; görünmeyen araçları fazladan çizerek üçgen maliyeti artırılmaz. Farlar/fren/sinyal ve fizik kimlikleri korunur.
+- [x] Aynı 12 araç, 1280×720/DPR 1, High gündüz/gece ve Performance gece karşılaştırıldı. Gündüz toplam çizimler 1268 → 977, toplam üçgenler 4.650.642 olarak aynı; GPU medyanı 50,03 → 48,52 ms. Bu cihazda teslim edilen FPS 18,07 → 18,13; belirgin FPS artışı iddiası yok. Ham tekrarlar ve gece profilleri saklandı.
+- [x] Ana indeks sıralaması bütün kaynak niteliklerini ve yönlü üçgenleri korur. Uygun opak gölgeler ham konum bitleriyle hazırlanır; 16 gerçek Ferrari primitive'inin indeks/konum eşdeğerliği ayrıca denetlendi. Encoder başarısızlığı/uyumsuz veya aşırı bağlantılı geometri için kaynak yol korunur; hazırlık bir defa yükleme sırasında yaklaşık 169 ms.
+- [x] Standart ile gerçek yarışta 25 saniye boyunca 1280×720 sabit; duraklat → garaj ve Subaru/Motor 1 korundu. Final kodla 8. seviye gece düzeneği 20 saniyede 12 etkin NPC / 9 tamamlanan şerit değişimi / 0 temas / açık geçiş koridoru verdi. Gece ortam yoğunluğu 0,16; 3×1536 harita, DPR 1 ve sıfır shader/sayfa/bağlam hatası. [Canlı trafik kaydı](../artifacts/fixed-quality-live-night.json).
+- [x] **169 test başarılı, 17 üretim adaptörü testi atlandı; lint ve üretim derlemesi (659 modül) başarılı.** Sabit gündüz piksellerinin %99,966'sı, gece %99,985'i birebir eşleşti; [görüntü kaydı](../artifacts/fixed-quality-image-parity.json). Fiziksel telefon FPS kabulü yapılmadı.
+- [x] Son geometri/far koduyla normal uygulama: Standart → Classic Run → 33 saniye / 367 m / 13 jeton → sonuç → garaj; 361 altın doğru eklendi, Subaru/Motor 1 korundu ve tarayıcı hata kaydı boş. [Son uygulama kontrolü](../artifacts/fixed-quality-final-app.json).
+
+Yukarıdaki sonuçlar yayın öncesi yerel kabul kaydıdır. Yayın akışı üst bölümde, ölçüm yöntemi ve sınırlar [PERFORMANCE_REVIEW.md](PERFORMANCE_REVIEW.md) içindedir.
 
 ## 2026-10-18: GitHub ve Vercel yayın paketi
 
