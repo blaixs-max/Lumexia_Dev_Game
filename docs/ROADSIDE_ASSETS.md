@@ -3,6 +3,8 @@
 **Tarih:** 7 Eylül 2026  
 **Kapsam:** Yerel antrenman oyununun çevresi ve ayrı varlık inceleme stüdyosu.
 
+18 Ekim 2026 güncellemesi: Otomatik kalite azaltma kaldırıldı; Standart/Performans/Yüksek yarış boyunca sabittir. Aşağıdaki 7 Eylül Auto açıklamaları tarihseldir. Güncel kayıpsız çizim ve kabul sonuçları [PERFORMANCE_REVIEW.md](PERFORMANCE_REVIEW.md) içindedir.
+
 ## Güncel ek çalışma — 7 Eylül 2026
 
 Yaklaşırken değişen cephe ve bitki görüntüsü için pencere/perde yüzeyleri ayrıldı, cephe kalınlıkları hesaba katıldı ve yaprak alfa eşiği 0,30/MSAA kapsamına taşındı. Çam iğne geometrisi ağaç başına 17.584 → **12.184 üçgene** indirildi (%30,71). Güncel toplam **18 prototip / 58.540 üçgendir**; aşağıdaki tablo yeni fabrika çıktısını gösterir. Önceki stüdyo kaydı 68.152 üçgendi ve tarihsel ölçüm olarak aşağıda korunur.

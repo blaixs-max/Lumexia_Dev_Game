@@ -1,0 +1,63 @@
+{
+  "method": "Read-only Pillow RGB absolute pixel differences between saved before/after browser captures. Images were not edited or re-encoded.",
+  "units": "MAE and RMSE are RGB channel levels on a 0-255 scale. Threshold percentages use the maximum absolute RGB channel difference per pixel.",
+  "scope": "These numbers describe only the two fixed 1280x720, DPR 1 captures below. They do not prove universal visual equivalence, every device, or a performance gain. Small differences may reflect floating-point or rasterization order.",
+  "regions": {
+    "full": "Entire 1280x720 capture, including visible interface.",
+    "below_top_UI_y100": "Rows y=100 through y=719; excludes the top interface area without modifying either image."
+  },
+  "cases": [
+    {
+      "phase": "day",
+      "before": "fixed-quality-before-day.png",
+      "after": "fixed-quality-after-day.png",
+      "size": [1280, 720],
+      "full": {
+        "pixels": 921600,
+        "MAE_RGB": 0.0005881076388888889,
+        "RMSE_RGB": 0.046932834691953376,
+        "exact_percent": 99.9658203125,
+        "gt2_percent": 0.007921006944444444,
+        "gt8_percent": 0.00043402777777777775,
+        "gt32_percent": 0,
+        "max_channel_difference": 11
+      },
+      "below_top_UI_y100": {
+        "pixels": 793600,
+        "MAE_RGB": 0.0006829637096774193,
+        "RMSE_RGB": 0.05057631569892591,
+        "exact_percent": 99.96030745967742,
+        "gt2_percent": 0.00919858870967742,
+        "gt8_percent": 0.0005040322580645161,
+        "gt32_percent": 0,
+        "max_channel_difference": 11
+      }
+    },
+    {
+      "phase": "night",
+      "before": "fixed-quality-before-night.png",
+      "after": "fixed-quality-after-night.png",
+      "size": [1280, 720],
+      "full": {
+        "pixels": 921600,
+        "MAE_RGB": 0.00023328993055555557,
+        "RMSE_RGB": 0.021973982405967693,
+        "exact_percent": 99.9853515625,
+        "gt2_percent": 0.0024956597222222225,
+        "gt8_percent": 0,
+        "gt32_percent": 0,
+        "max_channel_difference": 4
+      },
+      "below_top_UI_y100": {
+        "pixels": 793600,
+        "MAE_RGB": 0.0002709173387096774,
+        "RMSE_RGB": 0.023679862480529192,
+        "exact_percent": 99.98298891129032,
+        "gt2_percent": 0.0028981854838709678,
+        "gt8_percent": 0,
+        "gt32_percent": 0,
+        "max_channel_difference": 4
+      }
+    }
+  ]
+}

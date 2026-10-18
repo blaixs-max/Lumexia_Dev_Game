@@ -9,7 +9,11 @@ Bu depo `DEV_MODE=true` ile çalışır. Cüzdan, kredi satın alma, sunucu sır
 
 Eski entegrasyon ve sprint belgelerindeki üretim açıklamaları tarihsel kayıtlardır. Bu değişiklik canlı hizmetleri doğrulamaz veya etkinleştirmez. Üretim hizmetlerinin açılması ayrı bir entegrasyon ve kabul çalışması gerektirir; yalnız `DEV_MODE` değerini değiştirmek yeterli değildir.
 
-## Güncel ek çalışma — 7 Eylül 2026: performans ve cepheler
+## Güncel ek çalışma — 18 Ekim 2026: sabit kalite
+
+Otomatik DPR azaltma kaldırıldı; yarış sırasında seviye/FPS nedeniyle kalite düşmez. Aynı görüntüyü koruyan NPC çizim, indeks/derinlik ve gölge CPU optimizasyonları eklendi. 169 test başarılı, 17 üretim adaptörü testi atlandı; lint ve 659 modüllük üretim derlemesi geçti. Yerel karşılaştırmada çizim çağrıları yaklaşık %23 azaldı; GPU kazancı %1–3 ve FPS artışı sınırlı kaldı. Normal yarışta sabit çözünürlük ve garaja dönüş, final gece düzeneğinde 12 NPC/9 geçiş/0 temas/0 shader hatası doğrulandı. Yöntem, ham kayıtlar, görüntü karşılaştırması ve sınırlar [PERFORMANCE_REVIEW.md](PERFORMANCE_REVIEW.md) içindedir. Yerel değişiklikler henüz yayımlanmadı.
+
+## Tarihsel ek çalışma — 7 Eylül 2026: performans ve cepheler
 
 Görünmez çevre örnekleri sıfır ölçekle çizime gönderilmek yerine `mesh.count` dışında bırakılır. Görünürlük, bütün modelin dönüştürülmüş sınır küresiyle hesaplanır; bina parçaları ve ağaç tacı aynı kararı kullanır. Tekrar kullanılan matrisler, değişen önekin GPU'ya aktarılması ve sabit sahnede güncellemenin atlanması CPU/GPU işini azaltır. Bina/ağaç yerleşimi ile sis bütün kalite seçeneklerinde korunur: sis 260–600 m, çevre elemesi 620 m. Çevrenin dinamik gölge çizimi kapatıldı; yumuşak temas izleri korunur.
 

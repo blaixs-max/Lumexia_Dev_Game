@@ -6,7 +6,13 @@ A 3D browser highway racer built with React, Three.js and Zustand. This reposito
 
 Older production and deployment descriptions in the documentation are historical records. They do not describe the active behavior of this development repository.
 
-## Current race revision — 18 October 2026: moving NPC traffic and continuous shadows
+## Current race revision — 18–19 October 2026: fixed quality and lossless render batching
+
+Race resolution and detail are selected once at the start. Low FPS and later levels no longer lower the DPR; the former Auto option is now named Standard while keeping saved preferences compatible. NPC bodies share instanced draws using the original geometry/materials and exact per-camera visibility, with independent lights, brake lamps and signals. Shadow materials are prepared on attachment or replacement rather than by traversing the entire scene every frame. Texture/model detail, traffic density, camera range and shadow profiles are preserved.
+
+Controlled acceptance uses twelve fixed NPCs, identical cameras/lighting and 1280×720 at DPR 1. Daylight calls fell **1268 → 977** with identical triangle counts; GPU median **50.03 → 48.52 ms**. Delivered FPS on this Intel UHD device was **18.07 → 18.13**, so no substantial FPS or 60 FPS claim is made. Exact index/depth reuse and zero-contribution headlight skips preserve the image. **169 tests passed, 17 skipped; lint and production build passed.** Normal driving retained the resolution for 25 seconds; a level-8 night replay completed nine lane changes with no contacts or shader errors. See [the performance review](docs/PERFORMANCE_REVIEW.md) and [task record](docs/TASK.md). GitHub PR checks gate the merge to `main`, which triggers the existing [Vercel production](https://lumexia-dev-game.vercel.app/) deployment.
+
+## Previous race revision — 18 October 2026: moving NPC traffic and continuous shadows
 
 NPCs now move in the same world scale as the road, follow slower vehicles with braking, and perform signaled random adjacent-lane changes. Planned moves reserve both lanes before signaling; sequential reservations and following constraints keep a passing corridor open as traffic converges. Successful spawn intervals for levels 1–8 are 48 / 35 / 27 / 19 / 13 / 10 / 8 / 7 HUD metres, then capped; traffic remains limited to 12 vehicles. Collision footprints match the fitted model assets, and old/new NPC snapshots are matched by stable IDs.
 
@@ -67,7 +73,7 @@ Tune your car in the garage, return to the main menu, then use **Yarışa başla
 
 Switching away from the game pauses the run and releases held input. Pause and results screens provide separate Garage and Main Menu destinations. The arcade speed indicator is labeled **Oyun hızı / birim** (game speed / units), not calibrated km/h. Pickup notifications distinguish **puan** (score), **jeton** (collected coins) and **altın** (spendable garage balance).
 
-Graphics options are Auto, Performance and High. Auto can reduce resolution and scene detail when needed. Sound and graphics preferences are saved locally when browser storage is available.
+Graphics options are Standard, Performance and High. Each chooses its resolution and detail profile once when the race starts; FPS and level changes never lower them during the race. The existing saved `auto` preference maps to Standard. Sound and graphics preferences are saved locally when browser storage is available.
 
 ## Architecture
 

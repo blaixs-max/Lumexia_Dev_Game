@@ -440,7 +440,7 @@ function Drive() {
         player: { id: settings.car, name: getCar(settings.car).name, model: getCar(settings.car).model, stats: getCarStats(settings.car) },
         pickups: { layout: settings.pickups, count: pickups.length, byKind, positions: pickups.map(({ kind, x, z }) => ({ kind, x, z })) },
         collision, trafficMotion,
-        shadows: shadowSettings(gl, scene),
+        shadows: shadowSettings(gl, scene), environmentIntensity: scene.environmentIntensity,
         programs, programsInitial: diagnostics.programsInitial, programsMax: diagnostics.programsMax,
         lights: lightCounts(scene, camera), mainPassDrawCalls: gl.info.render.calls, mainPassTriangles: gl.info.render.triangles,
         geometryCount: gl.info.memory.geometries, textureCount: gl.info.memory.textures,

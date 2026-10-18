@@ -1,5 +1,46 @@
 # Lumexia — render performansı incelemesi
 
+## 18–19 Ekim 2026 — sabit kalite ve kayıpsız çalışma azaltımı
+
+FPS'ye göre DPR düşürme kaldırıldı. Grafik seçenekleri **Standart / Performans / Yüksek**; eski `auto` kaydı Standart'a karşılık gelir. Profil ve DPR yarış başında seçilir; seviye veya kare hızı bunları değiştirmez. Dokular, model ayrıntısı, ışık sayısı, görüş mesafesi ve gölge profilleri azaltılmadı. Normal uygulamada Standart seçimiyle 25 saniyelik sürüşte 1280×720 çizim yüzeyi aynı kaldı; duraklat → garaj dönüşünde Subaru/Motor 1 korundu. [Uygulama kaydı](../artifacts/fixed-quality-app.json).
+
+Optimizasyonlar:
+
+- NPC gövdeleri aynı malzeme ve kaynak dönüşümleriyle instancing kullanır. Ana görünüm ve her CSM kamerası ayrı örnek tamponu ve önceki tekil mesh sınır küresi testini kullanır; daha geniş bir toplu sınır yüzünden fazladan üçgen çizilmez. Far, fren ve sinyal kimlikleri korunur.
+- Ana geometride yalnız üçgen indeks sırası önbellek için düzenlenir. Konum/normal/UV/renk gibi bütün kaynak nitelikleri paylaşılır; grup, çizim aralığı ve üçgen yönü korunur. Uygun opak gölge geometrisinde yalnız birebir aynı ham konum bitleri birleştirilir; siluet ve yönlü konum üçgenleri aynı kalır. Alfa, özel shader/depth, deformasyon, desteklenmeyen veri veya matris durumları eski çizim yoluna döner. Opsiyonel encoder başarısızsa kaynak geometri kullanılabilir.
+- Gölge malzemeleri her karede tam sahne taramasıyla değil nesne/malzeme yaşam döngüsüyle hazırlanır. Gerçek kamera/güneş değişimleri tam uygulanır. Katkısı kesin sıfır olan farlar BRDF hesabını atlar; aydınlanan piksellerin hesabı, far sayısı ve menzili korunur.
+
+Mevcut `meshoptimizer` 0.22.0 paketi doğrudan bağımlılık olarak sabitlendi. Ferrari'de bir defalık hazırlık yaklaşık **169 ms** (renk 39 / gölge 130 ms) sürer; bu geri sayımdan önce yükleme sırasında yapılır ve önbelleğe alınır. 188.982 üçgenin tamamı korunur; 16 gerçek Draco primitive'inin ana üçgen indeksleri ve gölge konum üçgenleri bağımsız olarak eşleştirildi. LRU-32 benzetimi ana vertex işini 203.923 → 159.504, gölgeyi 59.627 olarak verir; bunlar GPU zaman ölçümü değildir.
+
+### Kontrollü önce/sonra kabulü
+
+Önceki paket `c61cca65863a7d504f62b91905123d21ef954991` sahne kaynaklarından düzenleme başlamadan donduruldu. Aynı QA düzeneği, Subaru, 12 NPC, sabit kamera/fizik, 1280×720/DPR 1, aynı ışık ve gölge haritaları kullanıldı. Her koşuda 3 saniye hazır render sonrası 8 saniye örnekleme vardır. Windows / Intel UHD Graphics / ANGLE D3D11; belge görünür ve odakta, eşzamanlı başka Canvas veya test işi yoktu. Gün ışığı iki kez ölçüldü; aşağıdaki son çift ve bütün ham kayıtlar saklanır.
+
+| Ölçüm | High gündüz önce → sonra | High viraj/gece önce → sonra | Performance viraj/gece önce → sonra |
+|---|---:|---:|---:|
+| Toplam çizim çağrısı | 1268 → 977 | 1272 → 981 | 1086 → 856 |
+| Toplam üçgen | 4.650.642 → aynı | 4.213.478 → aynı | 3.547.418 → aynı |
+| GPU medyanı, ms | 50,03 → 48,52 | 46,80 → 45,95 | 42,20 → 41,66 |
+| Teslim edilen FPS | 18,07 → 18,13 | 19,23 → 19,53 | 21,14 → 21,37 |
+| Medyan kare aralığı, ms | 54,4 → 54,3 | 51,2 → 50,3 | 46,5 → 46,0 |
+| p95 kare aralığı, ms | 164,8 → 165,7 | 155,2 → 153,5 | 54,0 → 59,6 |
+
+Çizim çağrıları yaklaşık %21–23, GPU medyan süresi %1–3 azalır. **Bu cihazda belirgin FPS artışı veya takılmaların tamamen giderilmesi gösterilmedi; 60 FPS kabulü yoktur.** Gündüz tekrarları önce 18,044/18,066, sonra 18,101/18,134 FPS verdi; kare teslimi/zamanlama sınırları sürüyor. Kaliteyi sabitlemek eski düşük DPR'nin daha yüksek FPS'sini koruyacağı anlamına gelmez. Yeni bir fiziksel telefon veya ısınma testi yapılmadı.
+
+Sayaçlar tek gerçek render sırasında `autoReset=false` ile, her render öncesi bir kez sıfırlanır; toplam gölgeleri içerir, ana geçiş = toplam − gölge alt toplamıdır (transmission dahil). Async GPU sorgusu aynı render'ı ölçer; CPU submission süresi tüm oyun döngüsünün maliyeti değildir. Opsiyonel `profile=passes` iki iç içe geçmeyen GPU sorgusuyla gölge/ana geçişi ayırır; ilk incelemede yaklaşık 8/43 ms bulundu. Bir güneşin BRDF katkılarını birleştiren ek prototip kazanç göstermediği için kaldırıldı; ham deneme kaydı final kabul olarak kullanılmaz.
+
+Gündüz görüntülerinde piksellerin %99,966'sı, gece %99,985'i birebir eşleşti; en büyük kanal farkları 11 ve 4/255, büyük görsel fark yoktu. Bu yalnız bu sabit görüntülerin sayısal karşılaştırmasıdır. Kamera, ana/gölge üçgenleri ve çizim yüzeyi birebir aynı; shader/sayfa/WebGL bağlam hatası yoktu. [Gündüz](../artifacts/fixed-quality-after-day.png), [gece](../artifacts/fixed-quality-after-night.png), [görüntü istatistikleri](../artifacts/fixed-quality-image-parity.json).
+
+Ham kayıtlar `artifacts/fixed-quality-{before,after}-{day,day-repeat,night,performance-night}.json`; ilk instancing denemesi, GPU geçiş profili ve kaldırılmış prototip ayrıca adlandırılır. Son yerel kabul: **169 test başarılı, 17 üretim adaptörü testi atlandı; lint ve üretim derlemesi (659 modül) başarılı.** Bu ölçümler yayın öncesi yerel kabul kaydıdır; 19 Ekim yayın akışı [TASK.md](TASK.md) içindedir.
+
+Final geometri/far koduyla normal uygulama da tekrar doğrulandı: Standart → Classic Run → 33 saniye/367 m/13 jeton → sonuç → garaj. 361 altın eklendi, Subaru/Motor 1 korundu; tarayıcı hata kaydı boş. [Son uygulama kaydı](../artifacts/fixed-quality-final-app.json). Bu kontrol QA trafiği düzeneğinden ayrıdır.
+
+Yeniden ölçüm: düzenleme öncesinde `$env:LUMEXIA_BASELINE='1'` ile `npm exec -- vite build --config tools/performance-benchmark.config.js --configLoader native` çalıştırıp `../performance-before` paketini koruyun; sonra aynı komutu değişken olmadan çalıştırarak `../performance-after` oluşturun. `node tools/performance-server.cjs before` iki paketi aynı kökte sunar: `/before/tools/performance-benchmark.html` ve `/after/tools/performance-benchmark.html`. Eşleşen örnek sorgu: `?case=dense-day&car=rally&traffic=12&width=1280&height=720&dpr=1&quality=high&warmup=3&sample=8&autostart=1`; viraj/gece için `case=curve-night`. Sonuç görünür `#metrics` JSON çıktısındadır. Aynı anda yalnız bir hareketli sahne çalıştırın.
+
+## Tarihsel kabul — 7 Eylül 2026
+
+Aşağıdaki eski Auto davranışı, model sadeleştirmesi, karşılaştırma kaynağı ve sayısal sonuçlar önceki sürüme aittir. Güncel sabit kalite ve ölçüm yöntemi yukarıdadır.
+
 **Tarih:** 7 Eylül 2026  
 **Kapsam:** Yerel Windows tarayıcısında kontrollü önce/sonra render karşılaştırması. Oyun ücretsiz antrenman modundadır.
 
