@@ -53,7 +53,6 @@
 .lx-showroom { position: relative; height: 395px; min-width: 0; margin: 0 -34px 0 -16px; overflow: hidden; }
 .lx-showroom > div:has(canvas) { z-index: 1; }
 .lx-showroom canvas { outline: none; }
-.lx-showroom-word { position: absolute; left: 15%; top: 10%; right: 0; font-size: clamp(100px, 17vw, 235px); color: #8797a007; -webkit-text-stroke: 1px #a5c2cd15; line-height: 1; letter-spacing: -10px; font-weight: 900; white-space: nowrap; }
 .lx-showroom-grid { position: absolute; inset: 5% -5% 12% -8%; opacity: .45; background-image: linear-gradient(#b0cfe10b 1px, transparent 1px), linear-gradient(90deg, #b0cfe10b 1px, transparent 1px); background-size: 40px 40px; mask-image: radial-gradient(ellipse, #000 0%, transparent 67%); }
 .lx-showroom-fallback { position: absolute; inset: 0; display: grid; place-items: center; font-size: 110px; font-weight: 800; color: var(--lx-lime); }
 .lx-car-caption { position: absolute; bottom: 13px; left: 10%; right: 9%; display: flex; justify-content: space-between; color: #a5b2b9; font-family: monospace; font-size: 8px; letter-spacing: 1px; }
@@ -272,7 +271,6 @@
   .lx-intro { font-size: 11px; }
   .lx-hero-stats { display: none; }
   .lx-showroom { height: 250px; margin: -11px -20px 6px; }
-  .lx-showroom-word { font-size: 175px; left: 18%; top: 12%; }
   .lx-car-caption { left: 9%; right: 9%; bottom: 11px; font-size: 7px; }
   .lx-launch-grid { grid-template-columns: 1fr; gap: 30px; padding-block: 23px; }
   .lx-section-heading { margin-bottom: 14px; }

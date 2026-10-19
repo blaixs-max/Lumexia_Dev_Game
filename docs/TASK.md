@@ -2,6 +2,10 @@
 
 > Son güncelleme: 2026-10-19
 
+## 2026-10-19: Araç önizlemesinin arka plan yazısı
+
+Ana menüde seçili aracın arkasındaki büyük dekoratif `L / X` yazısı ve kullanılmayan masaüstü/mobil stilleri kaldırıldı. Araç, platform, başlık ve istatistikler korunur. Yerel önizlemede yazı düğümü olmadığı ve araç/zemin çiziminin sürdüğü doğrulandı; üretim derlemesi başarılı. Kullanıcının yayın isteğiyle GitHub kontrolleri sonrası `main` üzerinden mevcut Vercel projesine yayımlanır; canlı önizlemede yazının kaldırıldığı ayrıca doğrulanır.
+
 ## 2026-10-19: Sabit kalite sürümünün yayını
 
 Kullanıcı bu sürümün yayımlanmasını istedi. Hedef mevcut `blaixs-max/Lumexia_Dev_Game` deposunun `main` dalı ve Vercel `lumexia-dev-game` projesindeki [canlı oyun](https://lumexia-dev-game.vercel.app/). Yerel 169 test / 17 atlanan üretim adaptörü testi, lint ve 659 modüllük derleme kabulü korunur. GitHub PR test/lint/derleme kontrollerinden sonra birleştirme, mevcut Vercel Git bağlantısını tetikler; yayın commit'i ve READY durumu ile canlı menü/yarış ayrıca doğrulanır.

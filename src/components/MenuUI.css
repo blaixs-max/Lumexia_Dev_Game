@@ -34,7 +34,6 @@
 .lx-preview-topline > span:first-child { color: #d8e2e1; font-weight: 600; }
 .lx-preview-topline > span:last-child svg { color: #defb7b; }
 .lx-menu-showcase .lx-showroom, .lx-garage-showcase .lx-showroom { margin: 0; width: 100%; height: clamp(260px, 42vh, 400px); }
-.lx-menu-page .lx-showroom-word { font-size: clamp(130px, 15vw, 220px); left: 14%; top: 15%; }
 .lx-menu-page .lx-showroom-fallback { font-size: 12px; letter-spacing: 2px; color: #9dafb2; }
 .lx-active-car { padding: 22px; display: flex; justify-content: space-between; align-items: end; gap: 16px; border-top: 1px solid #74959e25; }
 .lx-active-car small, .lx-garage-preview-name > small { color: #b2c3cb; font-size: 11px; }

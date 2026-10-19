@@ -2,6 +2,10 @@
 
 > Son güncelleme: 2026-10-19
 
+## Arayüz düzeltmesi — 19 Ekim
+
+Seçili araç önizlemesinin arkasındaki büyük dekoratif yazı kaldırıldı. İlgili kullanılmayan stiller temizlendi; yerel önizleme ve üretim derlemesiyle doğrulandı. Kullanıcının yayın isteğiyle mevcut GitHub PR → `main` → Vercel üretim akışı kullanılır; canlı önizleme kontrol edilir.
+
 ## Yayın akışı — 19 Ekim sabit kalite
 
 Kullanıcı sabit kalite ve kayıpsız çizim optimizasyonunun yayımlanmasını onayladı. GitHub test/lint/derleme kontrolleri sonrası `main` birleştirmesi mevcut Vercel Git bağlantısını tetikler. Hedef `lumexia-dev-game` / `lumexia-dev-game.vercel.app`; üretim commit eşleşmesi, READY durumu ve gerçek menü/yarış akışı doğrulanır. Aşağıdaki yerel kabul sonuçları yayın öncesi ölçümler olarak korunur.
