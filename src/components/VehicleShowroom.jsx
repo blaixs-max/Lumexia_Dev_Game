@@ -82,7 +82,7 @@ export default function VehicleShowroom({ carId, quality = 'auto', interactive =
   const car = getCar(carId);
   const workshop = variant === 'workshop';
   return <div className={`lx-showroom${workshop ? ' lx-showroom--workshop' : ''}`} role="img" aria-label={`${car.name} 3D önizlemesi${interactive ? ', döndürmek için sürükle' : ''}`}>
-    {!workshop ? <><div className="lx-showroom-grid" aria-hidden="true" /><div className="lx-showroom-word" aria-hidden="true">L / X</div></> : null}
+    {!workshop ? <div className="lx-showroom-grid" aria-hidden="true" /> : null}
     <ShowroomBoundary key={car.id}>
       <Canvas frameloop={visible ? 'always' : 'never'} camera={{ position: workshop ? [6.4, 2.8, 7.3] : [6, 3, 7], fov: workshop ? 33 : 34 }} dpr={quality === 'performance' ? 1 : [1, 1.5]} gl={{ alpha: true, antialias: true }}>
         {workshop ? <><color attach="background" args={['#615b4e']} /><fog attach="fog" args={['#615b4e', 16, 34]} /><WorkshopRoom /><WorkshopFraming /></> : null}
