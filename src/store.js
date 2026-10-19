@@ -154,7 +154,7 @@ export function createGameStore({ random = Math.random, now = Date.now } = {}) {
       const garageSaved = saveGarage({ schemaVersion: 3, selectedCar, ownedCars: state.garageOwnedCars, upgrades: state.garageUpgrades, gold: state.garageGold });
       set({ selectedCar, garageSaved });
     },
-    purchaseCar: carId => {
+    purchaseCar: (carId, options = {}) => {
       const state = get();
       if (state.gameState !== 'garage') return { success: false, reason: 'not-in-garage' };
       const car = CARS.find(entry => entry.id === carId);
@@ -163,8 +163,9 @@ export function createGameStore({ random = Math.random, now = Date.now } = {}) {
       if (state.garageGold < car.price) return { success: false, reason: 'insufficient-gold', cost: car.price };
       const garageGold = state.garageGold - car.price;
       const garageOwnedCars = [...state.garageOwnedCars, car.id];
-      const garageSaved = saveGarage({ schemaVersion: 3, selectedCar: car.id, ownedCars: garageOwnedCars, upgrades: state.garageUpgrades, gold: garageGold });
-      set({ selectedCar: car.id, garageOwnedCars, garageGold, garageSaved });
+      const selectedCar = options?.selectOnPurchase === false ? state.selectedCar : car.id;
+      const garageSaved = saveGarage({ schemaVersion: 3, selectedCar, ownedCars: garageOwnedCars, upgrades: state.garageUpgrades, gold: garageGold });
+      set({ selectedCar, garageOwnedCars, garageGold, garageSaved });
       return { success: true, cost: car.price };
     },
     purchaseUpgrade: part => {

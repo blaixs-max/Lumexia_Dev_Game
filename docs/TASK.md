@@ -2,6 +2,33 @@
 
 > Son güncelleme: 2026-10-19
 
+## 2026-10-19: Merge and release — Garage comparison / English UI
+
+The user requested merging the reviewed Garage and English UI work. The release includes separate Purchase/Select actions below the car, an upgrade-aware six-stat comparison, English racing copy across all screens, and the associated regression tests, diagnostics and browser evidence. Local acceptance is 176 passing tests / 17 skipped production adapters, lint and the 660-module production build; three responsive control frames each passed 42 synthetic checks.
+
+Release target: `blaixs-max/Lumexia_Dev_Game` → `main`, then the existing Vercel `lumexia-dev-game` Git integration at [the live game](https://lumexia-dev-game.vercel.app/). GitHub test/lint/build and the preview deployment are checked before merging. Production readiness, commit identity and the English Main Menu/Garage are verified after the merge. Earlier local-only notes below describe the pre-release acceptance stages.
+
+## 2026-10-19: English racing UI and HUD
+
+- [x] Main Menu, mode selection, Garage/comparison, upgrades, race HUD, touch controls, countdown, pause, results, loading/preview errors, help, audio/settings, saved-state notices and accessibility copy now use English racing terminology. The HTML language/description and linked model credits are English; numeric formatting is `en-US`.
+- [x] Consistent terms: Level for race progression, Stage for upgrades, Gold for spending and Coins for pickups; Top Speed, Nitro Speed, Acceleration, Handling, Nitro Capacity and Nitro Recharge preserve the existing game scales. Purchase and Select remain separate; saves/build identifiers and race/earnings rules are unchanged.
+- [x] English power-up labels wrap safely on narrow HUDs. Results headings/labels can wrap; compact **Stage N Upgrade** buttons fit the 320 px Garage cards. Diagnostic page copy is English; power-up preview and hot-reload lifecycle support were added to the existing HUD fixture.
+- [x] **176 tests passed, 17 production-adapter tests skipped; lint and production build (660 modules) passed.** Real Double or Nothing: 42 seconds / 620 m / 15 Coins → final score 0 before Level 5, +437 Gold / balance 1,226; Subaru/Engine Stage 1 preserved through Garage and Main Menu. App and memory-only Garage error logs are empty.
+- [x] Main Menu, mode dialog, comparison, Purchase → Select → Stage 1 notices inspected in the browser. 320×700, 390×700 and 844×390 control fixtures each passed 42 synthetic checks. Magnet/Rocket Boost duration labels fit the narrow HUD; the 320 px Garage and modal remain readable. An initial landscape harness run was interrupted by a paused state during a resize-test await; a fresh focused iframe passed. A historical diagnostic hot-reload duplicate-root warning was addressed in the fixture, without changing production input handling.
+
+Evidence: [English UI audit](../artifacts/ui-english-qa.json), [Main Menu](../artifacts/ui-english-menu.png), [race HUD](../artifacts/ui-english-race.png), [results](../artifacts/ui-english-result.png), [mobile mode dialog](../artifacts/ui-english-mobile-modes.png), [mobile Garage](../artifacts/ui-english-mobile-garage.png). Current copy rules are in [UI_GUIDE.md](UI_GUIDE.md). This revision is local; no GitHub/Vercel release was performed.
+
+## 2026-10-19: Garaj eylemleri ve araç karşılaştırması
+
+- [x] **Seç** ve **Satın al** düğmeleri ayrı eylemler olarak 3D aracın altına taşındı. Satın alma aracı garaja ekler; yarış seçimi yalnız Seç ile değişir. Sahiplik, fiyat ve eksik altın metinleri düğmelerin yanında gösterilir.
+- [x] Sağdaki Performans paneli incelenen aracı yarış için seçili araçla karşılaştırır. Normal hız, nitro hızı, hızlanma, direksiyon tepkisi, nitro kapasitesi ve yenilenmesi için iki değer/çubuk, işaretli fark ve daha iyi/daha düşük/eşit etiketi vardır.
+- [x] İki aracın kendi takılı yükseltmeleri hesaba katılır. Çubuklar bütün araçların en yüksek yasal yükseltmelerini kapsayan ortak ölçek kullanır; fiziksel hız/ağırlık/drift değerleri uydurulmaz.
+- [x] Yeni karşılaştırma ve ayrı satın alma regresyonları dahil **176 test başarılı, 17 üretim adaptörü testi atlandı**; lint ve üretim derlemesi (660 modül) başarılı. 320 px çerçevede iki eylem yan yana ve karşılaştırma değerleri okunur.
+- [x] `tools/garage-check.html` yalnız bellek içi kayıt kullanan ayrı kontrol girişidir. Başlangıç ve tam yükseltilmiş örnek düğmeleri gerçek garaj bileşenini çalıştırır; tarayıcıdaki oyuncu kaydı okunmaz/yazılmaz.
+- [x] Tarayıcı kabulü: 1.500 altınla Subaru satın alma → 600 altın, yarış seçimi LX SPORT olarak kaldı; odak Seç düğmesine geçti, Enter ile Subaru seçildi. Motor 1 sonrası 300 altın / hız 112 / hızlanma 2,4 iki sütuna da uygulandı. Tam yükseltilmiş LX SPORT karşısındaki stok Nissan: 1 daha iyi / 4 daha düşük / 1 eşit. Normal uygulamanın 789 altın ve Subaru/Motor 1 kaydı korundu; hata kaydı boş. [Görünüm](../artifacts/garage-comparison-desktop.png), [kabul kaydı](../artifacts/garage-comparison-qa.json).
+
+Bu arayüz revizyonu yereldir; GitHub/Vercel yayını bu istek kapsamında yapılmadı.
+
 ## 2026-10-19: Araç önizlemesinin arka plan yazısı
 
 Ana menüde seçili aracın arkasındaki büyük dekoratif `L / X` yazısı ve kullanılmayan masaüstü/mobil stilleri kaldırıldı. Araç, platform, başlık ve istatistikler korunur. Yerel önizlemede yazı düğümü olmadığı ve araç/zemin çiziminin sürdüğü doğrulandı; üretim derlemesi başarılı. Kullanıcının yayın isteğiyle GitHub kontrolleri sonrası `main` üzerinden mevcut Vercel projesine yayımlanır; canlı önizlemede yazının kaldırıldığı ayrıca doğrulanır.

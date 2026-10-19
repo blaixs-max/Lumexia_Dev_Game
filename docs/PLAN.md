@@ -2,6 +2,22 @@
 
 > Son güncelleme: 2026-10-19
 
+## Merge and release — October 19
+
+The user authorized merging the completed Garage comparison and English racing UI changes. Use a reviewed pull request into the existing `main` branch, with GitHub tests/lint/build and the Vercel preview checked before merge. The existing production Git connection then publishes `lumexia-dev-game.vercel.app`; verify the merged commit, READY status and live English Main Menu/Garage. Local acceptance remains 176 tests passed / 17 production adapters skipped, lint/build successful and 42 synthetic controls checks in each of three responsive frames. Earlier local-only entries below preserve the implementation history.
+
+## English racing UI — October 19
+
+All player-facing screens and accessible labels use concise English racing copy, including the Main Menu, mode dialog, Garage and upgraded-car comparison, HUD, countdown, power-ups, pause/results, controls, errors, saving/graphics and linked credits. Numbers use `en-US`; Level/Stage, Gold/Coins and the six real performance stats are consistent. Existing saved keys, ownership, upgrade effects, scoring and Gold rewards remain intact.
+
+Acceptance: 176 tests passed / 17 production adapters skipped; lint and the 660-module production build passed. A real Double or Nothing run confirmed English HUD/pause/results, score 0 before Level 5 and +437 Gold retained; Garage preserved the equipped Subaru/Engine Stage 1. Each 320×700, 390×700 and 844×390 synthetic controls fixture passed 42 checks; narrow mode/upgrade/power-up copy was visually inspected. These browser frames do not establish physical-phone or FPS performance. See [TASK.md](TASK.md) and [English UI audit](../artifacts/ui-english-qa.json) for evidence and diagnostic limitations. The updated local preview is ready; release is separate.
+
+## Garaj karşılaştırması — 19 Ekim
+
+Araç altındaki iki ayrı eylem **Seç** ve **Satın al** olarak düzenlendi. Satın alma seçili yarış aracını korur; oyuncu yeni aracı ayrıca seçer. Performans panelinde incelenen ve seçili aracın altı gerçek oyun özelliği, takılı yükseltmeleriyle birlikte yan yana karşılaştırılır. İki değer ve ortak ölçekli çubuklar, sayısal fark ile daha iyi/daha düşük/eşit etiketleri gösterir. Dar ekranlarda panel araç bölümünün altına iner ve iki karşılaştırma sütununu korur.
+
+Yerel kabul: 176 test başarılı / 17 üretim adaptörü testi atlandı; lint ve 660 modüllük derleme başarılı. `tools/garage-check.html` bellek içi örneklerle gerçek satın alma/seçim kontrollerini oyuncunun kaydını değiştirmeden denemek içindir. Yayın bu revizyonun kapsamına dahil değildir.
+
 ## Arayüz düzeltmesi — 19 Ekim
 
 Seçili araç önizlemesinin arkasındaki büyük dekoratif yazı kaldırıldı. İlgili kullanılmayan stiller temizlendi; yerel önizleme ve üretim derlemesiyle doğrulandı. Kullanıcının yayın isteğiyle mevcut GitHub PR → `main` → Vercel üretim akışı kullanılır; canlı önizleme kontrol edilir.

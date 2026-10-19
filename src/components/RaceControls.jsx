@@ -135,10 +135,10 @@ export default function RaceControls({ touchVisible = false }) {
 
   if (!touchVisible || gameState !== 'playing') return null;
   return (
-    <div ref={surfaceRef} className="lx-touch-controls lx-ui" role="group" aria-label="Sürüş kontrolleri">
-      <button type="button" className="lx-steer-zone lx-steer-left" aria-label="Sola yönel" aria-pressed={steeringInput < 0} {...handlers('left')} />
-      <button type="button" className="lx-steer-zone lx-steer-right" aria-label="Sağa yönel" aria-pressed={steeringInput > 0} {...handlers('right')} />
-      <button type="button" className="lx-touch-nitro" aria-label="Nitro için basılı tut" aria-pressed={boosting} {...handlers('nitro')}><UIIcon name="nitro" size={24} />NİTRO</button>
+    <div ref={surfaceRef} className="lx-touch-controls lx-ui" role="group" aria-label="Driving controls">
+      <button type="button" className="lx-steer-zone lx-steer-left" aria-label="Steer Left" aria-pressed={steeringInput < 0} {...handlers('left')} />
+      <button type="button" className="lx-steer-zone lx-steer-right" aria-label="Steer Right" aria-pressed={steeringInput > 0} {...handlers('right')} />
+      <button type="button" className="lx-touch-nitro" aria-label="Hold for Nitro" aria-pressed={boosting} {...handlers('nitro')}><UIIcon name="nitro" size={24} />NITRO</button>
     </div>
   );
 }

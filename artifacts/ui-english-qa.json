@@ -1,0 +1,324 @@
+{
+  "date": "2026-10-19",
+  "language": "en",
+  "numberLocale": "en-US",
+  "testSummary": {
+    "passed": 176,
+    "skipped": 17
+  },
+  "mobileSyntheticChecks": {
+    "320x700": 42,
+    "390x700": 42,
+    "844x390": 42
+  },
+  "checks": [
+    {
+      "step": "main-menu",
+      "lang": "en",
+      "labels": [
+        "Lumexia main menu",
+        "Current screen",
+        "789 Gold",
+        "Mute sound | Mute sound",
+        "Equipped Car",
+        "SUBARU WRX STI 3D preview",
+        "Your selected graphics quality stays fixed throughout the race.",
+        "Graphics quality"
+      ],
+      "text": "LUMEXIA\nHIGHWAY RACING\n789\nGold\n\nENDLESS HIGHWAY. NEW RECORDS.\n\nHIT THE\nROAD.\n\nDodge traffic. Earn Gold.\nUpgrade your ride. Beat your best.\n\nStart Race\nGarage\nChoose and upgrade your ride\nEquipped Car\nRace-ready\n SUBARU WRX STI\nRally Sedan\nRally Sedan\nSUBARU WRX STI\nTop Speed\n112\ngame units\nNitro Capacity\n95\nunits\n How to Play\nProgress saved on this device.\nModel Credits\nGraphics\nStandard\nPerformance\nHigh"
+    },
+    {
+      "step": "mode-picker",
+      "lang": "en",
+      "labels": [
+        "Lumexia main menu",
+        "Current screen",
+        "789 Gold",
+        "Mute sound | Mute sound",
+        "Equipped Car",
+        "SUBARU WRX STI 3D preview",
+        "Your selected graphics quality stays fixed throughout the race.",
+        "Graphics quality",
+        "Close mode selection",
+        "Race mode",
+        "",
+        ""
+      ],
+      "text": "LUMEXIA\nHIGHWAY RACING\n789\nGold\n\nENDLESS HIGHWAY. NEW RECORDS.\n\nHIT THE\nROAD.\n\nDodge traffic. Earn Gold.\nUpgrade your ride. Beat your best.\n\nStart Race\nGarage\nChoose and upgrade your ride\nEquipped Car\nRace-ready\n SUBARU WRX STI\nRally Sedan\nRally Sedan\nSUBARU WRX STI\nTop Speed\n112\ngame units\nNitro Capacity\n95\nunits\n How to Play\nProgress saved on this device.\nModel Credits\nGraphics\nStandard\nPerformance\nHigh\nGET RACE-READY\nChoose Your Mode\n\nPick your challenge and hit the road.\n\nClassic Run\nEndless Drive\nChase your personal best through traffic.\nDouble or Nothing\nDouble Score or Zero\nReach Level 5: score ×2. Crash before Level 5: 0.\nBack\nStart Race"
+    },
+    {
+      "step": "race-hud",
+      "lang": "en",
+      "labels": [
+        "Lumexia highway race",
+        "Distance: 528 meters | Distance traveled",
+        "Coins collected: 14 | Coins collected · 25 Gold each",
+        "Near Misses: 0 | Near Miss",
+        "Level 1 progress",
+        "Mute sound | Mute sound (M)",
+        "Pause Race | Pause (Esc / P)",
+        "Race car and upgrade stages",
+        "Engine: Stage 1 | Engine: Stage 1",
+        "Handling: Stage 0 | Handling: Stage 0",
+        "Nitro: Stage 0 | Nitro: Stage 0",
+        "Speed: 122 units",
+        "Nitro charge",
+        "Driving controls",
+        "Steer Left",
+        "Steer Right",
+        "Hold for Nitro"
+      ],
+      "text": "SCORE\n2,456\n528\nm\n14\nCOINS\n0\nLEVEL 01\nTARGET: LEVEL 5\n\nCrash before Level 5: 0 points\n480 m to go\n\nSUBARU WRX STI\n1\n0\n0\nSPEED\nAUTO\n122\nUNITS\n\nAuto acceleration\n\nNITRO\n95%\n\nSPACE\nHold for Nitro\n\n+100 POINTS · 1 COIN"
+    },
+    {
+      "step": "pause-dialog",
+      "lang": "en",
+      "labels": [
+        "Lumexia highway race",
+        "Distance: 531 meters | Distance traveled",
+        "Coins collected: 14 | Coins collected · 25 Gold each",
+        "Near Misses: 0 | Near Miss",
+        "Level 1 progress",
+        "Mute sound | Mute sound (M)",
+        "Pause Race | Pause (Esc / P)",
+        "Race car and upgrade stages",
+        "Engine: Stage 1 | Engine: Stage 1",
+        "Handling: Stage 0 | Handling: Stage 0",
+        "Nitro: Stage 0 | Nitro: Stage 0",
+        "Speed: 117 units",
+        "Nitro charge"
+      ],
+      "text": "SCORE\n2,463\n531\nm\n14\nCOINS\n0\nLEVEL 01\nTARGET: LEVEL 5\n\nCrash before Level 5: 0 points\n470 m to go\n\nSUBARU WRX STI\n1\n0\n0\nSPEED\nAUTO\n117\nUNITS\n\nAuto acceleration\n\nNITRO\n96%\n\nSPACE\nHold for Nitro\n\nPAUSED\n\nRace Paused\n\nResume when you’re ready to get back on the road.\n\nTIME\n00:34\nDouble or Nothing\nResume\nRestart Race\nGarage\nMain Menu\nEsc or P to resume"
+    },
+    {
+      "step": "mobile-320-mode-picker",
+      "accessibility": "Browser tab: 32, Title: \"Lumexia Viewport Check\", URL: \"http://127.0.0.3:5173/artifacts/ui-review.html\".\nThere has been no change in the accessibility tree.\nThe focused UI element is 22 radio button (settable, integer) Description: Classic Run Endless Drive Chase your personal best through traffic., Value: 1"
+    },
+    {
+      "step": "double-or-nothing-result",
+      "lang": "en",
+      "labels": [
+        "Final score",
+        "Gold earned: 437. Balance: 1,226 Gold."
+      ],
+      "text": "LUMEXIA /\nRACE RESULTS\n\nDouble or Nothing · SUBARU WRX STI\n\nRUN COMPLETE\n\nHit the road again or spend your Gold on upgrades in the Garage.\n\nFINAL SCORE\n\n0\nPOINTS\n\nPERSONAL BEST 0\n\nLevel 5 not reached. Your 2,740 run points become a final score of 0.\nYou keep all Gold earned during the race.\n\nDISTANCE\n620 m\nNEAR MISSES\n0\nCOINS COLLECTED\n15\nTIME\n00:42\nRACE EARNINGS\n25 Gold per coin + 1 Gold per 10 m\n+437\nBALANCE 1,226 GOLD\nRace Again\nGarage\nMain Menu\n\nYour personal bests, cars, and Gold are saved on this device."
+    },
+    {
+      "step": "garage-comparison",
+      "lang": "en",
+      "labels": [
+        "Lumexia garage",
+        "Current screen",
+        "Return to Main Menu",
+        "1,226 Gold",
+        "Mute sound | Mute sound",
+        "NISSAN Z PROTO 3D preview, drag to rotate",
+        "Previous car",
+        "Next car",
+        "NISSAN Z PROTO car actions",
+        "Select NISSAN Z PROTO",
+        "Purchase NISSAN Z PROTO for 4,800 Gold",
+        "Browse cars",
+        "Browse LX SPORT",
+        "Browse LX GT",
+        "Browse LX APEX",
+        "Browse SUBARU WRX STI",
+        "Browse BMW M3 E30",
+        "Browse NISSAN Z PROTO",
+        "Top Speed",
+        "NISSAN Z PROTO Top Speed, browsing",
+        "SUBARU WRX STI Top Speed, equipped car",
+        "Nitro Speed",
+        "NISSAN Z PROTO Nitro Speed, browsing",
+        "SUBARU WRX STI Nitro Speed, equipped car",
+        "Acceleration",
+        "NISSAN Z PROTO Acceleration, browsing",
+        "SUBARU WRX STI Acceleration, equipped car",
+        "Handling",
+        "NISSAN Z PROTO Handling, browsing",
+        "SUBARU WRX STI Handling, equipped car",
+        "Nitro Capacity",
+        "NISSAN Z PROTO Nitro Capacity, browsing",
+        "SUBARU WRX STI Nitro Capacity, equipped car",
+        "Nitro Recharge",
+        "NISSAN Z PROTO Nitro Recharge, browsing",
+        "SUBARU WRX STI Nitro Recharge, equipped car",
+        "",
+        "Engine: 0 of 3 stages installed",
+        "Purchase or select NISSAN Z PROTO to upgrade Engine",
+        "",
+        "Handling: 0 of 3 stages installed",
+        "Purchase or select NISSAN Z PROTO to upgrade Handling",
+        "",
+        "Nitro System: 0 of 3 stages installed",
+        "Purchase or select NISSAN Z PROTO to upgrade Nitro System",
+        "Your selected graphics quality stays fixed throughout the race.",
+        "Graphics quality"
+      ],
+      "text": "LUMEXIA\nHIGHWAY RACING\nMain Menu\n/ Garage\n1,226\nGold\n\nChoose your car. Gear up for the race.\n\nYOUR GARAGE.\n2 / 6 cars owned\nSports Coupe\nNISSAN Z PROTO\n6 / 6\nDrag to rotate\nSelect\nPurchase first\nPurchase\n4,800 Gold\n\n3,574 more Gold needed. Complete races to earn more.\n\nLX SPORT\nOwned\nLX GT\n1,250 Gold\nLX APEX\n3,000 Gold\nSUBARU WRX STI\nSelected for racing\nBMW M3 E30\n2,400 Gold\nNISSAN Z PROTO\n4,800 Gold\n\nCAR COMPARISON\n\nPerformance\n\n3 better · 3 lower · 0 equal\n\nBrowsing\nNISSAN Z PROTO\nEquipped\nSUBARU WRX STI\nTop Speed\n+10 better\n122game units\n112game units\nNitro Speed\n+20 better\n210game units\n190game units\nAcceleration\n+0.25 better\n2.65rating\n2.4rating\nHandling\n−0.3 lower\n16.2rating\n16.5rating\nNitro Capacity\n−10 lower\n85units\n95units\nNitro Recharge\n−1 lower\n4units/s\n5units/s\n\nInstalled upgrades included. Higher is better for every stat. Speeds use game units.\n\nTune your car. Raise your game.\n\nParts & Upgrades\nCar preview\n\nPurchase NISSAN Z PROTO to unlock upgrades. Equipped car: SUBARU WRX STI.\n\nStock\nEngine\n\nTop Speed: 122 → 126 units\n\nPurchase first\n300 Gold\nStock\nHandling\n\nHandling: 16.2 → 17 rating\n\nPurchase first\n250 Gold\nStock\nNitro System\n\nNitro Capacity: 85 → 100 units\n\nPurchase first\n350 Gold\n\nYour equipped car\nSUBARU WRX STI\n\nBack to Main Menu\nYour selection saves automatically\nCars and upgrades saved on this device.\nCompleted races: 25 Gold per coin, plus 1 Gold every 10 meters.\nProgress saved on this device.\nModel Credits\nGraphics\nStandard\nPerformance\nHigh"
+    },
+    {
+      "step": "mobile-320-touch-checks",
+      "accessibility": "Browser tab: 32, Title: \"Lumexia Viewport Check\", URL: \"http://127.0.0.3:5173/artifacts/ui-review.html\".\nThere has been no change in the accessibility tree.\nThe focused UI element is 12 AXWebArea Lumexia mobile controls check, URL: 127.0.0.3:5173/tools/mobile-controls-check.html"
+    },
+    {
+      "step": "mobile-844x390-touch-checks",
+      "accessibility": "Browser tab: 32, Title: \"Lumexia Viewport Check\", URL: \"http://127.0.0.3:5173/artifacts/ui-review.html\".\nThere has been no change in the accessibility tree.\nThe focused UI element is 13 AXWebArea Lumexia mobile controls check, URL: 127.0.0.3:5173/tools/mobile-controls-check.html",
+      "note": "A prior run was interrupted by an asynchronous paused state while testing resize; a fresh, focused iframe passed all 42 checks."
+    },
+    {
+      "step": "purchase-notice",
+      "lang": "en",
+      "labels": [
+        "Temporary garage test",
+        "Lumexia garage",
+        "Current screen",
+        "Return to Main Menu",
+        "1,200 Gold",
+        "Unmute sound | Unmute sound",
+        "NISSAN Z PROTO 3D preview, drag to rotate",
+        "Previous car",
+        "Next car",
+        "NISSAN Z PROTO car actions",
+        "Select NISSAN Z PROTO",
+        "NISSAN Z PROTO owned",
+        "Browse cars",
+        "Browse LX SPORT",
+        "Browse LX GT",
+        "Browse LX APEX",
+        "Browse SUBARU WRX STI",
+        "Browse BMW M3 E30",
+        "Browse NISSAN Z PROTO",
+        "Top Speed",
+        "NISSAN Z PROTO Top Speed, browsing",
+        "LX SPORT Top Speed, equipped car",
+        "Nitro Speed",
+        "NISSAN Z PROTO Nitro Speed, browsing",
+        "LX SPORT Nitro Speed, equipped car",
+        "Acceleration",
+        "NISSAN Z PROTO Acceleration, browsing",
+        "LX SPORT Acceleration, equipped car",
+        "Handling",
+        "NISSAN Z PROTO Handling, browsing",
+        "LX SPORT Handling, equipped car",
+        "Nitro Capacity",
+        "NISSAN Z PROTO Nitro Capacity, browsing",
+        "LX SPORT Nitro Capacity, equipped car",
+        "Nitro Recharge",
+        "NISSAN Z PROTO Nitro Recharge, browsing",
+        "LX SPORT Nitro Recharge, equipped car",
+        "",
+        "Engine: 0 of 3 stages installed",
+        "Purchase or select NISSAN Z PROTO to upgrade Engine",
+        "",
+        "Handling: 0 of 3 stages installed",
+        "Purchase or select NISSAN Z PROTO to upgrade Handling",
+        "",
+        "Nitro System: 0 of 3 stages installed",
+        "Purchase or select NISSAN Z PROTO to upgrade Nitro System",
+        "Your selected graphics quality stays fixed throughout the race.",
+        "Graphics quality"
+      ],
+      "text": "Garage Test — temporary progress\nReset Starter · 1,500 Gold\nMaxed Build · 6,000 Gold\nLUMEXIA\nHIGHWAY RACING\nMain Menu\n/ Garage\n1,200\nGold\n\nChoose your car. Gear up for the race.\n\nYOUR GARAGE.\n2 / 6 cars owned\nSports Coupe\nNISSAN Z PROTO\n6 / 6\nDrag to rotate\nSelect\nTake it racing\nOwned\nIn your garage\n\nNISSAN Z PROTO purchased for 4,800 Gold. Hit Select to take it racing.\n\nLX SPORT\nSelected for racing\nLX GT\n1,250 Gold\nLX APEX\n3,000 Gold\nSUBARU WRX STI\n900 Gold\nBMW M3 E30\n2,400 Gold\nNISSAN Z PROTO\nOwned\n\nCAR COMPARISON\n\nPerformance\n\n1 better · 4 lower · 1 equal\n\nBrowsing\nNISSAN Z PROTO\nEquipped\nLX SPORT\nTop Speed\nEqual\n122game units\n122game units\nNitro Speed\n−5 lower\n210game units\n215game units\nAcceleration\n+0.05 better\n2.65rating\n2.6rating\nHandling\n−1.2 lower\n16.2rating\n17.4rating\nNitro Capacity\n−60 lower\n85units\n145units\nNitro Recharge\n−3.25 lower\n4units/s\n7.25units/s\n\nInstalled upgrades included. Higher is better for every stat. Speeds use game units.\n\nTune your car. Raise your game.\n\nParts & Upgrades\nCar preview\n\nSelect NISSAN Z PROTO to upgrade it. Equipped car: LX SPORT.\n\nStock\nEngine\n\nTop Speed: 122 → 126 units\n\nSelect car first\n300 Gold\nStock\nHandling\n\nHandling: 16.2 → 17 rating\n\nSelect car first\n250 Gold\nStock\nNitro System\n\nNitro Capacity: 85 → 100 units\n\nSelect car first\n350 Gold\n\nYour equipped car\nLX SPORT\n\nBack to Main Menu\nYour selection saves automatically\nCars and upgrades saved on this device.\nCompleted races: 25 Gold per coin, plus 1 Gold every 10 meters.\nProgress saved on this device.\nModel Credits\nGraphics\nStandard\nPerformance\nHigh"
+    },
+    {
+      "step": "mobile-390x700-touch-checks",
+      "accessibility": "Browser tab: 32, Title: \"Lumexia Viewport Check\", URL: \"http://127.0.0.3:5173/artifacts/ui-review.html\".\nThere has been no change in the accessibility tree.\nThe focused UI element is 13 AXWebArea Lumexia mobile controls check, URL: 127.0.0.3:5173/tools/mobile-controls-check.html"
+    },
+    {
+      "step": "upgrade-notice",
+      "lang": "en",
+      "labels": [
+        "Temporary garage test",
+        "Lumexia garage",
+        "Current screen",
+        "Return to Main Menu",
+        "900 Gold",
+        "Unmute sound | Unmute sound",
+        "NISSAN Z PROTO 3D preview, drag to rotate",
+        "Previous car",
+        "Next car",
+        "NISSAN Z PROTO car actions",
+        "NISSAN Z PROTO selected for racing",
+        "NISSAN Z PROTO owned",
+        "Browse cars",
+        "Browse LX SPORT",
+        "Browse LX GT",
+        "Browse LX APEX",
+        "Browse SUBARU WRX STI",
+        "Browse BMW M3 E30",
+        "Browse NISSAN Z PROTO",
+        "Top Speed",
+        "NISSAN Z PROTO Top Speed, browsing",
+        "NISSAN Z PROTO Top Speed, equipped car",
+        "Nitro Speed",
+        "NISSAN Z PROTO Nitro Speed, browsing",
+        "NISSAN Z PROTO Nitro Speed, equipped car",
+        "Acceleration",
+        "NISSAN Z PROTO Acceleration, browsing",
+        "NISSAN Z PROTO Acceleration, equipped car",
+        "Handling",
+        "NISSAN Z PROTO Handling, browsing",
+        "NISSAN Z PROTO Handling, equipped car",
+        "Nitro Capacity",
+        "NISSAN Z PROTO Nitro Capacity, browsing",
+        "NISSAN Z PROTO Nitro Capacity, equipped car",
+        "Nitro Recharge",
+        "NISSAN Z PROTO Nitro Recharge, browsing",
+        "NISSAN Z PROTO Nitro Recharge, equipped car",
+        "",
+        "Engine: 1 of 3 stages installed",
+        "Upgrade Engine to Stage 2 for 650 Gold",
+        "",
+        "Handling: 0 of 3 stages installed",
+        "Upgrade Handling to Stage 1 for 250 Gold",
+        "",
+        "Nitro System: 0 of 3 stages installed",
+        "Upgrade Nitro System to Stage 1 for 350 Gold",
+        "Your selected graphics quality stays fixed throughout the race.",
+        "Graphics quality"
+      ],
+      "text": "Garage Test — temporary progress\nReset Starter · 1,500 Gold\nMaxed Build · 6,000 Gold\nLUMEXIA\nHIGHWAY RACING\nMain Menu\n/ Garage\n900\nGold\n\nChoose your car. Gear up for the race.\n\nYOUR GARAGE.\n2 / 6 cars owned\nSports Coupe\nNISSAN Z PROTO\n6 / 6\nDrag to rotate\nSelected\nRace-ready\nOwned\nIn your garage\n\nNISSAN Z PROTO: Stage 1 Engine installed for 300 Gold.\n\nLX SPORT\nOwned\nLX GT\n1,250 Gold\nLX APEX\n3,000 Gold\nSUBARU WRX STI\n900 Gold\nBMW M3 E30\n2,400 Gold\nNISSAN Z PROTO\nSelected for racing\n\nCAR COMPARISON\n\nPerformance\n\nYour equipped car is on display. Browse another car to compare stats.\n\nBrowsing\nNISSAN Z PROTO\nEquipped\nNISSAN Z PROTO\nTop Speed\nEqual\n126game units\n126game units\nNitro Speed\nEqual\n210game units\n210game units\nAcceleration\nEqual\n2.85rating\n2.85rating\nHandling\nEqual\n16.2rating\n16.2rating\nNitro Capacity\nEqual\n85units\n85units\nNitro Recharge\nEqual\n4units/s\n4units/s\n\nInstalled upgrades included. Higher is better for every stat. Speeds use game units.\n\nTune your car. Raise your game.\n\nParts & Upgrades\n1 / 9 stages installed\n\nUpgrades are fitted immediately to your selected NISSAN Z PROTO. Each part can be upgraded to Stage 3.\n\nStage 1 / 3\nEngine\n\nTop Speed: 126 → 130 units\n\nUpgrade to Stage 2\n650 Gold\nStock\nHandling\n\nHandling: 16.2 → 17 rating\n\nUpgrade to Stage 1\n250 Gold\nStock\nNitro System\n\nNitro Capacity: 85 → 100 units\n\nUpgrade to Stage 1\n350 Gold\n\nYour equipped car\nNISSAN Z PROTO\n\nBack to Main Menu\nYour selection saves automatically\nCars and upgrades saved on this device.\nCompleted races: 25 Gold per coin, plus 1 Gold every 10 meters.\nProgress saved on this device.\nModel Credits\nGraphics\nStandard\nPerformance\nHigh"
+    },
+    {
+      "step": "mobile-320-garage",
+      "accessibility": "Browser tab: 32, Title: \"Lumexia Viewport Check\", URL: \"http://127.0.0.3:5173/artifacts/ui-review.html\".\nThere has been no change in the accessibility tree.\nThe focused UI element is 13 AXWebArea Lumexia — Highway Division, URL: 127.0.0.3:5173/"
+    },
+    {
+      "step": "main-menu-ready",
+      "lang": "en",
+      "labels": [
+        "Lumexia main menu",
+        "Current screen",
+        "1,226 Gold",
+        "Mute sound | Mute sound",
+        "Equipped Car",
+        "SUBARU WRX STI 3D preview",
+        "Your selected graphics quality stays fixed throughout the race.",
+        "Graphics quality"
+      ],
+      "text": "LUMEXIA\nHIGHWAY RACING\n1,226\nGold\n\nENDLESS HIGHWAY. NEW RECORDS.\n\nHIT THE\nROAD.\n\nDodge traffic. Earn Gold.\nUpgrade your ride. Beat your best.\n\nStart Race\nGarage\nChoose and upgrade your ride\nEquipped Car\nRace-ready\n SUBARU WRX STI\nRally Sedan\nRally Sedan\nSUBARU WRX STI\nTop Speed\n112\ngame units\nNitro Capacity\n95\nunits\n How to Play\nProgress saved on this device.\nModel Credits\nGraphics\nStandard\nPerformance\nHigh"
+    },
+    {
+      "step": "final-clean-mobile-320",
+      "accessibility": "Browser tab: 34, Title: \"Lumexia Viewport Check\", URL: \"http://127.0.0.3:5173/artifacts/ui-review.html\".\nThere has been no change in the accessibility tree.\nThe focused UI element is 12 AXWebArea Lumexia mobile controls check, URL: 127.0.0.3:5173/tools/mobile-controls-check.html"
+    }
+  ],
+  "errors": {
+    "app": [],
+    "garage": [],
+    "mobile": []
+  },
+  "remainingTurkish": [],
+  "diagnosticHistory": {
+    "previousMobileLog": [
+      {
+        "level": "error",
+        "message": "You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.",
+        "timestamp": "2026-10-19T07:24:51.770Z",
+        "url": "http://127.0.0.3:5173/node_modules/.vite/deps/chunk-YYBSOROT.js?v=6ad2f91c"
+      }
+    ],
+    "note": "Historical HMR duplicate-root diagnostic warning; the fixture now reuses its root and removes old toolbar listeners. Fresh-page checks below are authoritative."
+  }
+}

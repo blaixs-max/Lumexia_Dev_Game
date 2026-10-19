@@ -92,20 +92,20 @@ export function applyPickup(state, pickup) {
   if (pickup.kind === 'magnet') {
     state.magnetActive = true;
     state.magnetRemaining = state.magnetDuration / 1000;
-    state.message = 'MIKNATIS · 10 sn';
+    state.message = 'MAGNET · 10 s';
     state.messageRemaining = 1.5;
   } else if (pickup.kind === 'rocket') {
     state.rocketActive = true;
     state.rocketRemaining = state.rocketDuration / 1000;
     state.enemies = [];
-    state.message = 'ROKET · 12 sn';
+    state.message = 'ROCKET BOOST · 12 s';
     state.messageRemaining = 1.5;
     state.isNitroActive = false;
   } else {
     // Preserve the established scoring rules.
     state.score += 100;
     state.coinsCollected++;
-    state.message = '+100 PUAN · 1 JETON';
+    state.message = '+100 POINTS · 1 COIN';
     state.messageRemaining = 0.6;
   }
 }
@@ -115,7 +115,7 @@ export function awardNearMiss(state, position, random) {
   state.score += 500 * multiplier;
   state.combo = Math.min(multiplier + 1, 10);
   state.nearMissCount++;
-  state.message = `YAKIN GEÇİŞ · ×${multiplier}`;
+  state.message = `NEAR MISS · ×${multiplier}`;
   state.messageRemaining = 1;
   state.particles.push(...makeParticles(position.x, 1, position.z, 'spark', random));
 }
@@ -165,7 +165,7 @@ export function stepGameplay(state, delta, random, effects) {
     state.rocketLevelTracker = nextLevel;
     state.reachedLevel5 ||= nextLevel >= 5;
     state.message = nextLevel === 5 && state.gameMode === 'doubleOrNothing'
-      ? 'SEVİYE 5 · SKOR ÇARPANI 2×' : `SEVİYE ${nextLevel}`;
+      ? 'LEVEL 5 · SCORE MULTIPLIER 2×' : `LEVEL ${nextLevel}`;
     state.messageRemaining = 1.5;
   }
 

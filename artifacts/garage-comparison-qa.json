@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-19",
+  "mode": "memory-only diagnostic + normal app",
+  "checks": [
+    {
+      "step": "purchase-only",
+      "evidence": {
+        "collection": "2 / 6 araç sende",
+        "inspected": "SUBARU WRX STI",
+        "notice": "SUBARU WRX STI satın alındı. 900 altın harcandı. Yarışta kullanmak için Seç düğmesine bas.",
+        "purchaseDisabled": true,
+        "selectDisabled": false,
+        "selected": "LX SPORT"
+      }
+    },
+    {
+      "step": "explicit-select",
+      "evidence": "ARAÇ KARŞILAŞTIRMASI\n\nPerformans\n\nSeçili aracın gösteriliyor. Karşılaştırmak için başka bir araca göz at.\n\nİncelenen araç\nSUBARU WRX STI\nYarış için seçili\nSUBARU WRX STI\nNormal hız\nEşit\n108oyun hızı\n108oyun hızı\nNitro ile hız\nEşit\n190oyun hızı\n190oyun hızı\nHızlanma\nEşit\n2,2oyun ölçeği\n2,2oyun ölçeği\nDireksiyon tepkisi\nEşit\n16,5oyun ölçeği\n16,5oyun ölçeği\nNitro kapasitesi\nEşit\n95birim\n95birim\nNitro yenilenmesi\nEşit\n5birim/sn\n5birim/sn\n\nTakılı yükseltmeler dahildir. Tüm değerlerde yüksek olan daha iyi; hızlar oyun ölçeğindedir."
+    },
+    {
+      "step": "upgrade-selected",
+      "evidence": "ARAÇ KARŞILAŞTIRMASI\n\nPerformans\n\nSeçili aracın gösteriliyor. Karşılaştırmak için başka bir araca göz at.\n\nİncelenen araç\nSUBARU WRX STI\nYarış için seçili\nSUBARU WRX STI\nNormal hız\nEşit\n112oyun hızı\n112oyun hızı\nNitro ile hız\nEşit\n190oyun hızı\n190oyun hızı\nHızlanma\nEşit\n2,4oyun ölçeği\n2,4oyun ölçeği\nDireksiyon tepkisi\nEşit\n16,5oyun ölçeği\n16,5oyun ölçeği\nNitro kapasitesi\nEşit\n95birim\n95birim\nNitro yenilenmesi\nEşit\n5birim/sn\n5birim/sn\n\nTakılı yükseltmeler dahildir. Tüm değerlerde yüksek olan daha iyi; hızlar oyun ölçeğindedir."
+    },
+    {
+      "step": "tuned-baseline-versus-stock",
+      "evidence": "ARAÇ KARŞILAŞTIRMASI\n\nPerformans\n\n1 daha iyi · 4 daha düşük · 1 eşit\n\nİncelenen araç\nNISSAN Z PROTO\nYarış için seçili\nLX SPORT\nNormal hız\nEşit\n122oyun hızı\n122oyun hızı\nNitro ile hız\n−5 daha düşük\n210oyun hızı\n215oyun hızı\nHızlanma\n+0,05 daha iyi\n2,65oyun ölçeği\n2,6oyun ölçeği\nDireksiyon tepkisi\n−1,2 daha düşük\n16,2oyun ölçeği\n17,4oyun ölçeği\nNitro kapasitesi\n−60 daha düşük\n85birim\n145birim\nNitro yenilenmesi\n−3,25 daha düşük\n4birim/sn\n7,25birim/sn\n\nTakılı yükseltmeler dahildir. Tüm değerlerde yüksek olan daha iyi; hızlar oyun ölçeğindedir."
+    },
+    {
+      "step": "normal-save-unchanged",
+      "evidence": {
+        "gold": "789Altın",
+        "inspected": "NISSAN Z PROTO",
+        "selected": "SUBARU WRX STI",
+        "stats": [
+          "Normal hız+10 daha iyi122oyun hızı112oyun hızı",
+          "Nitro ile hız+20 daha iyi210oyun hızı190oyun hızı",
+          "Hızlanma+0,25 daha iyi2,65oyun ölçeği2,4oyun ölçeği",
+          "Direksiyon tepkisi−0,3 daha düşük16,2oyun ölçeği16,5oyun ölçeği",
+          "Nitro kapasitesi−10 daha düşük85birim95birim",
+          "Nitro yenilenmesi−1 daha düşük4birim/sn5birim/sn"
+        ]
+      }
+    }
+  ],
+  "fixtureErrors": [],
+  "appErrors": []
+}
