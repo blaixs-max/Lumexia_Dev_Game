@@ -17,7 +17,9 @@ export function Fixture() {
   </div>;
 }
 
-createRoot(document.querySelector('#root')).render(<Fixture />);
+const fixtureRoot = import.meta.hot?.data.root ?? createRoot(document.querySelector('#root'));
+if (import.meta.hot) import.meta.hot.data.root = fixtureRoot;
+fixtureRoot.render(<Fixture />);
 
 const button = document.querySelector('#run-checks');
 const output = document.querySelector('#check-results');
@@ -50,9 +52,10 @@ const pointer = (element, type, id, point) => {
 const click = element => flushSync(() => element.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 })));
 const key = (type, code, target = window) => flushSync(() => target.dispatchEvent(new KeyboardEvent(type, { code, key: code === 'Space' ? ' ' : code, bubbles: true, cancelable: true })));
 const reset = () => {
+  document.querySelector('#preview-powerups').setAttribute('aria-pressed', 'false');
   flushSync(() => {
     window.dispatchEvent(new Event('resize'));
-    useGameStore.setState({ gameState: 'playing', pausedFrom: null, steeringInput: 0, isNitroActive: false, nitro: 100, rocketActive: false, soundEnabled: false });
+    useGameStore.setState({ gameState: 'playing', pausedFrom: null, steeringInput: 0, isNitroActive: false, nitro: 100, rocketActive: false, rocketRemaining: 0, magnetActive: false, magnetRemaining: 0, soundEnabled: false });
   });
 };
 
@@ -248,4 +251,15 @@ async function runChecks() {
   }
 }
 
+const previewPowerups = document.querySelector('#preview-powerups');
+const togglePowerupPreview = event => {
+  const active = event.currentTarget.getAttribute('aria-pressed') !== 'true';
+  event.currentTarget.setAttribute('aria-pressed', String(active));
+  useGameStore.setState({ magnetActive: active, magnetRemaining: active ? 10 : 0, rocketActive: active, rocketRemaining: active ? 12 : 0 });
+};
 button.addEventListener('click', runChecks);
+previewPowerups.addEventListener('click', togglePowerupPreview);
+if (import.meta.hot) import.meta.hot.dispose(() => {
+  button.removeEventListener('click', runChecks);
+  previewPowerups.removeEventListener('click', togglePowerupPreview);
+});

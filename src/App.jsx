@@ -19,10 +19,10 @@ class GameBoundary extends Component {
   componentDidCatch(error) { console.error('Unable to load race scene:', error); }
   render() {
     if (this.state.failed) return <div className="lx-ui lx-load-error" role="alert">
-      <UIIcon name="info" size={36} /><p className="lx-eyebrow">YÜKLEME SORUNU</p><h1>Yarış yüklenemedi.</h1>
-      <p>Bağlantını kontrol et veya grafik ayarını Performans olarak değiştirip yeniden dene.</p>
-      <button className="lx-button lx-button-primary" onClick={this.props.onBack}><UIIcon name="arrowLeft" /> Ana menü</button>
-      <button className="lx-button lx-button-secondary" onClick={() => window.location.reload()}><UIIcon name="restart" /> Yeniden yükle</button>
+      <UIIcon name="info" size={36} /><p className="lx-eyebrow">LOADING ERROR</p><h1>Unable to load the race.</h1>
+      <p>Check your connection or switch Graphics to Performance, then try again.</p>
+      <button className="lx-button lx-button-primary" onClick={this.props.onBack}><UIIcon name="arrowLeft" /> Main Menu</button>
+      <button className="lx-button lx-button-secondary" onClick={() => window.location.reload()}><UIIcon name="restart" /> Reload</button>
     </div>;
     return this.props.children;
   }
@@ -82,7 +82,7 @@ function Race({ quality }) {
   const pageVisible = usePageVisible();
   const quitGame = useGameStore(s => s.quitGame);
   const openGarage = useGameStore(s => s.openGarage);
-  return <main className="lx-race" aria-label="Lumexia otoyol yarışı">
+  return <main className="lx-race" aria-label="Lumexia highway race">
     <GameBoundary onBack={quitGame}>
       <Canvas dpr={renderDpr} shadows="soft" frameloop={!pageVisible ? 'never' : ready && gameState === 'paused' ? 'demand' : 'always'} camera={{ position: [0, 5.2, 11.5], fov: 54, near: 0.5, far: 750 }}
         gl={{ antialias: true, alpha: false, powerPreference: 'high-performance', toneMapping: ACESFilmicToneMapping }}>
@@ -91,7 +91,7 @@ function Race({ quality }) {
           <RaceScene low={low} onReady={() => setReady(true)} />
         </Suspense>
       </Canvas>
-      {ready ? <RaceHUD onMainMenu={quitGame} onGarage={openGarage} /> : <div className="lx-ui lx-track-loading" role="status"><span className="lx-loading-spinner" aria-hidden="true" /><p>Yarış hazırlanıyor</p><small>Yol ve aracın yükleniyor…</small><button className="lx-button lx-button-secondary" onClick={quitGame}><UIIcon name="arrowLeft" /> Ana menüye dön</button></div>}
+      {ready ? <RaceHUD onMainMenu={quitGame} onGarage={openGarage} /> : <div className="lx-ui lx-track-loading" role="status"><span className="lx-loading-spinner" aria-hidden="true" /><p>Preparing Race</p><small>Loading the highway and your car…</small><button className="lx-button lx-button-secondary" onClick={quitGame}><UIIcon name="arrowLeft" /> Main Menu</button></div>}
       <RaceControls touchVisible={ready && gameState === 'playing'} />
       <RaceAudio ready={ready} />
     </GameBoundary>

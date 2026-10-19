@@ -12,7 +12,7 @@ useGLTF.setDecoderPath('/draco/');
 class ShowroomBoundary extends Component {
   state = { failed: false };
   static getDerivedStateFromError() { return { failed: true }; }
-  render() { return this.state.failed ? <div className="lx-showroom-fallback" role="status">Araç önizlemesi yüklenemedi</div> : this.props.children; }
+  render() { return this.state.failed ? <div className="lx-showroom-fallback" role="status">Car preview unavailable</div> : this.props.children; }
 }
 
 function ShowroomCar({ car, levels, stationary = false }) {
@@ -81,7 +81,7 @@ export default function VehicleShowroom({ carId, quality = 'auto', interactive =
   const upgrades = useGameStore(s => s.garageUpgrades);
   const car = getCar(carId);
   const workshop = variant === 'workshop';
-  return <div className={`lx-showroom${workshop ? ' lx-showroom--workshop' : ''}`} role="img" aria-label={`${car.name} 3D önizlemesi${interactive ? ', döndürmek için sürükle' : ''}`}>
+  return <div className={`lx-showroom${workshop ? ' lx-showroom--workshop' : ''}`} role="img" aria-label={`${car.name} 3D preview${interactive ? ', drag to rotate' : ''}`}>
     {!workshop ? <div className="lx-showroom-grid" aria-hidden="true" /> : null}
     <ShowroomBoundary key={car.id}>
       <Canvas frameloop={visible ? 'always' : 'never'} camera={{ position: workshop ? [6.4, 2.8, 7.3] : [6, 3, 7], fov: workshop ? 33 : 34 }} dpr={quality === 'performance' ? 1 : [1, 1.5]} gl={{ alpha: true, antialias: true }}>
@@ -103,6 +103,6 @@ export default function VehicleShowroom({ carId, quality = 'auto', interactive =
         {interactive ? <OrbitControls enableZoom={false} enablePan={false} target={[0, workshop ? .65 : .5, 0]} minPolarAngle={workshop ? .9 : .6} maxPolarAngle={1.45} minAzimuthAngle={workshop ? -.75 : -Infinity} maxAzimuthAngle={workshop ? 1.35 : Infinity} /> : null}
       </Canvas>
     </ShowroomBoundary>
-    {!workshop ? <div className="lx-car-caption"><span><i /> {car.name}</span><span>{interactive ? 'Döndürmek için sürükle' : car.classLabel}</span></div> : null}
+    {!workshop ? <div className="lx-car-caption"><span><i /> {car.name}</span><span>{interactive ? 'Drag to rotate' : car.classLabel}</span></div> : null}
   </div>;
 }

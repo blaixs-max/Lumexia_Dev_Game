@@ -10,49 +10,71 @@
 .lx-workbench-heading h1 em { color: #e8bd7c; font-style: normal; }
 .lx-bay-collection { display: flex; align-items: center; gap: 9px; color: #b6c0b7; font-size: 12px; padding-bottom: 5px; }
 .lx-bay-collection strong { color: #e2e8df; font-size: 21px; }
-.lx-bay-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(290px, .37fr); gap: 20px 22px; }
+.lx-bay-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, .46fr); align-items: start; gap: 20px 22px; }
 .lx-bay-vehicle { position: relative; min-width: 0; border: 1px solid #bba28040; border-radius: 10px; background: #232724; overflow: hidden; }
 .lx-bay-nameplate { position: relative; z-index: 2; margin: 16px auto 0; width: min(320px, 60%); text-align: center; padding: 9px 30px; border: 1px solid #bcae9347; border-radius: 5px; background: linear-gradient(125deg, #383b35e8, #242c2ae8); box-shadow: 0 4px 15px #0002; pointer-events: none; }
 .lx-bay-nameplate > span { display: block; color: #c7cdbe; font-size: 11px; }
 .lx-bay-nameplate h2 { font-size: clamp(19px, 2vw, 28px); letter-spacing: -.7px; line-height: 1.2; margin: 3px 0; }
 .lx-bay-nameplate small { position: absolute; right: 10px; bottom: 13px; font-size: 10px; color: #b8c0b1; }
-.lx-bay-scene { position: relative; height: clamp(300px, 38vh, 400px); }
+.lx-bay-scene { position: relative; height: clamp(350px, 43vh, 440px); }
 .lx-workshop-page .lx-bay-scene .lx-showroom { margin: 0; width: 100%; height: 100%; min-height: 0; }
 .lx-bay-scene .lx-showroom-grid, .lx-bay-scene .lx-car-caption { display: none; }
 .lx-bay-arrow { position: absolute; z-index: 3; top: 47%; width: 44px; height: 60px; display: grid; place-items: center; color: #e8e6d8; border: 1px solid #c3bd9f50; background: #1a211f88; backdrop-filter: blur(6px); border-radius: 5px; transition: background .15s; }
 .lx-bay-arrow:hover:enabled { color: #fff2d6; background: #aa895270; }
 .lx-bay-arrow.is-prev { left: 18px; }
 .lx-bay-arrow.is-next { right: 18px; }
-.lx-bay-drag { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 7px; font-size: 11px; white-space: nowrap; color: #d0d5c8; text-shadow: 0 1px 3px #000; pointer-events: none; }
+.lx-bay-drag { position: absolute; z-index: 2; top: 12px; left: 18px; display: flex; align-items: center; gap: 7px; font-size: 11px; color: #f1eee4; background: #171f1bd9; border: 1px solid #c3bd9f33; border-radius: 4px; padding: 6px 9px; pointer-events: none; }
+.lx-bay-scene-actions { position: absolute; z-index: 3; bottom: 17px; left: 50%; transform: translateX(-50%); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; width: min(450px, calc(100% - 110px)); }
+.lx-bay-action { min-width: 0; min-height: 62px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border-radius: 6px; padding: 9px 12px; font-size: 15px !important; font-weight: 700 !important; box-shadow: 0 4px 15px #0004; transition: background .15s, border-color .15s; }
+.lx-bay-action > span { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.lx-bay-action > small { font-size: 11px; font-weight: 500; line-height: 1.3; }
+.lx-bay-select { border: 1px solid #defb7b; background: #defb7b; color: #213019; }
+.lx-bay-select:hover:enabled { background: #ecffb1; }
+.lx-bay-purchase { border: 1px solid #f2c584; background: #f2c584; color: #31291b; }
+.lx-bay-purchase:hover:enabled { background: #ffdbab; }
+.lx-bay-action:disabled { border-color: #8f9d8377; background: #202b25f5; color: #c0c9b7; cursor: not-allowed; }
+.lx-bay-select.is-current { border-color: #cde59699; background: #263827f5; color: #e2f6ad; }
+.lx-workbench .lx-bay-action:disabled { opacity: 1; }
 .lx-bay-vehicle-controls { position: relative; z-index: 2; padding: 14px 18px 16px; background: linear-gradient(180deg, #1c2321, #171e1c); border-top: 1px solid #bba28024; display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
+.lx-bay-action-hint { display: flex; align-items: flex-start; gap: 7px; flex-basis: 100%; margin: 0; color: #c0cfbf; font-size: 12px; line-height: 1.5; }
+.lx-bay-action-hint svg { flex-shrink: 0; margin-top: 1px; color: #d8eca5; }
+.lx-bay-action-hint.is-shortfall, .lx-bay-action-hint.is-shortfall svg { color: #edc795; }
 .lx-bay-car-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); flex: 1 1 100%; gap: 6px; min-width: 0; }
 .lx-bay-car-tabs button { min-width: 0; min-height: 61px; text-align: left; display: grid; grid-template-columns: 15px minmax(0, 1fr); align-items: center; gap: 5px 7px; background: transparent; border: 1px solid #9aab8c28; border-radius: 4px; padding: 10px 8px; color: #b9c4ba; font-size: 12px !important; font-weight: 700 !important; }
 .lx-bay-car-tabs button[aria-pressed=true] { border-color: #d5c09590; background: #d5c0950f; color: #f0eddf; }
 .lx-bay-car-tabs button:hover:enabled { background: #d5c09513; }
 .lx-bay-car-tabs button > svg { color: #e8bd7c; }
 .lx-bay-car-tabs button > span { grid-column: 2; font-size: 10px; line-height: 1.35; color: #b2bea6; font-weight: 400; }
-.lx-bay-select { min-height: 46px; border: 1px solid #d5ed94; background: #d5ed94; border-radius: 4px; color: #25301d; font-size: 13px !important; font-weight: 700 !important; padding: 11px 18px; display: flex; gap: 20px; align-items: center; justify-content: center; }
-.lx-bay-select > span { display: flex; align-items: center; gap: 8px; }
-.lx-bay-select strong { font-size: 16px; white-space: nowrap; }
-.lx-bay-select small { font-size: 12px; font-weight: 500; }
-.lx-bay-select:disabled { background: #283026; border-color: #66715788; color: #b7c3a7; cursor: not-allowed; }
-.lx-bay-select.is-current { background: #cde5960b; border-color: #cde5964d; color: #cee497; }
-.lx-bay-shortfall { color: #e0bf8e; font-size: 12px; line-height: 1.4; margin: 0; }
-.lx-bay-specs { min-width: 0; padding: 23px; background: linear-gradient(130deg, #33372d99, #1a2220); border: 1px solid #bba28055; border-radius: 8px; box-shadow: inset 0 1px 0 #dfce9d10, 0 8px 25px #0002; }
-.lx-bay-specs header { border-bottom: 1px solid #c5bb9e30; padding-bottom: 16px; }
-.lx-bay-specs h2 { font-size: 20px; font-weight: 700; margin: 0 0 10px; }
-.lx-bay-ownership { display: flex; align-items: center; gap: 7px; font-size: 12px; color: #d9be90; }
-.lx-bay-ownership.is-active { color: #d2e89d; }
-.lx-bay-car-description { color: #c0cbbd; font-size: 12px; line-height: 1.7; margin: 16px 0 0; }
-.lx-bay-stat { display: grid; grid-template-columns: 25px minmax(0, 1fr); align-items: center; gap: 11px; margin-top: 22px; }
-.lx-bay-stat > svg { color: #d3d8c9; }
-.lx-bay-stat-value { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
-.lx-bay-stat-value > span { font-size: 12px; line-height: 1.3; color: #bdc8bb; }
-.lx-bay-stat-value > strong { font-size: 24px; line-height: 1; font-weight: 500; white-space: nowrap; }
-.lx-bay-stat-value small { font-size: 11px; color: #b9c4ac; margin-left: 4px; }
-.lx-bay-stat-track { height: 4px; border-radius: 2px; background: #65715e66; margin-top: 9px; overflow: hidden; }
-.lx-bay-stat-track i { display: block; height: 100%; background: linear-gradient(90deg, #8d9b79, #e1e9c2); border-radius: inherit; transition: width .25s; }
-.lx-bay-spec-note { display: flex; align-items: flex-start; gap: 7px; font-size: 11px; line-height: 1.6; color: #afbdad; margin: 20px 0 0; }
+.lx-bay-specs { min-width: 0; padding: 22px; background: linear-gradient(150deg, #1d3039, #151f24 70%); border: 1px solid #809ba957; border-radius: 10px; box-shadow: inset 0 1px 0 #c6e6ff14, 0 8px 25px #0002; --compare-inspected: #85dbf9; --compare-selected: #a5b3c4; --compare-better: #d6ed9a; --compare-worse: #f4b09a; }
+.lx-bay-specs > header { border-bottom: 1px solid #9db9ce33; padding-bottom: 15px; }
+.lx-compare-kicker { color: #a9c3d3; font-size: 10px; font-weight: 600; letter-spacing: 1.5px; margin: 0 0 5px; }
+.lx-bay-specs h2 { color: #eff6f9; font-size: 25px; font-weight: 750; margin: 0; letter-spacing: -.6px; }
+.lx-compare-summary { font-size: 11px; line-height: 1.65; color: #b1c3cd; margin: 8px 0 0; min-height: 18px; }
+.lx-compare-summary strong { color: var(--compare-better); font-weight: 600; }
+.lx-compare-summary b { color: var(--compare-worse); font-weight: 600; }
+.lx-compare-cars { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; padding: 16px 0 4px; }
+.lx-compare-cars > div { min-width: 0; }
+.lx-compare-cars span { display: flex; align-items: center; gap: 5px; color: #bdced8; font-size: 10px; line-height: 1.5; }
+.lx-compare-cars i { width: 6px; height: 6px; border-radius: 50%; background: var(--compare-inspected); flex-shrink: 0; }
+.lx-compare-cars .is-selected i { background: var(--compare-selected); }
+.lx-compare-cars strong { display: block; font-size: 12px; line-height: 1.5; color: var(--compare-inspected); margin-top: 4px; overflow-wrap: anywhere; }
+.lx-compare-cars .is-selected strong { color: #c2ccd9; }
+.lx-compare-stat { padding: 9px 0 8px; border-bottom: 1px solid #8fa9ba22; }
+.lx-compare-stat-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 5px 8px; font-size: 12px; line-height: 1.3; }
+.lx-compare-stat-heading > span:first-child { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: #d9e5e9; }
+.lx-compare-stat-heading svg { flex-shrink: 0; color: #b4cad6; }
+.lx-compare-difference { font-size: 10px; line-height: 1.2; font-weight: 600; color: #bac8d2; border-radius: 3px; padding: 2px 5px; background: #acbfd30c; }
+.is-better .lx-compare-difference { color: var(--compare-better); background: #d6ed9a0d; }
+.is-worse .lx-compare-difference { color: var(--compare-worse); background: #f4b09a0d; }
+.lx-compare-stat-values { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 5px; font-size: 12px; line-height: 1.2; }
+.lx-compare-value { min-width: 0; }
+.lx-compare-value strong { color: var(--compare-inspected); font-size: 21px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.lx-compare-value.is-selected strong { color: #c2ccd9; }
+.lx-compare-value small { font-size: 9px; color: #a8becb; margin-left: 5px; white-space: nowrap; }
+.lx-compare-track { height: 5px; margin-top: 6px; overflow: hidden; border-radius: 3px; background: #728b9b26; }
+.lx-compare-track i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #3983ae, var(--compare-inspected)); transition: width .2s; }
+.is-selected .lx-compare-track i { background: linear-gradient(90deg, #677c92, var(--compare-selected)); }
+.lx-bay-spec-note { display: flex; align-items: flex-start; gap: 7px; font-size: 10px; line-height: 1.6; color: #aebfca; margin: 15px 0 0; }
 .lx-bay-spec-note svg { flex-shrink: 0; margin-top: 2px; }
 .lx-bay-equipment { padding: 20px; min-width: 0; border: 1px solid #bba28040; background: linear-gradient(120deg, #252d2799, #19211f); border-radius: 8px; }
 .lx-bay-equipment > header { display: flex; align-items: center; justify-content: space-between; gap: 15px; }
@@ -78,7 +100,7 @@
 .lx-bay-upgrade > span, .lx-bay-upgrade strong { display: inline-flex; align-items: center; gap: 6px; line-height: 1.4; }
 .lx-bay-upgrade strong { white-space: nowrap; font-size: 12px; }
 .lx-bay-upgrade:disabled { border-color: #5a694e; background: #303b2b; color: #bac8ac; cursor: not-allowed; }
-.lx-workbench .lx-bay-select:disabled, .lx-workbench .lx-bay-upgrade:disabled { opacity: 1; }
+.lx-workbench .lx-bay-upgrade:disabled { opacity: 1; }
 .lx-bay-part-shortfall { color: #e2c691; font-size: 11px; line-height: 1.5; display: block; margin-top: 7px; }
 .lx-bay-ready { display: flex; flex-direction: column; align-items: stretch; justify-content: center; padding: 20px; text-align: center; }
 .lx-bay-ready p { font-size: 13px; line-height: 1.8; color: #b4c3b5; margin: 0 0 16px; }
@@ -86,8 +108,6 @@
 .lx-bay-done { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 49px; padding: 13px 15px; background: #e4b678; color: #2c281d; border: 1px solid #f4cd93; border-radius: 4px; font-size: 14px !important; font-weight: 700 !important; box-shadow: 0 4px 20px #e4b6780c; }
 .lx-bay-done:hover { background: #f0ca92; }
 .lx-bay-ready > span { font-size: 11px; margin-top: 11px; color: #aebdac; line-height: 1.5; }
-.lx-bay-notice { font-size: 13px; line-height: 1.7; color: #d6eb9c; margin: 15px 0 0; }
-.lx-bay-notice:empty { display: none; }
 .lx-bay-save { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px 22px; color: #a6b6a8; font-size: 11px; line-height: 1.6; margin: 20px 0 0; }
 .lx-bay-save > span { display: flex; align-items: flex-start; gap: 7px; }
 .lx-bay-save svg { flex-shrink: 0; margin-top: 1px; }
@@ -97,7 +117,7 @@
 .lx-run-reward strong { font-size: 22px; color: #f7db8c; }
 .lx-run-reward small { display: block; font-size: 11px; color: #b4bfbd; }
 @media (max-width: 1100px) {
-  .lx-bay-layout { gap: 16px; grid-template-columns: minmax(0, 1fr) 290px; }
+  .lx-bay-layout { gap: 16px; grid-template-columns: minmax(0, 1fr) 330px; }
   .lx-bay-parts { grid-template-columns: 1fr; gap: 10px; }
   .lx-bay-part { display: grid; grid-template-columns: 85px minmax(0, 1fr); }
   .lx-bay-part-image { height: 100%; min-height: 128px; }
@@ -119,21 +139,16 @@
   .lx-bay-collection { font-size: 11px; gap: 6px; }
   .lx-bay-collection strong { font-size: 20px; }
   .lx-bay-layout { grid-template-columns: 1fr; gap: 16px; }
-  .lx-bay-scene { height: clamp(280px, 58vw, 350px); }
+  .lx-bay-scene { height: clamp(320px, 65vw, 420px); }
   .lx-bay-nameplate { padding: 8px 25px; }
   .lx-bay-nameplate h2 { font-size: 23px; }
   .lx-bay-arrow { height: 50px; width: 40px; }
   .lx-bay-arrow.is-prev { left: 12px; }
   .lx-bay-arrow.is-next { right: 12px; }
   .lx-bay-vehicle-controls { padding: 13px; gap: 12px; }
-  .lx-bay-specs { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; column-gap: 24px; }
-  .lx-bay-specs header { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 13px; }
-  .lx-bay-specs h2 { font-size: 19px; margin: 0; }
-  .lx-bay-stat { margin-top: 20px; gap: 8px; grid-template-columns: 22px minmax(0, 1fr); }
-  .lx-bay-stat-value { display: block; }
-  .lx-bay-stat-value > span { display: block; margin-bottom: 6px; font-size: 12px; }
-  .lx-bay-spec-note { grid-column: 1 / -1; margin-top: 18px; }
-  .lx-bay-car-description { grid-column: 1 / -1; }
+  .lx-bay-specs { padding: 20px; }
+  .lx-compare-stat-values, .lx-compare-cars { gap: 22px; }
+  .lx-compare-cars strong { font-size: 13px; }
   .lx-bay-equipment { padding: 19px; }
   .lx-bay-part { grid-template-columns: 110px minmax(0, 1fr); }
   .lx-bay-part-image img { object-fit: contain; }
@@ -153,13 +168,13 @@
   .lx-bay-car-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
   .lx-bay-car-tabs button { padding: 10px 8px; gap: 5px 7px; }
   .lx-bay-car-tabs button > span { font-size: 10px; }
-  .lx-bay-select { width: 100%; gap: 13px; }
-  .lx-bay-shortfall { width: 100%; text-align: center; }
-  .lx-bay-specs { padding: 18px; gap: 0 16px; }
-  .lx-bay-specs header { flex-wrap: wrap; }
-  .lx-bay-stat { grid-template-columns: 20px minmax(0, 1fr); gap: 7px; }
-  .lx-bay-stat > svg { width: 20px; }
-  .lx-bay-stat-value > strong { font-size: 23px; }
+  .lx-bay-drag { left: 10px; font-size: 9px; padding: 5px 7px; }
+  .lx-bay-scene-actions { width: calc(100% - 24px); gap: 10px; bottom: 12px; }
+  .lx-bay-action { font-size: 14px !important; padding: 9px 7px; }
+  .lx-bay-action > span { gap: 6px; }
+  .lx-bay-specs { padding: 18px; }
+  .lx-compare-stat-values, .lx-compare-cars { gap: 14px; }
+  .lx-compare-value small { display: inline-block; }
   .lx-bay-equipment { padding: 16px; }
   .lx-bay-equipment > header { align-items: flex-start; flex-direction: column; gap: 7px; }
   .lx-bay-equipment h2 { font-size: 19px; }
@@ -175,4 +190,4 @@
   .lx-bay-ready { flex-direction: column; align-items: stretch; text-align: center; gap: 12px; }
   .lx-bay-done { max-width: none; }
 }
-@media (prefers-reduced-motion: reduce) { .lx-bay-arrow, .lx-bay-stat-track i { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .lx-bay-arrow, .lx-bay-action, .lx-compare-track i { transition: none; } }

@@ -1,6 +1,6 @@
 <!doctype html>
-<html lang="tr"><meta charset="utf-8"><title>Lumexia ekran kontrolü</title>
+<html lang="en"><meta charset="utf-8"><title>Lumexia Viewport Check</title>
 <style>body{margin:0;padding:18px;background:#080d10;color:#dce5de;font:14px system-ui}nav{display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap}button,select{padding:8px 12px;border:1px solid #4c6058;border-radius:5px;background:#1c2b25;color:#e5f1df}iframe{display:block;border:1px solid #4c6058;margin:auto;background:#0b1013}small{color:#9aaea2}</style>
-<nav><strong>Ekran kontrolü</strong><button data-width="320" data-height="700">320 × 700</button><button data-width="390" data-height="700">390 × 700</button><button data-width="844" data-height="390">844 × 390</button><select aria-label="Kontrol ekranı"><option value="/">Oyun</option><option value="/tools/mobile-controls-check.html">Dokunma testi</option></select><small>Tarayıcı çerçevesi · fiziksel cihaz testi değildir</small></nav>
-<iframe id="preview" title="Lumexia önizlemesi" src="/" width="390" height="700"></iframe>
+<nav><strong>Viewport Check</strong><button data-width="320" data-height="700">320 × 700</button><button data-width="390" data-height="700">390 × 700</button><button data-width="844" data-height="390">844 × 390</button><select aria-label="Preview screen"><option value="/">Game</option><option value="/tools/mobile-controls-check.html">Touch Controls Test</option></select><small>Browser frame · not a physical device test</small></nav>
+<iframe id="preview" title="Lumexia preview" src="/" width="390" height="700"></iframe>
 <script>const frame=document.querySelector('#preview');document.querySelectorAll('button').forEach(button=>button.addEventListener('click',()=>{frame.width=button.dataset.width;frame.height=button.dataset.height}));document.querySelector('select').addEventListener('change',event=>{frame.src=event.target.value});</script></html>

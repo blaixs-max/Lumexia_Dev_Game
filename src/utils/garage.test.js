@@ -188,6 +188,55 @@ describe('local garage and race loadouts', () => {
     expect(createGameStore().getState().garageOwnedCars).toEqual(['default', 'gt', 'apex']);
   });
 
+  it('can buy a car without replacing the selected build until the player explicitly selects it', () => {
+    data.set(GARAGE_KEY, JSON.stringify({
+      schemaVersion: 3, gold: 2000, selectedCar: 'default', ownedCars: ['default'],
+      upgrades: { default: { engine: 2, handling: 1, nitro: 3 } },
+    }));
+    const store = createGameStore();
+    store.getState().openGarage();
+    const beforePurchase = store.getState();
+    expect(store.getState().purchaseCar('gt', { selectOnPurchase: false })).toEqual({ success: true, cost: 1250 });
+    expect(store.getState()).toMatchObject({ selectedCar: 'default', garageGold: 750, garageOwnedCars: ['default', 'gt'] });
+    expect(beforePurchase.garageGold).toBe(2000);
+    expect(beforePurchase.garageOwnedCars).toEqual(['default']);
+    expect(store.getState().garageUpgrades).toBe(beforePurchase.garageUpgrades);
+    const purchaseSave = data.get(GARAGE_KEY);
+    expect(store.getState().purchaseCar('gt', { selectOnPurchase: false })).toEqual({ success: false, reason: 'already-owned' });
+    expect(data.get(GARAGE_KEY)).toBe(purchaseSave);
+
+    const restored = createGameStore();
+    expect(restored.getState()).toMatchObject({ selectedCar: 'default', garageGold: 750, garageOwnedCars: ['default', 'gt'] });
+    restored.getState().startGame();
+    expect(restored.getState()).toMatchObject({ runCar: 'default', runStats: { engine: 2, handling: 1, nitro: 3 } });
+    restored.getState().openGarage();
+    restored.getState().selectCar('gt');
+    restored.getState().startGame();
+    expect(restored.getState()).toMatchObject({ runCar: 'gt', garageGold: 750, runStats: { engine: 0, handling: 0, nitro: 0 } });
+    expect(restored.getState().garageUpgrades.default).toEqual({ engine: 2, handling: 1, nitro: 3 });
+    expect(createGameStore().getState().selectedCar).toBe('gt');
+  });
+
+  it('keeps purchase-only attempts atomic when funds are insufficient or a race is active', () => {
+    const store = createGameStore();
+    store.getState().openGarage();
+    store.setState({ garageGold: 1249 });
+    const beforeFailure = store.getState();
+    expect(store.getState().purchaseCar('gt', { selectOnPurchase: false })).toEqual({ success: false, reason: 'insufficient-gold', cost: 1250 });
+    expect(store.getState()).toBe(beforeFailure);
+    expect(data.has(GARAGE_KEY)).toBe(false);
+    store.setState({ garageGold: 5000 });
+    store.getState().startGame();
+    for (const gameState of ['countdown', 'playing', 'paused', 'gameover', 'launcher']) {
+      store.setState({ gameState });
+      const locked = store.getState();
+      expect(store.getState().purchaseCar('gt', { selectOnPurchase: false })).toEqual({ success: false, reason: 'not-in-garage' });
+      expect(store.getState()).toBe(locked);
+    }
+    expect(store.getState()).toMatchObject({ selectedCar: 'default', runCar: 'default', garageGold: 5000, garageOwnedCars: ['default'] });
+    expect(data.has(GARAGE_KEY)).toBe(false);
+  });
+
   it('bounds saved gold to finite nonnegative integers while preserving an empty wallet', () => {
     expect(sanitizeGarage({ gold: 0 }).gold).toBe(0);
     expect(sanitizeGarage({ gold: -100 }).gold).toBe(0);
